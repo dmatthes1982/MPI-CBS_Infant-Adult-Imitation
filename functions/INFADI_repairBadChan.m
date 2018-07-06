@@ -41,7 +41,7 @@ cfg.showcallinfo  = 'no';
 % -------------------------------------------------------------------------
 cfg.badchannel    = data_badchan.experimenter.badChan;
 
-fprintf('<strong>Repairing bad channels of participant 1...</strong>\n');
+fprintf('<strong>Repairing bad channels of experimenter...</strong>\n');
 if isempty(cfg.badchannel)
   fprintf('All channels are good, no repairing operation required!\n');
   data_repaired.experimenter = data_raw.experimenter;
@@ -55,7 +55,7 @@ cfgView.ylim      = [-200 200];
 cfgView.blocksize = 120;
 cfgView.part      = 1;
   
-fprintf('\n<strong>Verification view for participant %d...</strong>\n', cfgView.part);
+fprintf('\n<strong>Verification view for experimenter...</strong>\n');
 INFADI_databrowser( cfgView, data_repaired );
 commandwindow;                                                            % set focus to commandwindow
 input('Press enter to continue!:');
@@ -65,7 +65,7 @@ fprintf('\n');
 
 cfg.badchannel    = data_badchan.child.badChan;
 
-fprintf('<strong>Repairing bad channels of participant 2...</strong>\n');
+fprintf('<strong>Repairing bad channels of child...</strong>\n');
 if isempty(cfg.badchannel)
   fprintf('All channels are good, no repairing operation required!\n');
   data_repaired.child = data_raw.child;
@@ -82,7 +82,7 @@ cfgView.ylim      = [-200 200];
 cfgView.blocksize = 120;
 cfgView.part      = 2;
   
-fprintf('\n<strong>Verification view for participant %d...</strong>\n', cfgView.part);
+fprintf('\n<strong>Verification view for child...</strong>\n');
 INFADI_databrowser( cfgView, data_repaired );
 commandwindow;                                                              % set focus to commandwindow
 input('Press enter to continue!:');

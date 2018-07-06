@@ -28,7 +28,7 @@ cfg.plotevents  = 'no';
 % -------------------------------------------------------------------------
 % Selection of bad channels
 % -------------------------------------------------------------------------
-fprintf('<strong>Select bad channels of participant %d...</strong>\n', cfg.part);
+fprintf('<strong>Select bad channels of experimenter...</strong>\n');
 INFADI_databrowser( cfg, data_raw );
 badLabel = INFADI_channelCheckbox();
 close(gcf);                                                                 % close also databrowser view when the channelCheckbox will be closed
@@ -59,7 +59,7 @@ end
 
 cfg.part      = 2;
   
-fprintf('<strong>Select bad channels of participant %d...</strong>\n', cfg.part);
+fprintf('<strong>Select bad channels of child...</strong>\n');
 INFADI_databrowser( cfg, data_raw );
 badLabel = INFADI_channelCheckbox();
 close(gcf);                                                                 % close also databrowser view when the channelCheckbox will be closed

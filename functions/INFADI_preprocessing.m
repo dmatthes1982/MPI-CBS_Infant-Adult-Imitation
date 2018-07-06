@@ -74,7 +74,7 @@ cfgDS.showcallinfo     = 'no';                                              % pr
 % -------------------------------------------------------------------------
 % Preprocessing
 % -------------------------------------------------------------------------
-fprintf('<strong>Preproc participant 1...</strong>\n');
+fprintf('<strong>Preproc experimenter...</strong>\n');
 orgFs       = data.experimenter.fsample;
 data.experimenter  = bpfilter(cfgBP, data.experimenter);
 data.experimenter  = rereference(cfgReref, data.experimenter);
@@ -84,9 +84,10 @@ else
   data.experimenter.fsample = orgFs;
 end
   
-fprintf('<strong>Preproc participant 2...</strong>\n');
+fprintf('<strong>Preproc child...</strong>\n');
 orgFs       = data.child.fsample;
 data.child  = bpfilter(cfgBP, data.child);
+cfgReref.calceogcomp   = 'no';                                              % calculate NO eogh and eogv, since V1 and V2 does not exist
 data.child  = rereference(cfgReref, data.child);
 if orgFs ~= samplingRate
   data.child  = downsampling(cfgDS, data.child);
@@ -153,6 +154,13 @@ end
 
 cfgR = removefields(cfgR, {'calcceogcomp'});
 data_out = ft_preprocessing(cfgR, data_in);
+
+if strcmp(calcceogcomp, 'no')                                                % to have a similar output structure between experimenter and child
+  data_out.label = data_out.label';
+  data_out = removefields(data_out, {'hdr', 'fsample'});
+  data_out = orderfields(data_out, ...
+          {'label', 'trialinfo', 'sampleinfo', 'trial', 'time', 'cfg'});
+end
 
 if strcmp(calcceogcomp, 'yes')
   cfgtmp              = [];

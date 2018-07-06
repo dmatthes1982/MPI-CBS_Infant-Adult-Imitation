@@ -118,9 +118,9 @@ for i=1:1:length(dataTmp.trial)
 end
 
 data.child = dataTmp;
-data.child.label = strrep(dataTmp.label(1:32), '_1', '');
-for i=1:1:length(dataTmp.trial)
-  data.child.trial{i} = dataTmp.trial{i}(1:32,:);
+data.child.label = strrep(dataTmp.label(1:30), '_1', '');                   % V2 is not used with childs, hence V1 has no meaning
+for i=1:1:length(dataTmp.trial)                                           
+  data.child.trial{i} = dataTmp.trial{i}(1:30,:);                           % as a result both will be removed from the childs dataset  
 end
 
 end
