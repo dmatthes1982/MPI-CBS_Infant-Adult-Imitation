@@ -38,7 +38,7 @@ cfgAllArt.child = [];
 % Check Data
 % -------------------------------------------------------------------------
 
-fprintf('\n<strong>Search for artifacts with participant 1...</strong>\n');
+fprintf('\n<strong>Search for artifacts with experimenter...</strong>\n');
 cfg.part = 1;
 cfg.artifact = artifact.experimenter.artfctdef.threshold.artifact;
 ft_warning off;
@@ -49,7 +49,7 @@ cfgAllArt.experimenter = INFADI_databrowser(cfg, data);                     % sh
 close all;                                                                  % figure 1 will be closed with figure 2
 cfgAllArt.experimenter = keepfields(cfgAllArt.experimenter, {'artfctdef', 'showcallinfo'});
   
-fprintf('\n<strong>Search for artifacts with participant 2...</strong>\n');
+fprintf('\n<strong>Search for artifacts with child...</strong>\n');
 cfg.part = 2;
 cfg.artifact = artifact.child.artfctdef.threshold.artifact;
 ft_warning off;

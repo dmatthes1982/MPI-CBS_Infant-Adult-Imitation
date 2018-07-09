@@ -100,7 +100,10 @@ for i = numOfPart
   INFADI_loadData( cfg );
   
   % Concatenated raw trials to a continuous stream
-  data_continuous = INFADI_concatData( data_raw );
+  cfg = [];
+  cfg.part = 'both';
+
+  data_continuous = INFADI_concatData( cfg, data_raw );
 
   fprintf('\n');
 
