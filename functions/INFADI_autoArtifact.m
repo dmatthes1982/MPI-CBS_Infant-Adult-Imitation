@@ -10,6 +10,7 @@ function [ cfgAutoArt ] = INFADI_autoArtifact( cfg, data )
 % where data have to be a result of INFADI_PREPROCESSING or INFADI_CONCATDATA
 %
 % The configuration options are
+%   cfg.part        = participants which shall be processed: experimenter, child or both (default: both)
 %   cfg.channel     = cell-array with channel labels (default: {'Cz', 'O1', 'O2'}))
 %   cfg.method      = 'minmax', 'range' or 'stddev' (default: 'minmax'
 %   cfg.sliding     = use a sliding window, 'yes' or 'no', (default: 'no')
@@ -47,9 +48,14 @@ load(sprintf('%s/../general/INFADI_generalDefinitions.mat', filepath), ...
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
+part        = ft_getopt(cfg, 'part', 'both');                               % participant selection
 chan        = ft_getopt(cfg, 'channel', {'Cz', 'O1', 'O2'});                % channels to test
 method      = ft_getopt(cfg, 'method', 'minmax');                           % artifact detection method
 sliding     = ft_getopt(cfg, 'sliding', 'no');                              % use a sliding window
+
+if ~ismember(part, {'experimenter', 'child', 'both'})                       % check cfg.part definition
+  error('cfg.part has to either ''experimenter'', ''child'' or ''both''.');
+end
 
 if ~(strcmp(sliding, 'no') || strcmp(sliding, 'yes'))                       % validate cfg.sliding
   error('Sliding has to be either ''yes'' or ''no''!');
@@ -150,50 +156,60 @@ end
 % -------------------------------------------------------------------------
 % Estimate artifacts
 % -------------------------------------------------------------------------
-cfgAutoArt.experimenter = [];                                               % build output structure
-cfgAutoArt.child = [];
-cfgAutoArt.bad1Num = []; 
-cfgAutoArt.bad2Num = [];
+if ismember(part, {'experimenter', 'both'})
+  cfgAutoArt.experimenter = [];                                               % build output structure
+  cfgAutoArt.bad1Num = [];
+end
+
+if ismember(part, {'child', 'both'})
+  cfgAutoArt.child = [];
+  cfgAutoArt.bad2Num = [];
+end
+
 cfgAutoArt.trialsNum = size(trl, 1);
 
 ft_info off;
 
-fprintf('<strong>Estimate artifacts in participant 1...</strong>\n');       % participant one
-cfgAutoArt.experimenter = artifact_detect(cfg, data.experimenter);
-cfgAutoArt.experimenter = keepfields(cfgAutoArt.experimenter, {'artfctdef', 'showcallinfo'});
-[cfgAutoArt.experimenter.artfctdef.threshold, cfgAutoArt.bad1Num] = ...            % extend artifacts to subtrial definition
-                combineArtifacts( overlap, trllength, cfgAutoArt.experimenter.artfctdef.threshold );
-fprintf('%d segments with artifacts detected!\n', cfgAutoArt.bad1Num);
+if ismember(part, {'experimenter', 'both'})
+  fprintf('<strong>Estimate artifacts in experimenter...</strong>\n');      % experimenter
+  cfgAutoArt.experimenter = artifact_detect(cfg, data.experimenter);
+  cfgAutoArt.experimenter = keepfields(cfgAutoArt.experimenter, {'artfctdef', 'showcallinfo'});
+  [cfgAutoArt.experimenter.artfctdef.threshold, cfgAutoArt.bad1Num] = ...   % extend artifacts to subtrial definition
+                  combineArtifacts( overlap, trllength, cfgAutoArt.experimenter.artfctdef.threshold );
+  fprintf('%d segments with artifacts detected!\n', cfgAutoArt.bad1Num);
 
-if cfgAutoArt.bad1Num == sum(generalDefinitions.trialNum1sec)
-  warning('All trials are marked as bad, it is recommended to recheck the channels quality!');
+  if cfgAutoArt.bad1Num == sum(generalDefinitions.trialNum1sec)
+    warning('All trials are marked as bad, it is recommended to recheck the channels quality!');
+  end
+
+  if isfield(cfgAutoArt.experimenter.artfctdef.threshold, 'artfctmap')
+    artfctmap = cfgAutoArt.experimenter.artfctdef.threshold.artfctmap;
+    artfctmap = cellfun(@(x) sum(x, 2), artfctmap, 'UniformOutput', false);
+    cfgAutoArt.bad1NumChan = sum(cat(2,artfctmap{:}),2);
+  end
 end
 
-if isfield(cfgAutoArt.experimenter.artfctdef.threshold, 'artfctmap')
-  artfctmap = cfgAutoArt.experimenter.artfctdef.threshold.artfctmap;
-  artfctmap = cellfun(@(x) sum(x, 2), artfctmap, 'UniformOutput', false);
-  cfgAutoArt.bad1NumChan = sum(cat(2,artfctmap{:}),2);
-end
+if ismember(part, {'child', 'both'})
+  fprintf('<strong>Estimate artifacts in child...</strong>\n');     % child
+  cfgAutoArt.child = artifact_detect(cfg, data.child);
+  cfgAutoArt.child = keepfields(cfgAutoArt.child, {'artfctdef', 'showcallinfo'});
+  [cfgAutoArt.child.artfctdef.threshold, cfgAutoArt.bad2Num] = ...          % extend artifacts to subtrial definition
+                  combineArtifacts( overlap, trllength, cfgAutoArt.child.artfctdef.threshold );
+  fprintf('%d segments with artifacts detected!\n', cfgAutoArt.bad2Num);
 
-fprintf('<strong>Estimate artifacts in participant 2...</strong>\n');       % participant two
-cfgAutoArt.child = artifact_detect(cfg, data.child);
-cfgAutoArt.child = keepfields(cfgAutoArt.child, {'artfctdef', 'showcallinfo'});
-[cfgAutoArt.child.artfctdef.threshold, cfgAutoArt.bad2Num] = ...            % extend artifacts to subtrial definition
-                combineArtifacts( overlap, trllength, cfgAutoArt.child.artfctdef.threshold );
-fprintf('%d segments with artifacts detected!\n', cfgAutoArt.bad2Num);
+  if cfgAutoArt.bad2Num == sum(generalDefinitions.trialNum1sec)
+    warning('All trials are marked as bad, it is recommended to recheck the channels quality!');
+  end
 
-if cfgAutoArt.bad2Num == sum(generalDefinitions.trialNum1sec)
-  warning('All trials are marked as bad, it is recommended to recheck the channels quality!');
-end
+  if isfield(cfgAutoArt.child.artfctdef.threshold, 'artfctmap')
+    artfctmap = cfgAutoArt.child.artfctdef.threshold.artfctmap;
+    artfctmap = cellfun(@(x) sum(x, 2), artfctmap, 'UniformOutput', false);
+    cfgAutoArt.bad2NumChan = sum(cat(2,artfctmap{:}),2);
 
-if isfield(cfgAutoArt.child.artfctdef.threshold, 'artfctmap')
-  artfctmap = cfgAutoArt.child.artfctdef.threshold.artfctmap;
-  artfctmap = cellfun(@(x) sum(x, 2), artfctmap, 'UniformOutput', false);
-  cfgAutoArt.bad2NumChan = sum(cat(2,artfctmap{:}),2);
-
-  cfgAutoArt.label = ft_channelselection(...
-              cfgAutoArt.child.artfctdef.threshold.channel, ...
-              data.child.label);
+    cfgAutoArt.label = ft_channelselection(...
+                cfgAutoArt.child.artfctdef.threshold.channel, ...
+                data.child.label);
+  end
 end
 
 ft_info on;

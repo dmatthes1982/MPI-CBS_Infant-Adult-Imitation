@@ -1,12 +1,15 @@
-function [ data ] = INFADI_concatData( data )
+function [ data ] = INFADI_concatData( cfg, data )
 % INFADI_CONCATDATA concatenate all trials of a dataset to a continuous
 % data stream.
 %
 % Use as
-%   [ data ] = INFADI_concatData( data )
+%   [ data ] = INFADI_concatData( cfg, data )
 %
 % where the input can be i.e. the result from INFADI_IMPORTDATASET or 
 % INFADI_PREPROCESSING
+%
+% The configuration options are
+%   cfg.part = participants which shall be processed: experimenter, child or both (default: both)
 %
 % This function requires the fieldtrip toolbox.
 %
@@ -15,13 +18,28 @@ function [ data ] = INFADI_concatData( data )
 % Copyright (C) 2018, Daniel Matthes, MPI CBS
 
 % -------------------------------------------------------------------------
+% Get and check config options
+% -------------------------------------------------------------------------
+part = ft_getopt(cfg, 'part', 'both');                                      % participant selection
+
+if ~ismember(part, {'experimenter', 'child', 'both'})                       % check cfg.part definition
+  error('cfg.part has to either ''experimenter'', ''child'' or ''both''.');
+end
+
+% -------------------------------------------------------------------------
 % Concatenate the data
 % -------------------------------------------------------------------------
-fprintf('Concatenate trials of participant 1...\n');
-data.experimenter = concatenate(data.experimenter);
+if ismember(part, {'experimenter', 'both'})
+  fprintf('Concatenate trials of experimenter...\n');
+  dataTmp.experimenter = concatenate(data.experimenter);
+end
 
-fprintf('Concatenate trials of participant 2...\n');
-data.child = concatenate(data.child);
+if ismember(part, {'child', 'both'})
+  fprintf('Concatenate trials of child...\n');
+  dataTmp.child = concatenate(data.child);
+end
+
+data = dataTmp;
 
 end
 

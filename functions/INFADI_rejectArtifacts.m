@@ -9,6 +9,7 @@ function [ data ] = INFADI_rejectArtifacts( cfg, data )
 % INFADI_CONCATDATA or INFADI_HILBERTPHASE
 %
 % The configuration options are
+%   cfg.part      = participants which shall be processed: experimenter, child or both (default: both)
 %   cfg.artifact  = output of INFADI_manArtifact or INFADI_manArtifact 
 %                   (see file INFADI_pxx_05_autoArt_yyy.mat, INFADI_pxx_06_allArt_yyy.mat)
 %   cfg.reject    = 'none', 'partial','nan', or 'complete' (default = 'complete')
@@ -31,9 +32,14 @@ function [ data ] = INFADI_rejectArtifacts( cfg, data )
 % -------------------------------------------------------------------------
 % Get config options
 % -------------------------------------------------------------------------
+part      = ft_getopt(cfg, 'part', 'both');                                 % participant selection
 artifact  = ft_getopt(cfg, 'artifact', []);
 reject    = ft_getopt(cfg, 'reject', 'complete');
 target    = ft_getopt(cfg, 'target', 'single');
+
+if ~ismember(part, {'experimenter', 'child', 'both'})                       % check cfg.part definition
+  error('cfg.part has to either ''experimenter'', ''child'' or ''both''.');
+end
 
 if isempty(artifact)
   error('cfg.artifact has to be defined');
@@ -44,30 +50,39 @@ if ~strcmp(target, 'single') && ~strcmp(target, 'dual')
 end
 
 if ~strcmp(reject, 'complete')
-  artifact.experimenter.artfctdef.reject = reject;
-  artifact.child.artfctdef.reject = reject;
-  artifact.experimenter.artfctdef.minaccepttim = 0.2;
-  artifact.child.artfctdef.minaccepttim = 0.2;
+  if ismember(part, {'experimenter', 'both'})
+    artifact.experimenter.artfctdef.reject = reject;
+    artifact.experimenter.artfctdef.minaccepttim = 0.2;
+  end
+
+  if ismember(part, {'child', 'both'})
+    artifact.child.artfctdef.reject = reject;
+    artifact.child.artfctdef.minaccepttim = 0.2;
+  end
 end
 
 
 % -------------------------------------------------------------------------
 % Clean Data
 % -------------------------------------------------------------------------
-fprintf('\n<strong>Cleaning data of participant 1...</strong>\n');
-ft_warning off;
-data.experimenter = ft_rejectartifact(artifact.experimenter, data.experimenter);
-if strcmp(target, 'dual')
+if ismember(part, {'experimenter', 'both'})
+  fprintf('\n<strong>Cleaning data of experimenter...</strong>\n');
   ft_warning off;
-  data.experimenter = ft_rejectartifact(artifact.child, data.experimenter);
+  data.experimenter = ft_rejectartifact(artifact.experimenter, data.experimenter);
+  if strcmp(target, 'dual')
+    ft_warning off;
+    data.experimenter = ft_rejectartifact(artifact.child, data.experimenter);
+  end
 end
-  
-fprintf('\n<strong>Cleaning data of participant 2...</strong>\n');
-ft_warning off;
-data.child = ft_rejectartifact(artifact.child, data.child);
-if strcmp(target, 'dual')
+
+if ismember(part, {'child', 'both'})
+  fprintf('\n<strong>Cleaning data of child...</strong>\n');
   ft_warning off;
-  data.child = ft_rejectartifact(artifact.experimenter, data.child);
+  data.child = ft_rejectartifact(artifact.child, data.child);
+  if strcmp(target, 'dual')
+    ft_warning off;
+    data.child = ft_rejectartifact(artifact.experimenter, data.child);
+  end
 end
   
 ft_warning on;
