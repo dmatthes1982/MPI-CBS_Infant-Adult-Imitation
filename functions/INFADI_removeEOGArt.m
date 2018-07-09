@@ -1,4 +1,4 @@
-function [ data ] = INFADI_removeEOGArt( data_eogcomp, data )
+function [ data ] = INFADI_removeEOGArt( cfg, data_eogcomp, data )
 % INFADI_REMOVEEOGART is a function which removes eye artifacts from data
 % using in advance estimated ica components
 %
@@ -8,6 +8,9 @@ function [ data ] = INFADI_removeEOGArt( data_eogcomp, data )
 % where data_eogcomp has to be the result of INFADI_VERIFYCOMP or 
 % INFADI_CORRCOMP and data has to be the result of INFADI_PREPROCESSING
 %
+% The configuration options are
+%   cfg.part        = participants which shall be processed: experimenter, child or both (default: both)
+%
 % This function requires the fieldtrip toolbox
 %
 % See also INFADI_VERIFYCOMP, INFADI_CORRCOMP, INFADI_PREPROCESSING,
@@ -15,10 +18,27 @@ function [ data ] = INFADI_removeEOGArt( data_eogcomp, data )
 
 % Copyright (C) 2018, Daniel Matthes, MPI CBS
 
-fprintf('<strong>Cleanig data of participant 1 from eye-artifacts...</strong>\n');
-data.experimenter = removeArtifacts(data_eogcomp.experimenter, data.experimenter);
-fprintf('<strong>Cleanig data of participant 2 from eye-artifacts...</strong>\n');
-data.child = removeArtifacts(data_eogcomp.child, data.child);
+% -------------------------------------------------------------------------
+% Get and check config options
+% -------------------------------------------------------------------------
+part        = ft_getopt(cfg, 'part', 'both');
+
+if ~ismember(part, {'experimenter', 'child', 'both'})                       % check cfg.part definition
+  error('cfg.part has to either ''experimenter'', ''child'' or ''both''.');
+end
+
+% -------------------------------------------------------------------------
+% Remove EOG artifacts
+% -------------------------------------------------------------------------
+if ismember(part, {'experimenter', 'both'})
+  fprintf('<strong>Cleanig data of experimenter from eye-artifacts...</strong>\n');
+  data.experimenter = removeArtifacts(data_eogcomp.experimenter, data.experimenter);
+end
+
+if ismember(part, {'child', 'both'})
+  fprintf('<strong>Cleanig data of child from eye-artifacts...</strong>\n');
+  data.child = removeArtifacts(data_eogcomp.child, data.child);
+end
 
 end
 

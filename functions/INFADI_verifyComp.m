@@ -1,4 +1,4 @@
-function [ data_eogcomp ] = INFADI_verifyComp( data_eogcomp, data_icacomp )
+function [ data_eogcomp ] = INFADI_verifyComp( cfg, data_eogcomp, data_icacomp )
 % INFADI_VERIFYCOMP is a function to verify visually the ICA components
 % having a high correlation with one of the measured EOG signals.
 %
@@ -8,17 +8,38 @@ function [ data_eogcomp ] = INFADI_verifyComp( data_eogcomp, data_icacomp )
 % where the input data_eogcomp has to be the result of INFADI_CORRCOMP ans 
 % data_icacomp the result of INFADI_ICA
 %
+% The configuration options are
+%   cfg.part        = participants which shall be processed: experimenter, child or both (default: both)
+%
 % This function requires the fieldtrip toolbox
 %
 % See also INFADI_CORRCOMP, INFADI_ICA and FT_DATABROWSER
 
-% Copyright (C) 2017, Daniel Matthes, MPI CBS
+% Copyright (C) 2018, Daniel Matthes, MPI CBS
 
-fprintf('<strong>Verify EOG-correlating components at participant 1...</strong>\n');
-data_eogcomp.experimenter = corrComp(data_eogcomp.experimenter, data_icacomp.experimenter);
+% -------------------------------------------------------------------------
+% Get and check config options
+% -------------------------------------------------------------------------
+part        = ft_getopt(cfg, 'part', 'both');
+
+if ~ismember(part, {'experimenter', 'child', 'both'})                       % check cfg.part definition
+  error('cfg.part has to either ''experimenter'', ''child'' or ''both''.');
+end
+
+% -------------------------------------------------------------------------
+% Verify correlating components
+% -------------------------------------------------------------------------
+if ismember(part, {'experimenter', 'both'})
+  fprintf('<strong>Verify EOG-correlating components at experinmenter...</strong>\n');
+  data_eogcomp.experimenter = corrComp(data_eogcomp.experimenter, data_icacomp.experimenter);
+end
+
 fprintf('\n');
-fprintf('<strong>Verify EOG-correlating components at participant 2...</strong>\n');
-data_eogcomp.child = corrComp(data_eogcomp.child, data_icacomp.child);
+
+if ismember(part, {'child', 'both'})
+  fprintf('<strong>Verify EOG-correlating components at child...</strong>\n');
+  data_eogcomp.child = corrComp(data_eogcomp.child, data_icacomp.child);
+end
 
 end
 

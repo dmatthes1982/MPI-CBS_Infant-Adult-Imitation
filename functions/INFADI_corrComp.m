@@ -5,12 +5,13 @@ function [ data_eogcomp ] = INFADI_corrComp( cfg, data_icacomp, data_sensor )
 % Use as
 %   [ data_eogcomp ] = INFADI_corrComp( data_icacomp, data_sensor )
 %
-% The configuration options are
-%    cfg.threshold = correlation threshold for marking eog-like components (range: 0...1, default: [0.8 0.8])
-%                    one value for each participant
-%
 % where input data_icacomp has to be the results of INFADI_ICA and 
 % data_sensor the results of INFADI_SELECTDATA
+%
+% The configuration options are
+%   cfg.part        = participants which shall be processed: experimenter, child or both (default: both)
+%   cfg.threshold = correlation threshold for marking eog-like components (range: 0...1, default: [0.8 0.8])
+%                    one value for each participant
 %
 % This function requires the fieldtrip toolbox
 %
@@ -21,7 +22,12 @@ function [ data_eogcomp ] = INFADI_corrComp( cfg, data_icacomp, data_sensor )
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
+part        = ft_getopt(cfg, 'part', 'both');
 threshold  = ft_getopt(cfg, 'threshold', [0.8 0.8]);
+
+if ~ismember(part, {'experimenter', 'child', 'both'})                       % check cfg.part definition
+  error('cfg.part has to either ''experimenter'', ''child'' or ''both''.');
+end
 
 if (any(threshold < 0) || any(threshold > 1) )
   error('The threshold definition is out of range [0 1]');
@@ -30,10 +36,15 @@ end
 % -------------------------------------------------------------------------
 % Estimate correlating components
 % -------------------------------------------------------------------------
-fprintf('<strong>Estimate EOG-correlating components at participant 1...</strong>\n');
-data_eogcomp.experimenter = corrComp(data_icacomp.experimenter, data_sensor.experimenter, threshold(1));
-fprintf('<strong>Estimate EOG-correlating components at participant 2...</strong>\n');
-data_eogcomp.child = corrComp(data_icacomp.child, data_sensor.child, threshold(2));
+if ismember(part, {'experimenter', 'both'})
+  fprintf('<strong>Estimate EOG-correlating components at experimenter...</strong>\n');
+  data_eogcomp.experimenter = corrComp(data_icacomp.experimenter, data_sensor.experimenter, threshold(1));
+end
+
+if ismember(part, {'child', 'both'})
+  fprintf('<strong>Estimate EOG-correlating components at child...</strong>\n');
+  data_eogcomp.child = corrComp(data_icacomp.child, data_sensor.child, threshold(2));
+end
 
 end
 

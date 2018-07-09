@@ -37,11 +37,11 @@ fprintf('\n');
 
 selection = false;
 while selection == false
-  cprintf([1,0.4,1], 'Do you want to use the default threshold (0.8) for EOG-artifact estimation for both participants?\n');
+  cprintf([1,0.4,1], 'Do you want to use the default threshold (0.8) for EOG-artifact estimation with experimenter data?\n');
   x = input('Select [y/n]: ','s');
   if strcmp('y', x)
     selection = true;
-    threshold = [0.8 0.8];
+    threshold = 0.8;
   elseif strcmp('n', x)
     selection = true;
     threshold = [];
@@ -52,23 +52,21 @@ end
 fprintf('\n');
 
 if isempty(threshold)
-  for i = 1:1:2                                                             % specify a independent threshold for each participant
-    selection = false;
-    while selection == false
-      cprintf([1,0.4,1], 'Specify a threshold value for participant %d in a range between 0 and 1!\n', i);
-      x = input('Value: ');
-      if isnumeric(x)
-        if (x < 0 || x > 1)
-          cprintf([1,0.5,0], 'Wrong input!\n');
-          selection = false;
-        else
-          threshold(i) = x;
-          selection = true;
-        end
-      else
+  selection = false;
+  while selection == false
+    cprintf([1,0.4,1], 'Specify a threshold value for the experimenter dataset in a range between 0 and 1!\n');
+    x = input('Value: ');
+    if isnumeric(x)
+      if (x < 0 || x > 1)
         cprintf([1,0.5,0], 'Wrong input!\n');
         selection = false;
+      else
+        threshold = x;
+        selection = true;
       end
+    else
+      cprintf([1,0.5,0], 'Wrong input!\n');
+      selection = false;
     end
   end
 fprintf('\n');  
@@ -87,8 +85,7 @@ end
 
 T = readtable(file_path);                                                   % update settings table
 warning off;
-T.ICAcorrVal1(numOfPart) = threshold(1);
-T.ICAcorrVal2(numOfPart) = threshold(2);
+T.ICAcorrValExp(numOfPart) = threshold;
 warning on;
 delete(file_path);
 writetable(T, file_path);
@@ -111,19 +108,22 @@ for i = numOfPart
   
   % Find EOG-like ICA Components (Correlation with EOGV and EOGH, 80 %
   % confirmity)
-  cfg         = [];
+  cfg           = [];
+  cfg.part      = 'experimenter';
   cfg.threshold = threshold;
   
-  data_eogcomp      = INFADI_corrComp(cfg, data_icacomp, data_eogchan);
+  data_eogcomp  = INFADI_corrComp(cfg, data_icacomp, data_eogchan);
   
   clear data_eogchan
   fprintf('\n');
   
   % Verify the estimated components
-  data_eogcomp      = INFADI_verifyComp(data_eogcomp, data_icacomp);
+  cfg           = [];
+  cfg.part      = 'experimenter';
+
+  data_eogcomp  = INFADI_verifyComp(cfg, data_eogcomp, data_icacomp);
   
   clear data_icacomp
-  fprintf('\n');
 
   % export the determined eog components and the unmixing matrix into 
   % a *.mat file
@@ -149,11 +149,14 @@ for i = numOfPart
   INFADI_loadData( cfg );
   
   % Remove eye artifacts
-  data_eyecor = INFADI_removeEOGArt(data_eogcomp, data_preproc);
+  cfg           = [];
+  cfg.part      = 'experimenter';
+
+  data_eyecor = INFADI_removeEOGArt(cfg, data_eogcomp, data_preproc);
   
   clear data_eogcomp data_preproc
   fprintf('\n');
-  
+
   % export the reviced data in a *.mat file
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '04b_eyecor/');
