@@ -32,14 +32,14 @@ end
 % 3. PLV estimation
 % 4. mPLV estimation
 
-cprintf([0,0.6,0], '<strong>[7] - Estimation of Phase Locking Values (PLV)</strong>\n');
+cprintf([1,0.4,1], '<strong>[7] - Estimation of Phase Locking Values (PLV)</strong>\n');
 fprintf('\n');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% general adjustment
 choise = false;
 while choise == false
-  cprintf([0,0.6,0], 'Should rejection of detected artifacts be applied before PLV estimation?\n');
+  cprintf([1,0.4,1], 'Should rejection of detected artifacts be applied before PLV estimation?\n');
   x = input('Select [y/n]: ','s');
   if strcmp('y', x)
     choise = true;

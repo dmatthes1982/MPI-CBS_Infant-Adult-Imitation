@@ -32,11 +32,11 @@ cfg.showcallinfo    = 'no';
 % -------------------------------------------------------------------------
 % Calculate Hilbert phase
 % -------------------------------------------------------------------------
-fprintf('<strong>Calc Hilbert phase of participant 1 at %g Hz...</strong>\n', ...           
+fprintf('<strong>Calc Hilbert phase of experimenters data at %g Hz...</strong>\n', ...           
          data.centerFreq);
 data.experimenter   = hilbertTransform(cfg, data.experimenter);        
           
-fprintf('<strong>Calc Hilbert phase of participant 2 at %g Hz...</strong>\n', ...           
+fprintf('<strong>Calc Hilbert phase of childs data at %g Hz...</strong>\n', ...           
          data.centerFreq);
 data.child   = hilbertTransform(cfg, data.child);
 

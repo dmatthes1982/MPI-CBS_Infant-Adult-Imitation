@@ -51,11 +51,11 @@ centerFreq = (bpfreq(2) + bpfreq(1))/2;
 % -------------------------------------------------------------------------
 data.centerFreq = [];
 
-fprintf('<strong>Apply bandpass to participant 1 with a center frequency of %g Hz...</strong>\n', ...           
+fprintf('<strong>Apply bandpass to experimenters data with a center frequency of %g Hz...</strong>\n', ...           
           centerFreq);
 data.experimenter   = ft_preprocessing(cfg, data.experimenter);        
           
-fprintf('<strong>Apply bandpass to participant 2 with a center frequency of %g Hz...</strong>\n', ...           
+fprintf('<strong>Apply bandpass to childs data with a center frequency of %g Hz...</strong>\n', ...           
           centerFreq);
 data.child   = ft_preprocessing(cfg, data.child);
   
