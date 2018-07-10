@@ -44,13 +44,13 @@ cfg.overlap         = overlap;
 % -------------------------------------------------------------------------
 % Segmentation
 % -------------------------------------------------------------------------
-fprintf('<strong>Segment data of participant 1 in segments of %d sec...</strong>\n', ...
+fprintf('<strong>Segment data of experimenter in segments of %d sec...</strong>\n', ...
         segLength);
 ft_info off;
 ft_warning off;
 data.experimenter = ft_redefinetrial(cfg, data.experimenter);
     
-fprintf('<strong>Segment data of participant 2 in segments of %d sec...</strong>\n', ...
+fprintf('<strong>Segment data of child in segments of %d sec...</strong>\n', ...
         segLength);
 ft_info off;
 ft_warning off;
