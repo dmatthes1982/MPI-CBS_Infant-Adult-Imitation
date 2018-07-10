@@ -1,6 +1,6 @@
 function  [ data_tfrod ] = INFADI_TFRoverDyads( cfg )
 % INFADI_TFROVERDYADS estimates the mean of the time frequency responses
-% for all conditions and over all participants.
+% over dyads for all conditions seperately for experimenters and children.
 %
 % Use as
 %   [ data_tfrod ] = INFADI_TFRoverDyads( cfg )
@@ -62,10 +62,13 @@ fprintf('\n');
 % -------------------------------------------------------------------------
 % Load, organize and summarize data
 % -------------------------------------------------------------------------
-data_out.trialinfo = generalDefinitions.condNum';
+data_out.experimenter.trialinfo = generalDefinitions.condNum';
+data_out.child.trialinfo        = generalDefinitions.condNum';
 
-numOfTrials = zeros(1, length(data_out.trialinfo));
-tfr{length(data_out.trialinfo)} = [];
+numOfTrialsExp    = zeros(1, length(data_out.experimenter.trialinfo));
+numOfTrialsChild  = zeros(1, length(data_out.child.trialinfo));
+tfrExp{length(data_out.experimenter.trialinfo)} = [];
+tfrChild{length(data_out.child.trialinfo)}      = [];
 
 for i=1:1:numOfDyads
   filename = sprintf('INFADI_d%02d_08a_tfr_%03d.mat', listOfDyads(i), ...
@@ -77,12 +80,20 @@ for i=1:1:numOfDyads
   tfr2   = data_tfr.child.powspctrm;
   trialinfo_tmp = data_tfr.experimenter.trialinfo;
   if i == 1
-    data_out.label  = data_tfr.experimenter.label;
-    data_out.dimord = data_tfr.experimenter.dimord;
-    data_out.freq   = data_tfr.experimenter.freq;
-    data_out.time   = data_tfr.experimenter.time;
-    tfr(:) = {zeros(length(data_out.label), length(data_out.freq), ...
-                    length(data_out.time))};
+    data_out.experimenter.label   = data_tfr.experimenter.label;
+    data_out.child.label          = data_tfr.child.label;
+    data_out.experimenter.dimord  = data_tfr.experimenter.dimord;
+    data_out.child.dimord         = data_tfr.child.dimord;
+    data_out.experimenter.freq    = data_tfr.experimenter.freq;
+    data_out.child.freq           = data_tfr.child.freq;
+    data_out.experimenter.time    = data_tfr.experimenter.time;
+    data_out.child.time           = data_tfr.child.time;
+    tfrExp(:)   = {zeros(length(data_out.experimenter.label), ...
+                    length(data_out.experimenter.freq), ...
+                    length(data_out.experimenter.time))};
+    tfrChild(:) = {zeros(length(data_out.child.label), ...
+                    length(data_out.child.freq), ...
+                    length(data_out.child.time))};
   end
   clear data_tfr
   
@@ -96,18 +107,27 @@ for i=1:1:numOfDyads
   [tfr2, trialSpec2] = fixTrialOrder( tfr2, trialinfo_tmp, ...
                                       generalDefinitions.condNum, i, 2);
   
-  tfr = cellfun(@(x,y,z) x+y+z, tfr, tfr1, tfr2, 'UniformOutput', false);
-  numOfTrials = numOfTrials + trialSpec1 + trialSpec2;
+  tfrExp    = cellfun(@(x,y) x+y, tfrExp, tfr1, 'UniformOutput', false);
+  numOfTrialsExp    = numOfTrialsExp + trialSpec1;
+
+  tfrChild  = cellfun(@(x,y) x+y, tfrChild, tfr2, 'UniformOutput', false);
+  numOfTrialsChild  = numOfTrialsChild + trialSpec2;
 end
 
-numOfTrials = num2cell(numOfTrials);
+numOfTrialsExp    = num2cell(numOfTrialsExp);
+numOfTrialsChild  = num2cell(numOfTrialsChild);
 
-tfr = cellfun(@(x,y) x/y, tfr, numOfTrials, 'UniformOutput', false);
-tfr = cat(4, tfr{:}); 
-tfr = shiftdim(tfr, 3);
+tfrExp = cellfun(@(x,y) x/y, tfrExp, numOfTrialsExp, 'UniformOutput', false);
+tfrExp = cat(4, tfrExp{:});
+tfrExp = shiftdim(tfrExp, 3);
 
-data_out.powspctrm  = tfr;
-data_out.dyads      = listOfDyads;
+tfrChild = cellfun(@(x,y) x/y, tfrChild, numOfTrialsChild, 'UniformOutput', false);
+tfrChild = cat(4, tfrChild{:});
+tfrChild = shiftdim(tfrChild, 3);
+
+data_out.experimenter.powspctrm   = tfrExp;
+data_out.child.powspctrm          = tfrChild;
+data_out.dyads                    = listOfDyads;
 
 data_tfrod = data_out;
 

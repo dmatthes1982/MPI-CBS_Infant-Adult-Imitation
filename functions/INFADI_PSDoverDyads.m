@@ -1,6 +1,7 @@
 function  [ data_pwelchod ] = INFADI_PSDoverDyads( cfg )
 % INFADI_PSDOVERDYADS estimates the mean of the power spectral density
-% values for all conditions and over all participants.
+% values over dyads for all conditions separately for experimenters and
+% children.
 %
 % Use as
 %   [ data_pwelchod ] = INFADI_PSDoverDyads( cfg )
@@ -62,10 +63,13 @@ fprintf('\n');
 % -------------------------------------------------------------------------
 % Load and organize data
 % -------------------------------------------------------------------------
-data_out.trialinfo = generalDefinitions.condNum';
+data_out.experimenter.trialinfo = generalDefinitions.condNum';
+data_out.child.trialinfo        = generalDefinitions.condNum';
 
-data{1, 2 * numOfDyads} = [];
-trialinfo{1, 2 * numOfDyads} = [];
+dataExp{1, numOfDyads}        = [];
+dataChild{1, numOfDyads}      = [];
+trialinfoExp{1, numOfDyads}   = [];
+trialinfoChild{1, numOfDyads} = [];
 
 for i=1:1:numOfDyads
   filename = sprintf('INFADI_d%02d_08b_pwelch_%03d.mat', listOfDyads(i), ...
@@ -73,39 +77,52 @@ for i=1:1:numOfDyads
   file = strcat(path, filename);
   fprintf('Load %s ...\n', filename);
   load(file, 'data_pwelch');
-  data{i}                   = data_pwelch.experimenter.powspctrm;
-  data{i+numOfDyads}        = data_pwelch.child.powspctrm;
-  trialinfo{i}              = data_pwelch.experimenter.trialinfo;
-  trialinfo{i + numOfDyads} = data_pwelch.child.trialinfo;
+  dataExp{i}        = data_pwelch.experimenter.powspctrm;
+  dataChild{i}      = data_pwelch.child.powspctrm;
+  trialinfoExp{i}   = data_pwelch.experimenter.trialinfo;
+  trialinfoChild{i} = data_pwelch.child.trialinfo;
   if i == 1
-    data_out.label  = data_pwelch.experimenter.label;
-    data_out.dimord = data_pwelch.experimenter.dimord;
-    data_out.freq   = data_pwelch.experimenter.freq;
+    data_out.experimenter.label   = data_pwelch.experimenter.label;
+    data_out.child.label          = data_pwelch.child.label;
+    data_out.experimenter.dimord  = data_pwelch.experimenter.dimord;
+    data_out.child.dimord         = data_pwelch.child.dimord;
+    data_out.experimenter.freq    = data_pwelch.experimenter.freq;
+    data_out.child.freq           = data_pwelch.child.freq;
   end
   clear data_pwelch
 end
 fprintf('\n');
 
-data = cellfun(@(x) num2cell(x, [2,3])', data, 'UniformOutput', false);
+dataExp   = cellfun(@(x) num2cell(x, [2,3])', dataExp, 'UniformOutput', false);
+dataChild = cellfun(@(x) num2cell(x, [2,3])', dataChild, 'UniformOutput', false);
 
-for i=1:1:2*numOfDyads
-  data{i} = cellfun(@(x) squeeze(x), data{i}, 'UniformOutput', false);
+for i=1:1:numOfDyads
+  dataExp{i}    = cellfun(@(x) squeeze(x), dataExp{i}, 'UniformOutput', false);
+  dataChild{i}  = cellfun(@(x) squeeze(x), dataChild{i}, 'UniformOutput', false);
 end
 
-data = fixTrialOrder( data, trialinfo, generalDefinitions.condNum, ...
-                      repmat(listOfDyads,1,2) );
+dataExp   = fixTrialOrder( dataExp, trialinfoExp, generalDefinitions.condNum, ...
+                      listOfDyads, 'Experimenter' );
+dataChild = fixTrialOrder( dataChild, trialinfoChild, generalDefinitions.condNum, ...
+                      listOfDyads, 'Child' );
 
-data = cellfun(@(x) cat(3, x{:}), data, 'UniformOutput', false);
-data = cellfun(@(x) shiftdim(x, 2), data, 'UniformOutput', false);
-data = cat(4, data{:});
+dataExp = cellfun(@(x) cat(3, x{:}), dataExp, 'UniformOutput', false);
+dataExp = cellfun(@(x) shiftdim(x, 2), dataExp, 'UniformOutput', false);
+dataExp = cat(4, dataExp{:});
+
+dataChild = cellfun(@(x) cat(3, x{:}), dataChild, 'UniformOutput', false);
+dataChild = cellfun(@(x) shiftdim(x, 2), dataChild, 'UniformOutput', false);
+dataChild = cat(4, dataChild{:});
 
 % -------------------------------------------------------------------------
 % Estimate averaged power spectral density (over dyads)
 % -------------------------------------------------------------------------
-data = nanmean(data, 4);
+dataExp   = nanmean(dataExp, 4);
+dataChild = nanmean(dataChild, 4);
 
-data_out.powspctrm  = data;
-data_out.dyads      = listOfDyads;
+data_out.experimenter.powspctrm = dataExp;
+data_out.child.powspctrm        = dataChild;
+data_out.dyads                  = listOfDyads;
 
 data_pwelchod = data_out;
 
@@ -115,11 +132,14 @@ end
 % SUBFUNCTION which fixes trial order and creates empty matrices for 
 % missing phases.
 %--------------------------------------------------------------------------
-function dataTmp = fixTrialOrder( dataTmp, trInf, trInfOrg, dyadNum )
+function dataTmp = fixTrialOrder( dataTmp, trInf, trInfOrg, dyadNum, part )
 
-emptyMatrix = NaN * ones(35,50);                                            % empty matrix with NaNs
+if strcmp(part, 'Experimenter')
+  emptyMatrix = NaN * ones(35,50);                                          % empty matrix with NaNs
+elseif strcmp(part, 'Child')
+  emptyMatrix = NaN * ones(31,50);                                          % empty matrix with NaNs
+end
 fixed = false;
-part = [ones(1,length(dyadNum)/2) 2*ones(1,length(dyadNum)/2)];
 
 for k = 1:1:size(dataTmp, 2)
   if ~isequal(trInf{k}, trInfOrg')
@@ -127,8 +147,8 @@ for k = 1:1:size(dataTmp, 2)
     missingPhases = trInfOrg(missingPhases);
     missingPhases = vec2str(missingPhases, [], [], 0);
     cprintf([1,0.4,1], ...
-            sprintf('Dyad %d/%d: Phase(s) %s missing. Empty matrix(matrices) with NaNs created.\n', ...
-            dyadNum(k), part(k), missingPhases));
+            sprintf('Dyad %d - %s: Phase(s) %s missing. Empty matrix(matrices) with NaNs created.\n', ...
+            dyadNum(k), part, missingPhases));
     [~, loc] = ismember(trInfOrg, trInf{k});
     tmpBuffer = [];
     tmpBuffer{length(trInfOrg)} = [];                                       %#ok<AGROW>

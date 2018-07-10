@@ -150,7 +150,7 @@ if avgOverDyads == true
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                      '.mat');
                    
-  fprintf('Saving PSD values over dyads in:\n'); 
+  fprintf('\nSaving TFR values over dyads in:\n'); 
   fprintf('%s ...\n', file_path);
   INFADI_saveData(cfg, 'data_tfrod', data_tfrod);
   fprintf('Data stored!\n\n');
