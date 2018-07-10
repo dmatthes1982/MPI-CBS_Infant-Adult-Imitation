@@ -39,13 +39,13 @@ cfg.showcallinfo    = 'no';                                                 % su
 % -------------------------------------------------------------------------
 % Calculate power spectral density using Welch's method
 % -------------------------------------------------------------------------
-fprintf('<strong>Calc power spectral density of participant 1...</strong>\n');
+fprintf('<strong>Calc power spectral density of experimenters data...</strong>\n');
 ft_warning off;
 data.experimenter = ft_freqanalysis(cfg, data.experimenter);
 ft_warning on;
 data.experimenter = pWelch(data.experimenter);
 
-fprintf('<strong>Calc power spectral density of participant 2...</strong>\n');
+fprintf('<strong>Calc power spectral density of childs data...</strong>\n');
 ft_warning off;
 data.child = ft_freqanalysis(cfg, data.child); 
 ft_warning on;

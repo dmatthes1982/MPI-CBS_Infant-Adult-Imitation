@@ -45,11 +45,11 @@ cfg.showcallinfo    = 'no';                                                 % su
 % -------------------------------------------------------------------------
 % Time-Frequency Response (Analysis)
 % -------------------------------------------------------------------------
-fprintf('<strong>Calc TFRs of participant 1...</strong>\n');
+fprintf('<strong>Calc TFRs of experimenters data...</strong>\n');
 ft_warning off;
 data.experimenter = ft_freqanalysis(cfg, data.experimenter);
   
-fprintf('<strong>Calc TFRs of participant 2...</strong>\n');
+fprintf('<strong>Calc TFRs of childs data...</strong>\n');
 ft_warning off;
 data.child = ft_freqanalysis(cfg, data.child); 
 
