@@ -246,4 +246,4 @@ end
 
 %% clear workspace
 clear file_path numOfSources sourceList cfg i x y selection T threshold ...
-      method winsize sliding default_threshold threshold_range
+      method winsize sliding default_threshold threshold_range identifier

@@ -8,10 +8,7 @@ function INFADI_easyPSDplot(cfg, data)
 % where the input data have to be a result from INFADI_PWELCH.
 %
 % The configuration options are 
-%   cfg.part        = number of participant (default: 1)
-%                     0 - plot the averaged data
-%                     1 - plot data of experimenter
-%                     2 - plot data of child  
+%   cfg.part        = participant identifier, options: 'experimenter' or 'child' (default: 'experimenter')
 %   cfg.condition   = condition (default: 4 or 'Baseline', see INFADI_DATASTRUCTURE)
 %   cfg.electrode   = number of electrodes (default: {'Cz'} repsectively [8])
 %                     examples: {'Cz'}, {'F3', 'Fz', 'F4'}, [8] or [2, 1, 28]
@@ -25,40 +22,21 @@ function INFADI_easyPSDplot(cfg, data)
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-part    = ft_getopt(cfg, 'part', 1);
+part    = ft_getopt(cfg, 'part', 'experimenter');
 cond    = ft_getopt(cfg, 'condition', 4);
 elec    = ft_getopt(cfg, 'electrode', {'Cz'});
 
 filepath = fileparts(mfilename('fullpath'));                                % add utilities folder to path
 addpath(sprintf('%s/../utilities', filepath));
 
-if ~ismember(part, [0,1,2])                                                 % check cfg.part definition
-  error('cfg.part has to either 0, 1 or 2');
+if ~ismember(part, {'experimenter', 'child'})                               % check cfg.part definition
+  error('cfg.part has to either ''experimenter'' or ''child''.');
 end
 
-switch part                                                                 % check validity of cfg.part
-  case 0
-    if isfield(data, 'experimenter')
-      warning backtrace off;
-      warning('You are using dyad-specific data. Please specify either cfg.part = 1 or cfg.part = 2');
-      warning backtrace on;
-      return;
-    end
-  case 1
-    if ~isfield(data, 'experimenter')
-      warning backtrace off;
-      warning('You are using data averaged over dyads. Please specify cfg.part = 0');
-      warning backtrace on;
-      return;
-    end
+switch part                                                                 % extract selected participant
+    case 'experimenter'
     data = data.experimenter;
-  case 2
-    if ~isfield(data, 'child')
-      warning backtrace off;
-      warning('You are using data averaged over dyads. Please specify cfg.part = 0');
-      warning backtrace on;
-      return;
-    end
+  case 'child'
     data = data.child;
 end
 
@@ -94,12 +72,8 @@ end
 % -------------------------------------------------------------------------
 plot(data.freq, squeeze(data.powspctrm(trialNum, elec,:)));                 %#ok<FNDSB>
 labelString = strjoin(data.label(elec), ',');
-if part == 0                                                                % set figure title
-  title(sprintf('PSD - Cond.: %d - Elec.: %s', cond, labelString));
-else
-  title(sprintf('PSD - Part.: %d - Cond.: %d - Elec.: %s', ...
+title(sprintf('PSD - Part.: %s - Cond.: %d - Elec.: %s', ...
         part, cond, labelString));
-end
 
 xlabel('frequency in Hz');                                                  % set xlabel
 ylabel('PSD');                                                              % set ylabel

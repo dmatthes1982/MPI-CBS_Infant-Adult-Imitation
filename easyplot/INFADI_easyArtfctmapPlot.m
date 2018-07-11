@@ -12,9 +12,7 @@ function INFADI_easyArtfctmapPlot(cfg, cfg_autoart)
 % where cfg_autoart has to be a result from INFADI_AUTOARTIFACT.
 %
 % The configuration options are 
-%   cfg.part        = number of participant (default: 1)
-%                     1 - plot map for experimenter
-%                     2 - plot map for child 
+%   cfg.part = participant identifier, options: 'experimenter' or 'child' (default: 'experimenter')
 %
 % This function requires the fieldtrip toolbox
 %
@@ -26,14 +24,14 @@ function INFADI_easyArtfctmapPlot(cfg, cfg_autoart)
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-part = ft_getopt(cfg, 'part', 1);                                           % get number of participant
+part = ft_getopt(cfg, 'part', 'experimenter');                              % get participant identifier
 
 label = cfg_autoart.label;                                                  % get labels which were used for artifact detection
 
-if part == 1
+if strcmp(part, 'experimenter')
   badNumChan  = cfg_autoart.bad1NumChan;
   cfg_autoart = cfg_autoart.experimenter;
-elseif part == 2
+elseif strcmp(part, 'child')
   badNumChan  = cfg_autoart.bad2NumChan;
   cfg_autoart = cfg_autoart.child;
 else                                                                        % check validity of cfg.part
@@ -83,7 +81,7 @@ for i=1:1:conditions
 end
 
 axes(pg, 'Units','Normal');                                                 % set main title for the whole figure
-h = title('Artifact maps for all existing trials');
+h = title(sprintf('Artifact maps for all existing trials - Part: %s', part));
 set(gca,'visible','off')
 set(h,'visible','on')
 

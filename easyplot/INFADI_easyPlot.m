@@ -9,7 +9,7 @@ function INFADI_easyPlot( cfg, data )
 % INFADI_PREPROCESSING
 %
 % The configuration options are
-%   cfg.part      = number of participant, 1 = experimenter, 2 = child (default: 1)
+%   cfg.part      = participant identifier, options: 'experimenter' or 'child' (default: 'experimenter')
 %   cfg.condition = condition (default: 4 or 'Baseline', see INFADI data structure)
 %   cfg.electrode = number of electrode (default: 'Cz')
 %   cfg.trial     = number of trial (default: 1)
@@ -23,19 +23,19 @@ function INFADI_easyPlot( cfg, data )
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-part = ft_getopt(cfg, 'part', 1);
+part = ft_getopt(cfg, 'part', 'experimenter');
 cond = ft_getopt(cfg, 'condition', 4);
 elec = ft_getopt(cfg, 'electrode', 'Cz');
 trl  = ft_getopt(cfg, 'trial', 1);
 
-if ~ismember(part, [1,2])                                                   % check cfg.part definition
-  error('cfg.part has to either 1 or 2, 1 = experimenter, 2 = child');
+if ~ismember(part, {'experimenter', 'child'})                               % check cfg.part definition
+  error('cfg.part has to either ''experimenter'' or ''child''.');
 end
 
 switch part
-  case 1
+  case 'experimenter'
     data = data.experimenter;
-  case 2
+  case 'child'
     data = data.child;
 end
 
@@ -75,7 +75,7 @@ end
 % Plot timeline
 % -------------------------------------------------------------------------
 plot(data.time{trl}, data.trial{trl}(elec,:));
-title(sprintf('Part.: %d - Cond.: %d - Elec.: %s - Trial: %d', ...
+title(sprintf('Part.: %s - Cond.: %d - Elec.: %s - Trial: %d', ...
       part, cond, strrep(data.label{elec}, '_', '\_'), trlInCond));      
 
 xlabel('time in seconds');

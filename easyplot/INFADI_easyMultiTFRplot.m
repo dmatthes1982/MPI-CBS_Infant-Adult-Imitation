@@ -9,7 +9,7 @@ function INFADI_easyMultiTFRplot(cfg, data)
 % where the input data is a results from INFADI_TIMEFREQANALYSIS.
 %
 % The configuration options are 
-%   cfg.part        = number of participant (1 or 2) (default: 1)
+%   cfg.part        = participant identifier, options: 'experimenter' or 'child' (default: 'experimenter')
 %   cfg.condition   = condition (default: 4 or 'Baseline', see INFADI_DATASTRUCTURE)
 %   cfg.trial       = number of trial (default: 1)
 %   cfg.freqlimits  = [begin end] (default: [2 30])
@@ -24,35 +24,20 @@ function INFADI_easyMultiTFRplot(cfg, data)
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-part    = ft_getopt(cfg, 'part', 1);
+part    = ft_getopt(cfg, 'part', 'experimenter');
 cond    = ft_getopt(cfg, 'condition', 4);
 trl     = ft_getopt(cfg, 'trial', 1);
 freqlim = ft_getopt(cfg, 'freqlimits', [2 30]);
 timelim = ft_getopt(cfg, 'timelimits', [4 116]);
 
-switch part                                                                 % check validity of cfg.part
-  case 0
-    if isfield(data, 'experimenter')
-      warning backtrace off;
-      warning('You are using dyad-specific data. Please specify either cfg.part = 1 or cfg.part = 2');
-      warning backtrace on;
-      return;
-    end
-  case 1
-    if ~isfield(data, 'experimenter')
-      warning backtrace off;
-      warning('You are using data averaged over dyads. Please specify cfg.part = 0');
-      warning backtrace on;
-      return;
-    end
+if ~ismember(part, {'experimenter', 'child'})                               % check cfg.part definition
+  error('cfg.part has to either ''experimenter'' or ''child''.');
+end
+
+switch part                                                                 % extract selected participant
+    case 'experimenter'
     data = data.experimenter;
-  case 2
-    if ~isfield(data, 'child')
-      warning backtrace off;
-      warning('You are using data averaged over dyads. Please specify cfg.part = 0');
-      warning backtrace on;
-      return;
-    end
+  case 'child'
     data = data.child;
 end
 
@@ -104,7 +89,7 @@ cfg.colorbar      = 'yes';
 cfg.showcallinfo  = 'no';                                                   % suppress function call output
 
 ft_multiplotTFR(cfg, data);
-title(sprintf('Part.: %d - Cond.: %d - Trial: %d', part, cond, trlInCond));      
+title(sprintf('Part.: %s - Cond.: %d - Trial: %d', part, cond, trlInCond));
   
 ft_warning on;
 

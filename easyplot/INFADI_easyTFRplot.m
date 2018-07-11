@@ -9,10 +9,7 @@ function INFADI_easyTFRplot(cfg, data)
 % where the input data is a results from INFADI_TIMEFREQANALYSIS.
 %
 % The configuration options are 
-%   cfg.part        = number of participant (default: 1)
-%                     0 - plot the averaged data
-%                     1 - plot data of experimenter
-%                     2 - plot data of child 
+%   cfg.part        = participant identifier, options: 'experimenter' or 'child' (default: 'experimenter')
 %   cfg.condition   = condition (default: 4 or 'Baseline', see INFADI_DATASTRUCTURE)
 %   cfg.electrode   = number of electrode (default: 'Cz')
 %   cfg.trial       = number of trial (default: 1)
@@ -28,36 +25,21 @@ function INFADI_easyTFRplot(cfg, data)
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-part    = ft_getopt(cfg, 'part', 1);
+part    = ft_getopt(cfg, 'part', 'experimenter');
 cond    = ft_getopt(cfg, 'condition', 4);
 elec    = ft_getopt(cfg, 'electrode', 'Cz');
 trl     = ft_getopt(cfg, 'trial', 1);
 freqlim = ft_getopt(cfg, 'freqlimits', [2 50]);
 timelim = ft_getopt(cfg, 'timelimits', [4 116]);
 
-switch part                                                                 % check validity of cfg.part
-  case 0
-    if isfield(data, 'experimenter')
-      warning backtrace off;
-      warning('You are using dyad-specific data. Please specify either cfg.part = 1 or cfg.part = 2');
-      warning backtrace on;
-      return;
-    end
-  case 1
-    if ~isfield(data, 'experimenter')
-      warning backtrace off;
-      warning('You are using data averaged over dyads. Please specify cfg.part = 0');
-      warning backtrace on;
-      return;
-    end
+if ~ismember(part, {'experimenter', 'child'})                               % check cfg.part definition
+  error('cfg.part has to either ''experimenter'' or ''child''.');
+end
+
+switch part                                                                 % extract selected participant
+    case 'experimenter'
     data = data.experimenter;
-  case 2
-    if ~isfield(data, 'child')
-      warning backtrace off;
-      warning('You are using data averaged over dyads. Please specify cfg.part = 0');
-      warning backtrace on;
-      return;
-    end
+  case 'child'
     data = data.child;
 end
 
@@ -111,7 +93,7 @@ cfg.showcallinfo    = 'no';                                                 % su
 colormap jet;                                                               % use the older and more common colormap
 
 ft_singleplotTFR(cfg, data);
-title(sprintf('Part.: %d - Cond.: %d - Elec.: %s - Trial: %d', ...
+title(sprintf('Part.: %s - Cond.: %d - Elec.: %s - Trial: %d', ...
       part, cond, strrep(data.label{elec}, '_', '\_'), trlInCond));      
 
 xlabel('time in sec');                                                      % set xlabel

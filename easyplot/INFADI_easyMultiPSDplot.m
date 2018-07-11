@@ -9,10 +9,7 @@ function INFADI_easyMultiPSDplot(cfg, data)
 % where the input data have to be a result from INFADI_PWELCH.
 %
 % The configuration options are 
-%   cfg.part        = number of participant (default: 1)
-%                     0 - plot the averaged data
-%                     1 - plot data of experimenter
-%                     2 - plot data of child   
+%   cfg.part        = participant identifier, options: 'experimenter' or 'child' (default: 'experimenter')
 %   cfg.condition   = condition (default: 4 or 'Baseline', see INFADI_DATASTRUCTURE)
 %
 % This function requires the fieldtrip toolbox
@@ -24,46 +21,26 @@ function INFADI_easyMultiPSDplot(cfg, data)
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-cfg.part    = ft_getopt(cfg, 'part', 1);
+cfg.part    = ft_getopt(cfg, 'part', 'experimenter');
 cfg.cond    = ft_getopt(cfg, 'condition', 4);
 
-if ~ismember(cfg.part, [0,1,2])                                             % check cfg.part definition
-  error('cfg.part has to either 0, 1 or 2');
+if ~ismember(cfg.part, {'experimenter', 'child'})                           % check cfg.part definition
+  error('cfg.part has to either ''experimenter'' or ''child''.');
 end
 
 filepath = fileparts(mfilename('fullpath'));                                % add utilities folder to path
 addpath(sprintf('%s/../utilities', filepath));
 
-switch cfg.part                                                             % check validity of cfg.part
-  case 0
-    if isfield(data, 'experimenter')
-      warning backtrace off;
-      warning('You are using dyad-specific data. Please specify either cfg.part = 1 or cfg.part = 2');
-      warning backtrace on;
-      return;
-    end
-    dataPlot = data;
-  case 1
-    if ~isfield(data, 'experimenter')
-      warning backtrace off;
-      warning('You are using data averaged over dyads. Please specify cfg.part = 0');
-      warning backtrace on;
-      return;
-    end
+switch cfg.part                                                             % extract selected participant
+  case 'experimenter'
     dataPlot = data.experimenter;
-  case 2
-    if ~isfield(data, 'child')
-      warning backtrace off;
-      warning('You are using data averaged over dyads. Please specify cfg.part = 0');
-      warning backtrace on;
-      return;
-    end
+  case 'child'
     dataPlot = data.child;
 end
 
 trialinfo = dataPlot.trialinfo;                                             % get trialinfo
 
-cfg.cond = INFADI_checkCondition( cfg.cond );                                  % check cfg.condition definition    
+cfg.cond = INFADI_checkCondition( cfg.cond );                               % check cfg.condition definition
 if isempty(find(trialinfo == cfg.cond, 1))
   error('The selected dataset contains no condition %d.', cfg.cond);
 else
@@ -131,11 +108,7 @@ if ~isempty(k)
 end
 
 % set figure title
-if cfg.part == 0
-  title(sprintf('PSD - Cond.: %d', cfg.cond));
-else
-  title(sprintf('PSD - Part.: %d - Cond.: %d', cfg.part, cfg.cond));
-end
+title(sprintf('PSD - Part.: %s - Cond.: %d', cfg.part, cfg.cond));
 
 axis tight;                                                                 % format the layout
 axis off;                                                                   % remove the axis
