@@ -31,10 +31,10 @@ end
 cprintf([1,0.4,1], '<strong>[5] - Automatic and manual artifact detection</strong>\n');
 fprintf('\n');
 
-default_threshold = [75,   ...                                              % default for method 'minmax'
-                     100,  ...                                              % default for method 'range'
-                     50,   ...                                              % default for method 'stddev'
-                     7];                                                    % default for method 'mad'
+default_threshold = [75, 75;  ...                                           % default for method 'minmax'
+                     100, 100; ...                                          % default for method 'range'
+                     50, 50;  ...                                           % default for method 'stddev'
+                     7, 7];                                                 % default for method 'mad'
 threshold_range   = [50, 200; ...                                           % range for method 'minmax'
                      50, 200; ...                                           % range for method 'range'
                      20, 80; ...                                            % range for method 'stddev'
@@ -81,14 +81,19 @@ fprintf('\n');
 selection = false;
 while selection == false
   if x ~= 4
-    cprintf([1,0.4,1], 'Do you want to use the default threshold of %d uV for automatic artifact detection?\n', default_threshold(x));
+    cprintf([1,0.4,1], ['Do you want to use the default thresholds ' ...
+                        '(exp.: %d µV - child: %d uV)  for automatic ' ...
+                        'artifact detection?\n'], default_threshold(x,:));
   else
-    cprintf([1,0.4,1], 'Do you want to use the default threshold of %d times of mad for automatic artifact detection?\n', default_threshold(x));
+    cprintf([1,0.4,1], ['Do you want to use the default thresholds ' ...
+                         '(exp.: %d µV - child: %d times of mad) for ' ...
+                         'automatic artifact detection?\n'], ...
+                         default_threshold(x,:));
   end
   y = input('Select [y/n]: ','s');
   if strcmp('y', y)
     selection = true;
-    threshold = default_threshold(x);
+    threshold = default_threshold(x,:);
   elseif strcmp('n', y)
     selection = true;
     threshold = [];
@@ -100,31 +105,40 @@ fprintf('\n');
 
 % use alternative settings
 if isempty(threshold)
-  selection = false;
-  while selection == false
-    if x ~= 4
-      cprintf([1,0.4,1], 'Define the threshold (in uV) with a value from the range between %d and %d!\n', threshold_range(x,:));
-      if x == 1
-        cprintf([1,0.4,1], 'Note: i.e. value 100 means threshold limits are +-100uV\n');
+  identifier = {'experimenters', 'children'};
+  for i = 1:1:2                                                             % specify a independent for experimenter and child 
+    selection = false;
+    while selection == false
+      if x ~= 4
+        cprintf([1,0.4,1], ['Define the threshold for %s (in uV) with ' ...
+                            'a value from the range between %d and ' ...
+                            '%d!\n'], identifier{i}, threshold_range(x,:));
+        if x == 1
+          cprintf([1,0.4,1], ['Note: i.e. value 100 means threshold '...
+                              'limits are +-100uV\n']);
+        end
+      else
+        cprintf([1,0.4,1], ['Define the threshold for %s (in mutiples ' ...
+                            'of mad) for %s with a value from the ' ...
+                            'range between %d and %d!\n'], ...
+                            identifier{i}, threshold_range(x,:));
       end
-    else
-      cprintf([1,0.4,1], 'Define the threshold (in mutiples of mad) with a value from the range between %d and %d!\n', threshold_range(x,:));
-    end
-    y = input('Value: ');
-    if isnumeric(y)
-      if (y < threshold_range(x,1) || y > threshold_range(x,2))
+      y = input('Value: ');
+      if isnumeric(y)
+        if (y < threshold_range(x,1) || y > threshold_range(x,2))
+          cprintf([1,0.5,0], '\nWrong input!\n\n');
+          selection = false;
+        else
+          threshold(1,i) = y;
+          selection = true;
+        end
+      else
         cprintf([1,0.5,0], '\nWrong input!\n\n');
         selection = false;
-      else
-        threshold = y;
-        selection = true;
       end
-    else
-      cprintf([1,0.5,0], '\nWrong input!\n\n');
-      selection = false;
     end
+    fprintf('\n');
   end
-fprintf('\n');  
 end
 
 % Write selected settings to settings file
@@ -141,7 +155,8 @@ end
 T = readtable(file_path);                                                   % update settings table
 warning off;
 T.artMethod(numOfPart) = {method};
-T.artThreshold(numOfPart) = threshold;
+T.artTholdExp(numOfPart) = threshold(1);
+T.artTholdChild(numOfPart) = threshold(2);
 warning on;
 delete(file_path);
 writetable(T, file_path);

@@ -23,13 +23,14 @@ function [ cfgAutoArt ] = INFADI_autoArtifact( cfg, data )
 %   cfg.trllength   = trial length (default: 1000 ms = minimal subtrial length with plv estimation)
 %   cfg.overlap     = amount of window overlapping in percentage (default: 0, permitted values: 0 or 50)
 %
-% Specify at least one of theses thresholds
-%   cfg.min         = lower limit in uV for cfg.method = 0 (default: -75) 
-%   cfg.max         = upper limit in uV for cfg.method = 0 (default: 75)
-%   cfg.range       = range in uV (default: 200)
-%   cfg.stddev      = standard deviation threshold in uV (default: 50)
-%                     only usable, cfg.sliding = 'yes'
-%   cfg.mad         = multiple of median absolute deviation (default: 3)
+% Specify at least one of theses thresholds. First value is defined for
+% experimenters, the second one for children
+%   cfg.min         = lower limit in uV (default: [-75 -75])
+%   cfg.max         = upper limit in uV (default: [75 75])
+%   cfg.range       = range in uV (default: [200 200])
+%   cfg.stddev      = standard deviation threshold in uV (default: [50 50])
+%                     only usable for cfg.sliding = 'yes'
+%   cfg.mad         = multiple of median absolute deviation (default: [7 7])
 %
 % This function requires the fieldtrip toolbox.
 %
@@ -77,29 +78,29 @@ trllength = trllength * data.experimenter.fsample/1000;                     % co
 
 switch method                                                               % get and check method dependent config input
   case 'minmax'
-    minVal    = ft_getopt(cfg, 'min', -75);
-    maxVal    = ft_getopt(cfg, 'max', 75);
+    minVal    = ft_getopt(cfg, 'min', [-75 -75]);
+    maxVal    = ft_getopt(cfg, 'max', [75 75]);
     if strcmp(sliding, 'no')
       continuous  = ft_getopt(cfg, 'continuous', 'no');
     else
       error('Method ''minmax'' is not supported with option sliding=''yes''');
     end
   case 'range'
-    range     = ft_getopt(cfg, 'range', 200);
+    range     = ft_getopt(cfg, 'range', [200 200]);
     if strcmp(sliding, 'no')
       continuous  = ft_getopt(cfg, 'continuous', 0);
     else
       winsize     = ft_getopt(cfg, 'winsize', 200);
     end
   case 'stddev'
-    stddev     = ft_getopt(cfg, 'stddev', 50);
+    stddev     = ft_getopt(cfg, 'stddev', [50 50]);
     if strcmp(sliding, 'no')
       error('Method ''stddev'' is not supported with option sliding=''no''');
     else
       winsize     = ft_getopt(cfg, 'winsize', 200);
     end
   case 'mad'
-    mad     = ft_getopt(cfg, 'mad', 3);
+    mad     = ft_getopt(cfg, 'mad', [7 7]);
     if strcmp(sliding, 'no')
       error('Method ''mad'' is not supported with option sliding=''no''');
     else
@@ -124,14 +125,14 @@ cfg.showcallinfo                  = 'no';
 
 switch method                                                               % set method dependent config parameters
   case 'minmax'
-    cfg.artfctdef.threshold.min     = minVal;                               % minimum threshold
-    cfg.artfctdef.threshold.max     = maxVal;                               % maximum threshold
+    cfg.artfctdef.threshold.min     = minVal(1);                            % minimum threshold
+    cfg.artfctdef.threshold.max     = maxVal(1);                            % maximum threshold
     if strcmp(sliding, 'no')
       cfg.continuous = continuous;
       cfg.trl        = trl;
     end
   case 'range'
-    cfg.artfctdef.threshold.range   = range;                                % range
+    cfg.artfctdef.threshold.range   = range(1);                             % range
     if strcmp(sliding, 'yes')
       cfg.artfctdef.threshold.winsize = winsize;
       cfg.artfctdef.threshold.trl = trl;
@@ -140,13 +141,13 @@ switch method                                                               % se
       cfg.trl        = trl;
     end
   case 'stddev'
-    cfg.artfctdef.threshold.stddev  = stddev;                               % stddev
+    cfg.artfctdef.threshold.stddev  = stddev(1);                            % stddev
     if strcmp(sliding, 'yes')
       cfg.artfctdef.threshold.winsize = winsize;
       cfg.artfctdef.threshold.trl = trl;
     end
   case 'mad'
-    cfg.artfctdef.threshold.mad  = mad;                                     % mad
+    cfg.artfctdef.threshold.mad  = mad(1);                                  % mad
     if strcmp(sliding, 'yes')
       cfg.artfctdef.threshold.winsize = winsize;
       cfg.artfctdef.threshold.trl = trl;
@@ -187,6 +188,18 @@ if ismember(part, {'experimenter', 'both'})
     artfctmap = cellfun(@(x) sum(x, 2), artfctmap, 'UniformOutput', false);
     cfgAutoArt.bad1NumChan = sum(cat(2,artfctmap{:}),2);
   end
+end
+
+switch method                                                               % change threshold for the childs dataset
+  case 'minmax'
+    cfg.artfctdef.threshold.min     = minVal(2);                            % minimum threshold
+    cfg.artfctdef.threshold.max     = maxVal(2);                            % maximum threshold
+  case 'range'
+    cfg.artfctdef.threshold.range   = range(2);                             % range
+  case 'stddev'
+    cfg.artfctdef.threshold.stddev  = stddev(2);                            % stddev
+  case 'mad'
+    cfg.artfctdef.threshold.mad  = mad(2);                                  % mad
 end
 
 if ismember(part, {'child', 'both'})
