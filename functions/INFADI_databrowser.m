@@ -80,7 +80,7 @@ cfg.plotevents                    = plotevents;
 cfg.event                         = event;
 cfg.showcallinfo                  = 'no';
 
-fprintf('Databrowser - Participant: %d\n', part);
+fprintf('Databrowser - Participant: %s\n', part);
 
 switch part
   case 'experimenter'
