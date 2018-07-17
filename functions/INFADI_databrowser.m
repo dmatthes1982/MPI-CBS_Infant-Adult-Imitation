@@ -10,7 +10,7 @@ function [ cfgArtifacts ] = INFADI_databrowser( cfg, data )
 %
 % The configuration options are
 %   cfg.dyad        = number of dyad (no default value)
-%   cfg.part        = number of participant, 1 = experimenter, 2 = child (default: 1)
+%   cfg.part        = identifier of participant, 'experimenter' or 'child' (default: 'experimenter')
 %   cfg.artifact    = Nx2 matrix with artifact segments (default: [])
 %   cfg.channel     = channels of interest (default: 'all')
 %   cfg.ylim        = vertical scaling (default: [-100 100]);
@@ -30,7 +30,7 @@ function [ cfgArtifacts ] = INFADI_databrowser( cfg, data )
 % Get and check config options
 % -------------------------------------------------------------------------
 dyad        = ft_getopt(cfg, 'dyad', []);
-part        = ft_getopt(cfg, 'part', 1);
+part        = ft_getopt(cfg, 'part', 'experimenter');
 artifact    = ft_getopt(cfg, 'artifact', []);
 channel     = ft_getopt(cfg, 'channel', 'all');
 ylim        = ft_getopt(cfg, 'ylim', [-100 100]);
@@ -62,8 +62,8 @@ else                                                                        % el
   end
 end
 
-if ~ismember(part, [1,2])                                                   % check cfg.part definition
-  error('cfg.part has to either 1 or 2, 1 = experimenter, 2 = child');
+if ~ismember(part, {'experimenter', 'child'})                                     % check cfg.part definition
+  error('cfg.part has to either ''experimenter'' or ''child.''');
 end
 
 % -------------------------------------------------------------------------
@@ -83,20 +83,19 @@ cfg.showcallinfo                  = 'no';
 fprintf('Databrowser - Participant: %d\n', part);
 
 switch part
-  case 1
+  case 'experimenter'
     if nargout > 0
       cfgArtifacts = ft_databrowser(cfg, data.experimenter);
     else
       ft_databrowser(cfg, data.experimenter);
     end
     
-  case 2
+  case 'child'
     if nargout > 0
       cfgArtifacts = ft_databrowser(cfg, data.child);
     else
       ft_databrowser(cfg, data.child);
     end
-    
 end
 
 end

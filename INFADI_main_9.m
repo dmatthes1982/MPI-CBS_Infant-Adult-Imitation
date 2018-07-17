@@ -3,11 +3,11 @@ if ~exist('sessionStr', 'var')
   cfg           = [];
   cfg.subFolder = '07b_mplv/';
   cfg.filename  = 'INFADI_d01_07b_mplvGamma';
-  sessionStr    = sprintf('%03d', INFADI_getSessionNum( cfg ));                % estimate current session number
+  sessionStr    = sprintf('%03d', INFADI_getSessionNum( cfg ));             % estimate current session number
 end
 
 if ~exist('desPath', 'var')
-  desPath = '/data/pt_01905/eegData/DualEEG_INFADI_processedData/';            % destination path for processed data  
+  desPath = '/data/pt_01905/eegData/DualEEG_INFADI_processedData/';         % destination path for processed data
 end
 
 %% part 10

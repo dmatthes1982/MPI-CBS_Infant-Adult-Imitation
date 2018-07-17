@@ -24,7 +24,8 @@ function [ cfgAutoArt ] = INFADI_autoArtifact( cfg, data )
 %   cfg.overlap     = amount of window overlapping in percentage (default: 0, permitted values: 0 or 50)
 %
 % Specify at least one of theses thresholds. First value is defined for
-% experimenters, the second one for children
+% experimenters, the second one for children. If there is only one value
+% defined, this value will be used for both participants.
 %   cfg.min         = lower limit in uV (default: [-75 -75])
 %   cfg.max         = upper limit in uV (default: [75 75])
 %   cfg.range       = range in uV (default: [200 200])
@@ -80,6 +81,12 @@ switch method                                                               % ge
   case 'minmax'
     minVal    = ft_getopt(cfg, 'min', [-75 -75]);
     maxVal    = ft_getopt(cfg, 'max', [75 75]);
+    if length(minVal) == 1
+      minVal(2) = minVal(1);
+    end
+    if length(maxVal) == 1
+      maxVal(2) = maxVal(1);
+    end
     if strcmp(sliding, 'no')
       continuous  = ft_getopt(cfg, 'continuous', 'no');
     else
@@ -87,6 +94,9 @@ switch method                                                               % ge
     end
   case 'range'
     range     = ft_getopt(cfg, 'range', [200 200]);
+    if length(range) == 1
+      range(2) = range(1);
+    end
     if strcmp(sliding, 'no')
       continuous  = ft_getopt(cfg, 'continuous', 0);
     else
@@ -94,6 +104,9 @@ switch method                                                               % ge
     end
   case 'stddev'
     stddev     = ft_getopt(cfg, 'stddev', [50 50]);
+    if length(stddev) == 1
+      stddev(2) = stddev(1);
+    end
     if strcmp(sliding, 'no')
       error('Method ''stddev'' is not supported with option sliding=''no''');
     else
@@ -101,6 +114,9 @@ switch method                                                               % ge
     end
   case 'mad'
     mad     = ft_getopt(cfg, 'mad', [7 7]);
+    if length(mad) == 1
+      mad(2) = mad(1);
+    end
     if strcmp(sliding, 'no')
       error('Method ''mad'' is not supported with option sliding=''no''');
     else
@@ -190,19 +206,19 @@ if ismember(part, {'experimenter', 'both'})
   end
 end
 
-switch method                                                               % change threshold for the childs dataset
-  case 'minmax'
-    cfg.artfctdef.threshold.min     = minVal(2);                            % minimum threshold
-    cfg.artfctdef.threshold.max     = maxVal(2);                            % maximum threshold
-  case 'range'
-    cfg.artfctdef.threshold.range   = range(2);                             % range
-  case 'stddev'
-    cfg.artfctdef.threshold.stddev  = stddev(2);                            % stddev
-  case 'mad'
-    cfg.artfctdef.threshold.mad  = mad(2);                                  % mad
-end
-
 if ismember(part, {'child', 'both'})
+  switch method                                                             % change threshold for the childs dataset
+    case 'minmax'
+      cfg.artfctdef.threshold.min     = minVal(2);                          % minimum threshold
+      cfg.artfctdef.threshold.max     = maxVal(2);                          % maximum threshold
+    case 'range'
+      cfg.artfctdef.threshold.range   = range(2);                           % range
+    case 'stddev'
+      cfg.artfctdef.threshold.stddev  = stddev(2);                          % stddev
+    case 'mad'
+      cfg.artfctdef.threshold.mad  = mad(2);                                % mad
+  end
+
   fprintf('<strong>Estimate artifacts in child...</strong>\n');     % child
   cfgAutoArt.child = artifact_detect(cfg, data.child);
   cfgAutoArt.child = keepfields(cfgAutoArt.child, {'artfctdef', 'showcallinfo'});

@@ -22,7 +22,7 @@ function [ data_badchan ] = INFADI_selectBadChan( data_raw )
 cfg             = [];
 cfg.ylim        = [-200 200];
 cfg.blocksize   = 120;
-cfg.part        = 1;
+cfg.part        = 'experimenter';
 cfg.plotevents  = 'no';
 
 % -------------------------------------------------------------------------
@@ -57,7 +57,7 @@ else
   data_badchan.experimenter.badChan = [];
 end
 
-cfg.part      = 2;
+cfg.part      = 'child';
   
 fprintf('<strong>Select bad channels of child...</strong>\n');
 INFADI_databrowser( cfg, data_raw );

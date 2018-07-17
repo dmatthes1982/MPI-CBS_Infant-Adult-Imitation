@@ -67,7 +67,7 @@ switch type
     writetable(T, filepath);
   case 'plv'
     A(1) = {1};
-    A(2:5) = {0};
+    A(2:length(generalDefinitions.condNum)+1) = {0};
     T = cell2table(A);
     B = num2cell(generalDefinitions.condNum);
     C = cellfun(@(x) sprintf('S%d', x), B, 'UniformOutput', 0);                            

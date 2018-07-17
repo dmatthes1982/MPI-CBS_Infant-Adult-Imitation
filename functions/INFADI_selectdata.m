@@ -37,12 +37,12 @@ if ischar(trials)
   trialsPart2 = trials;
 else
   if ismember(part, {'experimenter', 'both'})
-    val = ismember(data.experimenter.trialinfo, trials);                      % estimate trial indices
+    val = ismember(data.experimenter.trialinfo, trials);                    % estimate trial indices
     trialsPart1 = find(val);
   end
 
   if ismember(part, {'child', 'both'})
-    val = ismember(data.child.trialinfo, trials);                             % estimate trial indices
+    val = ismember(data.child.trialinfo, trials);                           % estimate trial indices
     trialsPart2 = find(val);
   end
 end

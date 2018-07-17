@@ -106,7 +106,7 @@ fprintf('\n');
 % use alternative settings
 if isempty(threshold)
   identifier = {'experimenters', 'children'};
-  for i = 1:1:2                                                             % specify a independent for experimenter and child 
+  for i = 1:1:2                                                             % specify a independent threshold for experimenter and child 
     selection = false;
     while selection == false
       if x ~= 4
