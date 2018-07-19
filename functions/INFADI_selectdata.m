@@ -56,14 +56,18 @@ cfg.showcallinfo = 'no';
 
 if ismember(part, {'experimenter', 'both'})
   cfg.trials = trialsPart1;
-  dataTmp.experimenter = ft_selectdata(cfg, data.experimenter);
+  data.experimenter = ft_selectdata(cfg, data.experimenter);
 end
 
 if ismember(part, {'child', 'both'})
   cfg.trials = trialsPart2;
-  dataTmp.child = ft_selectdata(cfg, data.child);
+  data.child = ft_selectdata(cfg, data.child);
 end
 
-data = dataTmp;
+if strcmp(part, 'experimenter')
+  data = removefields(data, 'child');
+elseif strcmp(part, 'child')
+  data = removefields(data, 'experimenter');
+end
 
 end
