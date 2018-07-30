@@ -170,7 +170,15 @@ for i = numOfPart
   fprintf('<strong>Dyad %d</strong>\n', i);
   fprintf('Load eye-artifact corrected data...\n');
   INFADI_loadData( cfg );
-  
+
+  cfg             = [];
+  cfg.srcFolder   = strcat(desPath, '01b_manart/');
+  cfg.filename    = sprintf('INFADI_d%02d_01b_manart', i);
+  cfg.sessionStr  = sessionStr;
+
+  fprintf('Load manual, during the testing defined artifacts...\n');
+  INFADI_loadData( cfg );
+
   % automatic artifact detection
   cfg             = [];
   cfg.channel     = {'all', '-V1', '-V2', '-REF', ...
@@ -191,7 +199,8 @@ for i = numOfPart
   
   % verify automatic detected artifacts / manual artifact detection
   cfg           = [];
-  cfg.artifact  = cfg_autoart;
+  cfg.threshArt = cfg_autoart;
+  cfg.manArt    = cfg_manart;
   cfg.dyad      = i;
   
   cfg_allart    = INFADI_manArtifact(cfg, data_eyecor);                           
@@ -209,7 +218,7 @@ for i = numOfPart
   fprintf('%s ...\n', file_path);
   INFADI_saveData(cfg, 'cfg_autoart', cfg_autoart);
   fprintf('Data stored!\n');
-  clear cfg_autoart data_eyecor trl
+  clear cfg_autoart cfg_manart data_eyecor trl
   
   % export the verified and the additional artifacts into a *.mat file
   cfg             = [];
