@@ -91,7 +91,6 @@ for i=1:1:numOfDyads
   end
   clear data_pwelch
 end
-fprintf('\n');
 
 dataExp   = cellfun(@(x) num2cell(x, [2,3])', dataExp, 'UniformOutput', false);
 dataChild = cellfun(@(x) num2cell(x, [2,3])', dataChild, 'UniformOutput', false);
@@ -105,6 +104,7 @@ dataExp   = fixTrialOrder( dataExp, trialinfoExp, generalDefinitions.condNum, ..
                       listOfDyads, 'Experimenter' );
 dataChild = fixTrialOrder( dataChild, trialinfoChild, generalDefinitions.condNum, ...
                       listOfDyads, 'Child' );
+fprintf('\n');
 
 dataExp = cellfun(@(x) cat(3, x{:}), dataExp, 'UniformOutput', false);
 dataExp = cellfun(@(x) shiftdim(x, 2), dataExp, 'UniformOutput', false);
@@ -135,7 +135,6 @@ end
 function dataTmp = fixTrialOrder( dataTmp, trInf, trInfOrg, dyadNum, part )
 
 emptyMatrix = NaN * ones(size(dataTmp{1}{1}, 1), size(dataTmp{1}{1}, 2));   % empty matrix with NaNs
-fixed = false;
 
 for k = 1:1:size(dataTmp, 2)
   if ~isequal(trInf{k}, trInfOrg')
@@ -156,12 +155,7 @@ for k = 1:1:size(dataTmp, 2)
       end
     end
     dataTmp{k} = tmpBuffer;
-    fixed = true;
   end
-end
-
-if fixed == true
-  fprintf('\n');
 end
 
 end

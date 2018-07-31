@@ -99,10 +99,10 @@ for i=1:1:length(listOfDyads)
   end
   clear data_mplv_in
 end
-fprintf('\n');
 
 data = fixTrialOrder( data, trialinfo, generalDefinitions.condNum, ...
                       listOfDyads );
+fprintf('\n');
 
 for j=1:1:length(listOfDyads)
   data{j} = cat(3, data{j}{:});
@@ -133,7 +133,6 @@ end
 function dataTmp = fixTrialOrder( dataTmp, trlInf, trlInfOrg, dyadNum )
 
 emptyMatrix = NaN * ones(size(dataTmp{1}{1}, 1), size(dataTmp{1}{1}, 2));   % empty matrix with NaNs
-fixed = false;
 
 for k = 1:1:size(dataTmp, 2)
   if ~isequal(trlInf{k}, trlInfOrg')
@@ -154,12 +153,7 @@ for k = 1:1:size(dataTmp, 2)
       end
     end
     dataTmp{k} = tmpBuffer;
-    fixed = true;
   end
-end
-
-if fixed == true
-  fprintf('\n');
 end
 
 end
