@@ -134,11 +134,7 @@ end
 %--------------------------------------------------------------------------
 function dataTmp = fixTrialOrder( dataTmp, trInf, trInfOrg, dyadNum, part )
 
-if strcmp(part, 'Experimenter')
-  emptyMatrix = NaN * ones(35,50);                                          % empty matrix with NaNs
-elseif strcmp(part, 'Child')
-  emptyMatrix = NaN * ones(31,50);                                          % empty matrix with NaNs
-end
+emptyMatrix = NaN * ones(size(dataTmp{1}{1}, 1), size(dataTmp{1}{1}, 2));   % empty matrix with NaNs
 fixed = false;
 
 for k = 1:1:size(dataTmp, 2)

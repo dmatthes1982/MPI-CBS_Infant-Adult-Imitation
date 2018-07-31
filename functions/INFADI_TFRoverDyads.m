@@ -115,6 +115,7 @@ for i=1:1:numOfDyads
   tfrChild  = cellfun(@(x,y) x+y, tfrChild, tfr2, 'UniformOutput', false);
   numOfTrialsChild  = numOfTrialsChild + trialSpec2;
 end
+fprintf('\n');
 
 numOfTrialsExp    = num2cell(numOfTrialsExp);
 numOfTrialsChild  = num2cell(numOfTrialsChild);

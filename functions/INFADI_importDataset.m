@@ -189,18 +189,22 @@ end
 % -------------------------------------------------------------------------
 % Data import
 % -------------------------------------------------------------------------
+cfg.channel = {'all', '-T7_1', '-T7_2', '-T8_1', '-T8_2', ...               % exclude all general bad channels
+               '-PO9_1', '-PO9_2', '-PO10_1','-PO10_2', ...
+               '-P7_1', '-P7_2', '-P8_1', '-P8_2', ...
+               '-TP10_1', '-TP10_2', '-V1_1', '-V2_1'};                     % V1 and V2 are not connected with children
 dataTmp = ft_preprocessing(cfg);                                            % import data
 
 data.experimenter = dataTmp;                                                % split dataset into two datasets, one for each participant
-data.experimenter.label = strrep(dataTmp.label(33:64), '_2', '');
+data.experimenter.label = strrep(dataTmp.label(24:48), '_2', '');
 for i=1:1:length(dataTmp.trial)
-  data.experimenter.trial{i} = dataTmp.trial{i}(33:64,:);
+  data.experimenter.trial{i} = dataTmp.trial{i}(24:48,:);
 end
 
 data.child = dataTmp;
-data.child.label = strrep(dataTmp.label(1:30), '_1', '');                   % V2 is not used with childs, hence V1 has no meaning
+data.child.label = strrep(dataTmp.label(1:23), '_1', '');
 for i=1:1:length(dataTmp.trial)                                           
-  data.child.trial{i} = dataTmp.trial{i}(1:30,:);                           % as a result both will be removed from the childs dataset  
+  data.child.trial{i} = dataTmp.trial{i}(1:23,:);
 end
 
 end
