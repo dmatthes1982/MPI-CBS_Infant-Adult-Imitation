@@ -287,6 +287,8 @@ end
 sourceList    = dir([srcPath, '/*.vhdr']);
 sourceList    = struct2cell(sourceList);
 sourceList    = sourceList(1,:);
+sourceList    = sourceList(cell2mat(cellfun(@(x) strlength(x) <= 15, ...
+                            sourceList, 'UniformOutput', false)));
 numOfSources  = length(sourceList);
 fileNum       = zeros(1, numOfSources);
 
