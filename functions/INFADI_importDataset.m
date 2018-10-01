@@ -56,10 +56,9 @@ if strcmp(continuous, 'no')
   % definition of all possible stimuli, two for each condition, the first 
   % on is the original one and the second one handles the 'video trigger 
   % bug'
-  eventvalues = generalDefinitions.condMark;
-  artfctvalues = generalDefinitions.artfctMark;
-  samplingRate = 500;
-  dur = (generalDefinitions.duration + prestim) * samplingRate;
+  eventvalues   = generalDefinitions.condMark;
+  stopvalues    = generalDefinitions.stopMark;
+  artfctvalues  = generalDefinitions.artfctMark;
               
   % -----------------------------------------------------------------------
   % Generate trial definition
@@ -74,14 +73,36 @@ if strcmp(continuous, 'no')
   cfg.feedback            = 'error';
   cfg.trialdef.eventvalue = eventvalues;
 
-  cfg = ft_definetrial(cfg);                                                % generate config for segmentation
+  cfg = ft_definetrial(cfg);                                                % extract condition marker
   if isfield(cfg, 'notification')
     cfg = rmfield(cfg, {'notification'});                                   % workarround for mergeconfig bug
   end
 
-  for i = 1:1:size(cfg.trl, 1)                                              % set specific trial lengths
-    element = generalDefinitions.condNum == cfg.trl(i,4);
-    cfg.trl(i, 2) = dur(element) + cfg.trl(i, 1) - 1;
+  cfgStop                     = [];
+  cfgStop.dataset             = headerfile;
+  cfgStop.trialfun            = 'ft_trialfun_general';
+  cfgStop.trialdef.eventtype  = 'Stimulus';
+  cfgStop.trialdef.prestim    = prestim;
+  cfgStop.showcallinfo        = 'no';
+  cfgStop.feedback            = 'error';
+  cfgStop.trialdef.eventvalue = stopvalues;
+
+  cfgStop = ft_definetrial(cfgStop);                                        % extract stop marker
+
+  for i = 1:1:size(cfg.trl, 1) - 1                                          % generate config for segmentation
+    row = find((cfg.trl(i, 1) < cfgStop.trl(:,1)) & ...
+                (cfg.trl(i+1, 1) > cfgStop.trl(:,1)), 1);
+    if ~isempty(row)
+      cfg.trl(i,2) = cfgStop.trl(row,1);
+    else
+      error('Some stop markers are missing');
+    end
+  end
+  row = find((cfg.trl(end, 1) < cfgStop.trl(:,1)), 1);
+  if ~isempty(row)
+    cfg.trl(end,2) = cfgStop.trl(row,1);
+  else
+    error('Some stop markers are missing, modify the corresponding vmrk files first!');
   end
 
   % -----------------------------------------------------------------------
@@ -109,7 +130,6 @@ if strcmp(continuous, 'no')
 
     if mod(numOfArtfct, 2)                                                  % if the last artStop marker is missing, add one at the last data sample
       artifact(numOfArtfct + 1, :) = [hdr.nSamples hdr.nSamples 0 7];
-      numOfArtfct = numOfArtfct + 1;
     end
 
     locStart = ismember(artifact(:,4), 6);                                  % check if every artStart marker has one corresponding artStop marker
@@ -121,24 +141,7 @@ if strcmp(continuous, 'no')
 
     artifact(locStart, 2) = artifact(locStop, 1);
     artifact = artifact(locStart, :);
-    numOfArtfct = numOfArtfct/2;
     artifact(:,3) = artifact(:,2) - artifact(:,1) + 1;
-
-    % ---------------------------------------------------------------------
-    % Adapt trial size
-    % ---------------------------------------------------------------------
-    for i = 1:1:numOfArtfct
-      locArt = (artifact(i,1) >= cfg.trl(:,1) & ...
-                artifact(i,1) <= cfg.trl(:,2)   );
-      cfg.trl(locArt, 2) = cfg.trl(locArt,2) + artifact(i,3);
-      if(sum(locArt) > 1)
-        error(['Something weird happend! One manual artifact could ' ...
-                'not be assigned to only one particular trial']);
-      end
-      if cfg.trl(locArt,2) > hdr.nSamples
-        cfg.trl(locArt,2) = hdr.nSamples;
-      end
-    end
 
     % ---------------------------------------------------------------------
     % Generate artifact config
@@ -147,14 +150,6 @@ if strcmp(continuous, 'no')
     cfg_manart.experimenter.artfctdef.xxx.artifact = artifact(:,1:2);
     cfg_manart.child.artfctdef.xxx.artifact = artifact(:,1:2);
   else
-    % ---------------------------------------------------------------------
-    % Adapt trial size, if recording was aborted
-    % ---------------------------------------------------------------------
-    hdr = ft_read_header(headerfile);                                       % read header file
-    if cfg.trl(end,2) > hdr.nSamples
-      cfg.trl(end,2) = hdr.nSamples;
-    end
-
     % ---------------------------------------------------------------------
     % Generate artifact config
     % ---------------------------------------------------------------------
