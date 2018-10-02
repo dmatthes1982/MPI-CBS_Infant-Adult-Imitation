@@ -69,7 +69,7 @@ else
   elec = tmpElec;
 end
 
-if ~ismember(avgelec, {'yes', 'no'})                                           % check cfg.avgelec definition
+if ~ismember(avgelec, {'yes', 'no'})                                        % check cfg.avgelec definition
   error('cfg.avgelec has to be either ''yes'' or ''no''.');
 end
 
@@ -84,14 +84,13 @@ if strcmp(avgelec, 'no')
     plot(data.freq, squeeze(data.powspctrm(trialNum, elec(i),:)), ...
         'DisplayName', data.label{elec(i)});
   end
-  title(sprintf('PSD - Part.: %s - Cond.: %d', part, cond));
 else
   labelString = strjoin(data.label(elec), ',');
   plot(data.freq, mean(squeeze(data.powspctrm(trialNum, elec,:)), 1), ...
         'DisplayName', labelString);
-  title(sprintf('PSD - Part.: %s - Cond.: %d', part, cond));
 end
 
+title(sprintf('PSD - Part.: %s - Cond.: %d', part, cond));
 xlabel('frequency in Hz');                                                  % set xlabel
 ylabel('power in uV^2');                                                    % set ylabel
 
