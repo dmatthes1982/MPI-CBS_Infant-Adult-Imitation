@@ -12,6 +12,7 @@ function INFADI_easyPSDplot(cfg, data)
 %   cfg.condition   = condition (default: 4 or 'Baseline', see INFADI_DATASTRUCTURE)
 %   cfg.electrode   = number of electrodes (default: {'Cz'} repsectively [8])
 %                     examples: {'Cz'}, {'F3', 'Fz', 'F4'}, [8] or [2, 1, 28]
+%   cfg.avgelec     = plot average over selected electrodes, options: 'yes' or 'no' (default: 'no')
 %
 % This function requires the fieldtrip toolbox
 %
@@ -25,12 +26,13 @@ function INFADI_easyPSDplot(cfg, data)
 part    = ft_getopt(cfg, 'part', 'experimenter');
 cond    = ft_getopt(cfg, 'condition', 4);
 elec    = ft_getopt(cfg, 'electrode', {'Cz'});
+avgelec = ft_getopt(cfg, 'avgelec', 'no');
 
 filepath = fileparts(mfilename('fullpath'));                                % add utilities folder to path
 addpath(sprintf('%s/../utilities', filepath));
 
 if ~ismember(part, {'experimenter', 'child'})                               % check cfg.part definition
-  error('cfg.part has to either ''experimenter'' or ''child''.');
+  error('cfg.part has to be either ''experimenter'' or ''child''.');
 end
 
 switch part                                                                 % extract selected participant
@@ -47,7 +49,7 @@ cond    = INFADI_checkCondition( cond );                                    % ch
 if isempty(find(trialinfo == cond, 1))
   error('The selected dataset contains no condition %d.', cond);
 else
-  trialNum = find(ismember(trialinfo, cond));
+  trialNum = ismember(trialinfo, cond);
 end
 
 if isnumeric(elec)                                                          % check cfg.electrode
@@ -67,15 +69,32 @@ else
   elec = tmpElec;
 end
 
+if ~ismember(avgelec, {'yes', 'no'})                                           % check cfg.avgelec definition
+  error('cfg.avgelec has to be either ''yes'' or ''no''.');
+end
+
 % -------------------------------------------------------------------------
 % Plot power spectral density (PSD)
 % -------------------------------------------------------------------------
-plot(data.freq, squeeze(data.powspctrm(trialNum, elec,:)));                 %#ok<FNDSB>
-labelString = strjoin(data.label(elec), ',');
-title(sprintf('PSD - Part.: %s - Cond.: %d - Elec.: %s', ...
-        part, cond, labelString));
+legend('-DynamicLegend');
+hold on;
+
+if strcmp(avgelec, 'no')
+  for i = 1:1:length(elec)
+    plot(data.freq, squeeze(data.powspctrm(trialNum, elec(i),:)), ...
+        'DisplayName', data.label{elec(i)});
+  end
+  title(sprintf('PSD - Part.: %s - Cond.: %d', part, cond));
+else
+  labelString = strjoin(data.label(elec), ',');
+  plot(data.freq, mean(squeeze(data.powspctrm(trialNum, elec,:)), 1), ...
+        'DisplayName', labelString);
+  title(sprintf('PSD - Part.: %s - Cond.: %d', part, cond));
+end
 
 xlabel('frequency in Hz');                                                  % set xlabel
-ylabel('PSD');                                                              % set ylabel
+ylabel('power in uV^2');                                                    % set ylabel
+
+hold off;
 
 end
