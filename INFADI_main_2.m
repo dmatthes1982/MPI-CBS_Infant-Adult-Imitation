@@ -1,8 +1,8 @@
 %% check if basic variables are defined
 if ~exist('sessionStr', 'var')
   cfg           = [];
-  cfg.subFolder = '01d_repaired/';
-  cfg.filename  = 'INFADI_d01_01d_repaired';
+  cfg.subFolder = '01c_repaired/';
+  cfg.filename  = 'INFADI_d01_01c_repaired';
   sessionStr    = sprintf('%03d', INFADI_getSessionNum( cfg ));             % estimate current session number
 end
 
@@ -11,7 +11,7 @@ if ~exist('desPath', 'var')
 end
 
 if ~exist('numOfPart', 'var')                                               % estimate number of participants in segmented data folder
-  sourceList    = dir([strcat(desPath, '01d_repaired/'), ...
+  sourceList    = dir([strcat(desPath, '01c_repaired/'), ...
                        strcat('*_', sessionStr, '.mat')]);
   sourceList    = struct2cell(sourceList);
   sourceList    = sourceList(1,:);
@@ -20,7 +20,7 @@ if ~exist('numOfPart', 'var')                                               % es
 
   for i=1:1:numOfSources
     numOfPart(i)  = sscanf(sourceList{i}, ...
-                    strcat('INFADI_d%d_01d_repaired_', sessionStr, '.mat'));
+                    strcat('INFADI_d%d_01c_repaired_', sessionStr, '.mat'));
   end
 end
 
@@ -98,8 +98,8 @@ writetable(T, file_path);
 
 for i = numOfPart
   cfg             = [];
-  cfg.srcFolder   = strcat(desPath, '01d_repaired/');
-  cfg.filename    = sprintf('INFADI_d%02d_01d_repaired', i);
+  cfg.srcFolder   = strcat(desPath, '01c_repaired/');
+  cfg.filename    = sprintf('INFADI_d%02d_01c_repaired', i);
   cfg.sessionStr  = sessionStr;
   
   fprintf('<strong>Dyad %d</strong>\n', i);

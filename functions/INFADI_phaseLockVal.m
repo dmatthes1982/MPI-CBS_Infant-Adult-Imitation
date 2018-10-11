@@ -83,7 +83,7 @@ end
 %--------------------------------------------------------------------------
 % concatenate all trials with equal condition numbers
 %--------------------------------------------------------------------------
-uniqueTrials            = unique(dataPart1.trialinfo, 'stable');            % estimate unique phases                                
+uniqueTrials            = unique(dataPart1.trialinfo, 'stable');            % estimate unique conditions
 tf                      = ismember(markerTemplate, uniqueTrials);           % bring unique phase into a correct order
 idx                     = 1:length(markerTemplate);
 idx                     = idx(tf);

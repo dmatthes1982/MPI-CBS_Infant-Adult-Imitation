@@ -1,9 +1,9 @@
-function [ data, cfg_manart ] = INFADI_importDataset(cfg)
+function [ data ] = INFADI_importDataset(cfg)
 % INFADI_IMPORTDATASET imports one specific dataset recorded with a device 
 % from brain vision.
 %
 % Use as
-%   [ data, cfg_manart ] = INFADI_importDataset(cfg)
+%   [ data ] = INFADI_importDataset(cfg)
 %
 % The configuration options are
 %   cfg.path          = source path' (i.e. '/data/pt_01905/eegData/DualEEG_INFADI_rawData/')
@@ -11,9 +11,6 @@ function [ data, cfg_manart ] = INFADI_importDataset(cfg)
 %   cfg.continuous    = 'yes' or 'no' (default: 'no')
 %   cfg.prestim       = define pre-Stimulus offset in seconds (default: 0)
 %   cfg.rejectoverlap = reject first of two overlapping trials, 'yes' or 'no' (default: 'yes')
-%
-% The second output variable holds the manual during testing defined
-% artifacts.
 %
 % You can use relativ path specifications (i.e. '../../MATLAB/data/') or 
 % absolute path specifications like in the example. Please be aware that 
@@ -58,7 +55,6 @@ if strcmp(continuous, 'no')
   % bug'
   eventvalues   = generalDefinitions.condMark;
   stopvalues    = generalDefinitions.stopMark;
-  artfctvalues  = generalDefinitions.artfctMark;
               
   % -----------------------------------------------------------------------
   % Generate trial definition
@@ -95,7 +91,7 @@ if strcmp(continuous, 'no')
     if ~isempty(row)
       cfg.trl(i,2) = cfgStop.trl(row,1);
     else
-      error('Some stop markers are missing');
+      error('Some stop markers are missing, modify the corresponding vmrk files first!');
     end
   end
   row = find((cfg.trl(end, 1) < cfgStop.trl(:,1)), 1);
@@ -105,59 +101,6 @@ if strcmp(continuous, 'no')
     error('Some stop markers are missing, modify the corresponding vmrk files first!');
   end
 
-  % -----------------------------------------------------------------------
-  % Extract artifacts
-  % -----------------------------------------------------------------------
-  cfgArtfct                     = [];
-  cfgArtfct.dataset             = headerfile;
-  cfgArtfct.trialfun            = 'ft_trialfun_general';
-  cfgArtfct.trialdef.eventtype  = 'Stimulus';
-  cfgArtfct.showcallinfo        = 'no';
-  cfgArtfct.feedback            = 'error';
-  cfgArtfct.trialdef.eventvalue = artfctvalues;
-
-  try
-    cfgArtfct = ft_definetrial(cfgArtfct);                                  % extract manual artifact markers
-  catch
-    cfgArtfct = [];
-  end
-
-  if ~isempty(cfgArtfct)
-    hdr = ft_read_header(headerfile);                                       % read header file
-
-    artifact     = cfgArtfct.trl;
-    numOfArtfct = size(artifact, 1);
-
-    if mod(numOfArtfct, 2)                                                  % if the last artStop marker is missing, add one at the last data sample
-      artifact(numOfArtfct + 1, :) = [hdr.nSamples hdr.nSamples 0 7];
-    end
-
-    locStart = ismember(artifact(:,4), 6);                                  % check if every artStart marker has one corresponding artStop marker
-    locStop = ismember(artifact(:,4), 7);
-    if ~all(locStart == circshift(locStop,1))
-      error(['Problems with manual artifact markers! Not every ' ...
-              '''S  6'' has a corresponding ''S  7''.']);
-    end
-
-    artifact(locStart, 2) = artifact(locStop, 1);
-    artifact = artifact(locStart, :);
-    artifact(:,3) = artifact(:,2) - artifact(:,1) + 1;
-
-    % ---------------------------------------------------------------------
-    % Generate artifact config
-    % ---------------------------------------------------------------------
-    cfg_manart = [];
-    cfg_manart.experimenter.artfctdef.xxx.artifact = artifact(:,1:2);
-    cfg_manart.child.artfctdef.xxx.artifact = artifact(:,1:2);
-  else
-    % ---------------------------------------------------------------------
-    % Generate artifact config
-    % ---------------------------------------------------------------------
-    cfg_manart = [];
-    cfg_manart.experimenter.artfctdef.xxx.artifact = [];
-    cfg_manart.child.artfctdef.xxx.artifact = [];
-  end
-  
   % -----------------------------------------------------------------------
   % Reject overlapping trials
   % -----------------------------------------------------------------------

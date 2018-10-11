@@ -8,7 +8,7 @@ function INFADI_createTbl( cfg )
 %
 % The configuration options are
 %   cfg.desFolder   = destination folder (default: '/data/pt_01905/eegData/DualEEG_INFADI_processedData/00_settings/')
-%   cfg.type        = type of documentation file (options: 'settings', 'plv')
+%   cfg.type        = type of documentation file (options: 'settings', 'plv', 'pwelch')
 %   cfg.param       = additional params for type 'plv' (options: 'theta', 'alpha', 'beta', 'gamma');
 %   cfg.sessionStr  = number of session, format: %03d, i.e.: '003' (default: '001')
 %
@@ -30,8 +30,8 @@ param       = ft_getopt(cfg, 'param', []);
 sessionStr  = ft_getopt(cfg, 'sessionStr', []);
 
 if isempty(type)
-  error(['cfg.type has to be specified. It could be either ''settings'''...
-         ' or ''plv''.']);
+  error(['cfg.type has to be specified. It could be either ''settings'','...
+         ' ''plv'' or ''pwelch''.']);
 end
 
 if strcmp(type, 'plv')
@@ -74,9 +74,21 @@ switch type
     VarNames = [{'dyad'} C];
     T.Properties.VariableNames = VarNames;
     filepath = [desFolder type '_' param '_' sessionStr '.xls'];
-    writetable(T, filepath); 
+    writetable(T, filepath);
+  case 'pwelch'
+   A(1) = {1};
+    A(2:(2*length(generalDefinitions.condNum)+1)) = {0};
+    T = cell2table(A);
+    B = num2cell(generalDefinitions.condNum);
+    C = cellfun(@(x) sprintf('S%d_01', x), B, 'UniformOutput', 0);
+    D = cellfun(@(x) sprintf('S%d_02', x), B, 'UniformOutput', 0);
+    VarNames = [{'dyad'} C D];
+    T.Properties.VariableNames = VarNames;
+    filepath = [desFolder type '_' sessionStr '.xls'];
+    writetable(T, filepath);
   otherwise
-    error('cfg.type is not valid. Use either ''settings'' or ''plv''.');
+    error(['cfg.type is not valid. Use either ''settings'', ''plv'' or '...
+            '''pwelch''.']);
 end
 
 end

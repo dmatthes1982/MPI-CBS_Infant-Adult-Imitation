@@ -9,8 +9,7 @@ function [ cfgAllArt ] = INFADI_manArtifact( cfg, data )
 % where data has to be a result of INFADI_SEGMENTATION
 %
 % The configuration options are
-%   cfg.threshArt = output of INFADI_AUTOARTIFACT (see file INFADI_dxx_05a_autoart_yyy.mat)
-%   cfg.manArt    = output of INFADI_IMPORTDATASET (see file INFADI_dxx_01b_manart_yyy.mat)
+%   cfg.artifact  = output of INFADI_AUTOARTIFACT (see file INFADI_dxx_05a_autoart_yyy.mat)
 %   cfg.dyad      = number of dyad (only necessary for adding markers to databrowser view) (default: []) 
 %
 % This function requires the fieldtrip toolbox.
@@ -23,8 +22,7 @@ function [ cfgAllArt ] = INFADI_manArtifact( cfg, data )
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-threshArt = ft_getopt(cfg, 'threshArt', []);
-manArt    = ft_getopt(cfg, 'manArt', []);
+artifact  = ft_getopt(cfg, 'artifact', []);
 dyad      = ft_getopt(cfg, 'dyad', []);
 
 % -------------------------------------------------------------------------
@@ -43,10 +41,9 @@ cfgAllArt.child = [];
 
 fprintf('\n<strong>Search for artifacts with experimenter...</strong>\n');
 cfg.part = 'experimenter';
-cfg.threshArt = threshArt.experimenter.artfctdef.threshold.artifact;
-cfg.manArt    = manArt.experimenter.artfctdef.xxx.artifact;
+cfg.artifact = artifact.experimenter.artfctdef.threshold.artifact;
 ft_warning off;
-INFADI_easyArtfctmapPlot(cfg, threshArt);                                   % plot artifact map
+INFADI_easyArtfctmapPlot(cfg, artifact);                                    % plot artifact map
 fig = gcf;                                                                  % default position is [560 528 560 420]
 fig.Position = [0 528 560 420];                                             % --> first figure will be placed on the left side of figure 2
 cfgAllArt.experimenter = INFADI_databrowser(cfg, data);                     % show databrowser view in figure 2
@@ -55,10 +52,9 @@ cfgAllArt.experimenter = keepfields(cfgAllArt.experimenter, {'artfctdef', 'showc
   
 fprintf('\n<strong>Search for artifacts with child...</strong>\n');
 cfg.part = 'child';
-cfg.threshArt = threshArt.child.artfctdef.threshold.artifact;
-cfg.manArt    = manArt.child.artfctdef.xxx.artifact;
+cfg.artifact = artifact.child.artfctdef.threshold.artifact;
 ft_warning off;
-INFADI_easyArtfctmapPlot(cfg, threshArt);                                   % plot artifact map
+INFADI_easyArtfctmapPlot(cfg, artifact);                                    % plot artifact map
 fig = gcf;                                                                  % default position is [560 528 560 420]
 fig.Position = [0 528 560 420];                                             % --> first figure will be placed on the left side of figure 2
 cfgAllArt.child = INFADI_databrowser(cfg, data);                            % show databrowser view in figure 2

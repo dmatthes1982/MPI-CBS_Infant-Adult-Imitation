@@ -49,7 +49,7 @@ for i = numOfPart
   
   fprintf('<strong>Import data of dyad %d</strong> from: %s ...\n', i, cfg.path);
   ft_info off;
-  [data_raw, cfg_manart] = INFADI_importDataset( cfg );
+  [data_raw] = INFADI_importDataset( cfg );
   ft_info on;
 
   cfg             = [];
@@ -65,20 +65,6 @@ for i = numOfPart
   INFADI_saveData(cfg, 'data_raw', data_raw);
   fprintf('Data stored!\n\n');
   clear data_raw
-
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '01b_manart/');
-  cfg.filename    = sprintf('INFADI_d%02d_01b_manart', i);
-  cfg.sessionStr  = sessionStr;
-
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
-
-  fprintf('The manual defined artifacts of dyad %d will be saved in:\n', i);
-  fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'cfg_manart', cfg_manart);
-  fprintf('Data stored!\n\n');
-  clear cfg_manart
 end
 
 fprintf('<strong>Repairing of corrupted channels</strong>\n\n');
@@ -126,8 +112,8 @@ for i = numOfPart
   
   % export the bad channels in a *.mat file
   cfg             = [];
-  cfg.desFolder   = strcat(desPath, '01c_badchan/');
-  cfg.filename    = sprintf('INFADI_d%02d_01c_badchan', i);
+  cfg.desFolder   = strcat(desPath, '01b_badchan/');
+  cfg.filename    = sprintf('INFADI_d%02d_01b_badchan', i);
   cfg.sessionStr  = sessionStr;
 
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
@@ -160,8 +146,8 @@ for i = numOfPart
   
   % export the bad channels in a *.mat file
   cfg             = [];
-  cfg.desFolder   = strcat(desPath, '01d_repaired/');
-  cfg.filename    = sprintf('INFADI_d%02d_01d_repaired', i);
+  cfg.desFolder   = strcat(desPath, '01c_repaired/');
+  cfg.filename    = sprintf('INFADI_d%02d_01c_repaired', i);
   cfg.sessionStr  = sessionStr;
 
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...

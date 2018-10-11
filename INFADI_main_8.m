@@ -204,6 +204,14 @@ if pwelch == true
     data_pwelch = data_eyecor;                                              % to save need of RAM
     clear data_eyecor
     
+    % export number of good trials into a spreadsheet
+    cfg           = [];
+    cfg.desFolder = [desPath '00_settings/'];
+    cfg.dyad = i;
+    cfg.type = 'pwelch';
+    cfg.sessionStr = sessionStr;
+    INFADI_writeTbl(cfg, data_pwelch);
+
     % export PSD data into a *.mat file
     cfg             = [];
     cfg.desFolder   = strcat(desPath, '08b_pwelch/');

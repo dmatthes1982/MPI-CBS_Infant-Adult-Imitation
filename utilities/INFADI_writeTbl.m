@@ -77,6 +77,42 @@ if strcmp(type, 'plv')
     end
   end
   goodtrials = num2cell(goodtrials);
+elseif strcmp(type, 'pwelch')
+  trialinfoP1 = data.experimenter.trialinfo';
+  [~, loc] = ismember(generalDefinitions.condNum, trialinfoP1);
+  if any(loc == 0)
+    emptyCond = (loc == 0);
+    emptyCond = generalDefinitions.condNum(emptyCond);
+    str = vec2str(emptyCond, [], [], 0);
+    warning backtrace off;
+    warning(['The following trials of participant 1 are completely rejected: ' str]);
+    warning backtrace on;
+  end
+  goodtrials1 = zeros(1, length(generalDefinitions.condNum));
+  for i = 1:1:length(generalDefinitions.condNum)
+    if loc(i) ~= 0
+      goodtrials1(i) = data.experimenter.goodtrials(loc(i));
+    end
+  end
+  goodtrials1 = num2cell(goodtrials1);
+
+  trialinfoP2 = data.child.trialinfo';
+  [~, loc] = ismember(generalDefinitions.condNum, trialinfoP2);
+  if any(loc == 0)
+    emptyCond = (loc == 0);
+    emptyCond = generalDefinitions.condNum(emptyCond);
+    str = vec2str(emptyCond, [], [], 0);
+    warning backtrace off;
+    warning(['The following trials of participant 2 are completely rejected: ' str]);
+    warning backtrace on;
+  end
+  goodtrials2 = zeros(1, length(generalDefinitions.condNum));
+  for i = 1:1:length(generalDefinitions.condNum)
+    if loc(i) ~= 0
+      goodtrials2(i) = data.child.goodtrials(loc(i));
+    end
+  end
+  goodtrials2 = num2cell(goodtrials2);
 end
 
 % -------------------------------------------------------------------------
@@ -84,6 +120,8 @@ end
 % -------------------------------------------------------------------------
 if strcmp(type, 'plv')
   file_path = [desFolder sprintf('%s_%s_%s', type, param, sessionStr) '.xls'];
+elseif strcmp(type, 'pwelch')
+  file_path = [desFolder sprintf('%s_%s', type, sessionStr) '.xls'];
 end
 
 if ~(exist(file_path, 'file') == 2)                                         % check if file already exist
@@ -105,6 +143,9 @@ warning off;
 T.dyad(dyad) = dyad;
 if strcmp(type, 'plv')
   T(dyad, 2:end) = goodtrials;
+elseif strcmp(type, 'pwelch')
+  T(dyad, 2:end) = [goodtrials1 goodtrials2];
+end
 warning on;
 writetable(T, file_path);
 

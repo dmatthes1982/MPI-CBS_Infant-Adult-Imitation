@@ -67,11 +67,13 @@ load(sprintf('%s/../general/INFADI_generalDefinitions.mat', filepath), ...
 val       = ismember(generalDefinitions.condNum, data_psd.trialinfo);
 trialinfo = generalDefinitions.condNum(val)';
 powspctrm = zeros(length(trialinfo), length(data_psd.label), length(data_psd.freq));
+goodtrials = zeros(length(trialinfo), 1);                                   % build goodtrials info field
 
 for i = 1:1:length(trialinfo)
   val       = ismember(data_psd.trialinfo, trialinfo(i));
   tmpspctrm = data_psd.powspctrm(val,:,:);
   powspctrm(i,:,:) = median(tmpspctrm, 1);
+  goodtrials(i) = sum(val);
 end
 
 data_pWelch.label = data_psd.label;
@@ -79,6 +81,7 @@ data_pWelch.dimord = data_psd.dimord;
 data_pWelch.freq = data_psd.freq;
 data_pWelch.powspctrm = powspctrm;
 data_pWelch.trialinfo = trialinfo;
+data_pWelch.goodtrials = goodtrials;
 data_pWelch.cfg.previous = data_psd.cfg;
 data_pWelch.cfg.pwelch_median = 'yes';
 data_pWelch.cfg.pwelch_mean = 'no';
