@@ -73,8 +73,9 @@ fprintf('\n');
 end
 
 % Write selected settings to settings file
-file_path = [desPath '00_settings/' sprintf('settings_%s', sessionStr) '.xls'];
-if ~(exist(file_path, 'file') == 2)                                         % check if settings file already exist
+settings_file = [desPath '00_settings/' ...
+                          sprintf('settings_%s', sessionStr) '.xls'];
+if ~(exist(settings_file, 'file') == 2)                                     % check if settings file already exist
   cfg = [];
   cfg.desFolder   = [desPath '00_settings/'];
   cfg.type        = 'settings';
@@ -83,12 +84,10 @@ if ~(exist(file_path, 'file') == 2)                                         % ch
   INFADI_createTbl(cfg);                                                    % create settings file
 end
 
-T = readtable(file_path);                                                   % update settings table
+T = readtable(settings_file);                                               % update settings table
 warning off;
 T.ICAcorrValExp(numOfPart) = threshold;
 warning on;
-delete(file_path);
-writetable(T, file_path);
 
 for i = numOfPart
   cfg             = [];
@@ -139,7 +138,18 @@ for i = numOfPart
   fprintf('%s ...\n', file_path);
   INFADI_saveData(cfg, 'data_eogcomp', data_eogcomp);
   fprintf('Data stored!\n\n');
-    
+
+  % add eye-artifact related components to the settings file
+  if isempty(data_eogcomp.experimenter.elements)
+    EOGcompExp = {'---'};
+  else
+    EOGcompExp = {strjoin(data_eogcomp.experimenter.elements,',')};
+  end
+  warning off;
+  T.EOGcompExp(i) = EOGcompExp;
+  warning on;
+
+  % load preprocessed data
   cfg             = [];
   cfg.srcFolder   = strcat(desPath, '02_preproc/');
   cfg.filename    = sprintf('INFADI_d%02d_02_preproc', i);
@@ -148,7 +158,7 @@ for i = numOfPart
   fprintf('Load preprocessed data...\n');
   INFADI_loadData( cfg );
   
-  % Remove eye artifacts
+  % remove eye artifacts
   cfg           = [];
   cfg.part      = 'experimenter';
 
@@ -173,5 +183,10 @@ for i = numOfPart
   clear data_eyecor
 end
 
+% store settings table
+delete(settings_file);
+writetable(T, settings_file);
+
 %% clear workspace
-clear file_path cfg sourceList numOfSources i threshold selection x T
+clear file_path cfg sourceList numOfSources i threshold selection x T ...
+      settings_file EOGcompExp
