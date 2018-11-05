@@ -202,7 +202,7 @@ if ismember(part, {'experimenter', 'both'})
   if isfield(cfgAutoArt.experimenter.artfctdef.threshold, 'artfctmap')
     artfctmap = cfgAutoArt.experimenter.artfctdef.threshold.artfctmap;
     artfctmap = cellfun(@(x) sum(x, 2), artfctmap, 'UniformOutput', false);
-    cfgAutoArt.bad1NumChan = sum(cat(2,artfctmap{:}),2);
+    cfgAutoArt.bad1NumChan = nansum(cat(2,artfctmap{:}),2);
   end
 end
 
@@ -233,7 +233,7 @@ if ismember(part, {'child', 'both'})
   if isfield(cfgAutoArt.child.artfctdef.threshold, 'artfctmap')
     artfctmap = cfgAutoArt.child.artfctdef.threshold.artfctmap;
     artfctmap = cellfun(@(x) sum(x, 2), artfctmap, 'UniformOutput', false);
-    cfgAutoArt.bad2NumChan = sum(cat(2,artfctmap{:}),2);
+    cfgAutoArt.bad2NumChan = nansum(cat(2,artfctmap{:}),2);
 
     cfgAutoArt.label = ft_channelselection(...
                 cfgAutoArt.child.artfctdef.threshold.channel, ...
@@ -464,8 +464,14 @@ if isfield(threshold, 'artfctmap')
     for j = 1:trll:(size(threshold.artfctmap{i},2) - trll + 1)
       map = [map sum(threshold.artfctmap{i}(:,j:j+trll-1) == 1, 2) > 0];    %#ok<AGROW>
     end
-    threshold.artfctmap{i} = map;
-    map = [];
+    if ~isempty(map)
+      threshold.artfctmap{i} = map;
+      map = [];
+    else
+      cprintf([1,0.5,0], 'Trial %d is shorter than %d second (segmentation size).\n', i, trll/500);
+      cprintf([1,0.5,0], 'It will be rejected in general. Thus, no artifact information is available.\n');
+      threshold.artfctmap{i} = NaN(size(threshold.artfctmap{i}, 1), 1);
+    end
   end
 
 end
