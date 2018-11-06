@@ -210,9 +210,9 @@ fprintf('\b\b.\n\n');
 clear part x selection
 
 % -------------------------------------------------------------------------
-% Cluster specification
+% Channel specification
 % -------------------------------------------------------------------------
-fprintf('<strong>Cluster specification...</strong>\n');
+fprintf('<strong>Channel selection...</strong>\n');
 selection = false;
 while selection == false
   fprintf('Available options:\n');

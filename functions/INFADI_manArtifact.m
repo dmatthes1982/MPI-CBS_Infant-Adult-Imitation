@@ -41,6 +41,8 @@ cfgAllArt.child = [];
 
 fprintf('\n<strong>Search for artifacts with experimenter...</strong>\n');
 cfg.part = 'experimenter';
+cfg.trialinfo = data.experimenter.trialinfo;                                % specification of a trialinfo will lead into a combiend
+                                                                            % presentation of trials of the same condition
 cfg.artifact = artifact.experimenter.artfctdef.threshold.artifact;
 ft_warning off;
 INFADI_easyArtfctmapPlot(cfg, artifact);                                    % plot artifact map
@@ -52,6 +54,8 @@ cfgAllArt.experimenter = keepfields(cfgAllArt.experimenter, {'artfctdef', 'showc
   
 fprintf('\n<strong>Search for artifacts with child...</strong>\n');
 cfg.part = 'child';
+cfg.trialinfo = data.child.trialinfo;                                       % specification of a trialinfo will lead into a combiend
+                                                                            % presentation of trials of the same condition
 cfg.artifact = artifact.child.artfctdef.threshold.artifact;
 ft_warning off;
 INFADI_easyArtfctmapPlot(cfg, artifact);                                    % plot artifact map

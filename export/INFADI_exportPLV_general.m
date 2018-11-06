@@ -182,9 +182,9 @@ fprintf('\b\b.\n\n');
 clear generalDefinitions part filepath
 
 % -------------------------------------------------------------------------
-% Cluster specification
+% Channel selection
 % -------------------------------------------------------------------------
-fprintf('<strong>Cluster specification...</strong>\n');
+fprintf('<strong>Channel selection...</strong>\n');
 selection = false;
 while selection == false
   fprintf('Available options:\n');

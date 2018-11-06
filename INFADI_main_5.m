@@ -25,7 +25,7 @@ if ~exist('numOfPart', 'var')                                               % es
 end
 
 %% part 5
-% 1. auto artifact detection (threshold and method is selectable - default: 'minmax', +-75 uV)
+% 1. auto artifact detection (threshold and method is selectable - default: 'minmax', +-75 µV)
 % 2. manual artifact detection (verification)
 
 cprintf([1,0.4,1], '<strong>[5] - Automatic and manual artifact detection</strong>\n');
@@ -45,8 +45,8 @@ selection = false;
 while selection == false
   cprintf([1,0.4,1], 'Please select an artifact detection method:\n');
   fprintf('[1] - minmax threshold\n');
-  fprintf('[2] - range threshold within 200us, sliding window\n');
-  fprintf('[3] - stddev threshold within 200us, sliding window\n');
+  fprintf('[2] - range threshold within 200ms, sliding window\n');
+  fprintf('[3] - stddev threshold within 200ms, sliding window\n');
   fprintf('[4] - mutiple of median absolute deviation, sliding window\n');
   x = input('Option: ');
 
@@ -82,11 +82,13 @@ selection = false;
 while selection == false
   if x ~= 4
     cprintf([1,0.4,1], ['Do you want to use the default thresholds ' ...
-                        '(exp.: %d µV - child: %d uV)  for automatic ' ...
-                        'artifact detection?\n'], default_threshold(x,:));
+                        '(exp.: %d %sV - child: %d %sV)  for automatic ' ...
+                        'artifact detection?\n'], ...
+                        default_threshold(x,1), char(956), ...
+                        default_threshold(x,2), char(956));
   else
     cprintf([1,0.4,1], ['Do you want to use the default thresholds ' ...
-                         '(exp.: %d µV - child: %d times of mad) for ' ...
+                         '(exp.: %d - child: %d times of mad) for ' ...
                          'automatic artifact detection?\n'], ...
                          default_threshold(x,:));
   end
@@ -110,12 +112,13 @@ if isempty(threshold)
     selection = false;
     while selection == false
       if x ~= 4
-        cprintf([1,0.4,1], ['Define the threshold for %s (in uV) with ' ...
+        cprintf([1,0.4,1], ['Define the threshold for %s (in %sV) with ' ...
                             'a value from the range between %d and ' ...
-                            '%d!\n'], identifier{i}, threshold_range(x,:));
+                            '%d!\n'], identifier{i}, char(956), ...
+                            threshold_range(x,:));
         if x == 1
           cprintf([1,0.4,1], ['Note: i.e. value 100 means threshold '...
-                              'limits are +-100uV\n']);
+                              'limits are +-100' char(956) 'V\n']);
         end
       else
         cprintf([1,0.4,1], ['Define the threshold for %s (in mutiples ' ...
@@ -141,6 +144,49 @@ if isempty(threshold)
   end
 end
 
+% channel selection (default settings)
+selection = false;
+while selection == false
+  cprintf([1,0.4,1], 'Do you want to include all channels in artifact detection?\n');
+  x = input('Select [y/n]: ','s');
+  if strcmp('y', x)
+    selection = true;
+    selChan = {'all', '-V1', '-V2', '-REF', '-EOGV', '-EOGH'};
+    channels = {'all'};
+  elseif strcmp('n', x)
+    selection = true;
+    selChan = [];
+  else
+    selection = false;
+  end
+end
+
+% channel selection (user specification)
+if isempty(selChan)
+  cprintf([1,0.4,1], '\nAvailable channels will be determined. Please wait...\n');
+  cfg             = [];
+  cfg.srcFolder   = strcat(desPath, '04b_eyecor/');
+  cfg.filename    = sprintf('INFADI_d%02d_04b_eyecor', numOfPart(1));
+  cfg.sessionStr  = sessionStr;
+
+  INFADI_loadData( cfg );
+
+  label = data_eyecor.experimenter.label;
+  label = label(~ismember(label, {'V1', 'V2', 'REF', 'EOGV', 'EOGH'}));   % remove 'V1', 'V2', 'REF', 'EOGV' and 'EOGH'
+  clear data_eyecor
+
+  sel = listdlg('PromptString', 'Select channels of interest...', ...     % open the dialog window --> the user can select the channels of interest
+              'ListString', label, ...
+              'ListSize', [220, 300] );
+
+  selChan = label(sel);
+  channels = {strjoin(selChan,',')};
+
+  fprintf('You have selected the following channels:\n');
+  fprintf('%s\n', channels{1});
+end
+fprintf('\n');
+
 % Write selected settings to settings file
 file_path = [desPath '00_settings/' sprintf('settings_%s', sessionStr) '.xls'];
 if ~(exist(file_path, 'file') == 2)                                         % check if settings file already exist
@@ -157,6 +203,7 @@ warning off;
 T.artMethod(numOfPart) = {method};
 T.artTholdExp(numOfPart) = threshold(1);
 T.artTholdChild(numOfPart) = threshold(2);
+T.artChan(numOfPart) = channels;
 warning on;
 delete(file_path);
 writetable(T, file_path);
@@ -173,18 +220,17 @@ for i = numOfPart
 
  % automatic artifact detection
   cfg             = [];
-  cfg.channel     = {'all', '-V1', '-V2', '-REF', ...
-                     '-EOGV', '-EOGH'};
+  cfg.channel     = selChan;
   cfg.method      = method;                                                 % artifact detection method
   cfg.sliding     = sliding;                                                % use sliding window or not
   cfg.winsize     = winsize;                                                % size of sliding window
   cfg.continuous  = 'no';                                                   % data is trial-based
   cfg.trllength   = 1000;                                                   % minimal subtrial length: 1 sec
   cfg.overlap     = 0;                                                      % no overlap
-  cfg.min         = -threshold;                                             % min: -threshold uV
-  cfg.max         = threshold;                                              % max: threshold uV
-  cfg.range       = threshold;                                              % range: threshold uV
-  cfg.stddev      = threshold;                                              % stddev: threshold uV
+  cfg.min         = -threshold;                                             % min: -threshold µV
+  cfg.max         = threshold;                                              % max: threshold µV
+  cfg.range       = threshold;                                              % range: threshold µV
+  cfg.stddev      = threshold;                                              % stddev: threshold µV
   cfg.mad         = threshold;                                              % mad: multiples of median absolute deviation
 
   cfg_autoart     = INFADI_autoArtifact(cfg, data_eyecor);
@@ -246,4 +292,5 @@ end
 
 %% clear workspace
 clear file_path numOfSources sourceList cfg i x y selection T threshold ...
-      method winsize sliding default_threshold threshold_range identifier
+      method winsize sliding default_threshold threshold_range ...
+      identifier selChan channels label sel
