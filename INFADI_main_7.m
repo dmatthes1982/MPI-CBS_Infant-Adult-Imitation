@@ -181,7 +181,7 @@ for i = numOfPart
   cfg.srcFolder   = strcat(desPath, '06b_hilbert/');
   cfg.sessionStr  = sessionStr;
   cfg.filename    = sprintf('INFADI_d%02d_06b_hilbertAlpha', i);
-  fprintf('Load hilbert phase data at alpha (8-12Hz)...\n');
+  fprintf('Load hilbert phase data at alpha (6-9Hz)...\n');
   INFADI_loadData( cfg );
 
   % segmentation at alpha %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -189,7 +189,7 @@ for i = numOfPart
   cfg.length    = 1;
   cfg.overlap   = 0;
   
-  fprintf('<strong>Segmentation of Hilbert phase data at alpha (8-12Hz).</strong>\n');
+  fprintf('<strong>Segmentation of Hilbert phase data at alpha (6-9Hz).</strong>\n');
   data_hilbert_alpha  = INFADI_segmentation( cfg, data_hilbert_alpha );
   
   % artifact rejection at alpha %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -200,7 +200,7 @@ for i = numOfPart
       cfg.reject    = 'complete';
       cfg.target    = 'dual';
   
-      fprintf('<strong>Artifact Rejection of Hilbert phase data at alpha (8-12Hz).</strong>\n');
+      fprintf('<strong>Artifact Rejection of Hilbert phase data at alpha (6-9Hz).</strong>\n');
       data_hilbert_alpha = INFADI_rejectArtifacts(cfg, data_hilbert_alpha);
       fprintf('\n');
     end
@@ -232,7 +232,7 @@ for i = numOfPart
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                      '.mat');
                    
-  fprintf('Saving PLVs (alpha: 8-12Hz) of dyad %d in:\n', i); 
+  fprintf('Saving PLVs (alpha: 6-9Hz) of dyad %d in:\n', i);
   fprintf('%s ...\n', file_path);
   INFADI_saveData(cfg, 'data_plv_alpha', data_plv_alpha);
   fprintf('Data stored!\n');
@@ -247,7 +247,7 @@ for i = numOfPart
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                      '.mat');
                    
-  fprintf('Saving mean PLVs (alpha: 8-12Hz) of dyad %d in:\n', i); 
+  fprintf('Saving mean PLVs (alpha: 6-9Hz) of dyad %d in:\n', i);
   fprintf('%s ...\n', file_path);
   INFADI_saveData(cfg, 'data_mplv_alpha', data_mplv_alpha);
   fprintf('Data stored!\n\n');

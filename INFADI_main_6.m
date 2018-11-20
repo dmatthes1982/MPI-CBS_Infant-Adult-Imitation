@@ -68,9 +68,9 @@ for i = numOfPart
   fprintf('Data stored!\n\n');
   clear data_bpfilt_theta
   
-  % bandpass filter data at alpha (8-12 Hz)
+  % bandpass filter data at alpha (6-9 Hz)
   cfg           = [];
-  cfg.bpfreq    = [8 12];
+  cfg.bpfreq    = [6 9];
   cfg.filtorder = fix(250 / filtCoeffDiv);
   cfg.channel   = {'all', '-REF', '-EOGV', '-EOGH', '-V1', '-V2'};
   
@@ -85,7 +85,7 @@ for i = numOfPart
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                      '.mat');
                    
-  fprintf('Saving bandpass filtered data (alpha: 8-12Hz) of dyad %d in:\n', i); 
+  fprintf('Saving bandpass filtered data (alpha: 6-9Hz) of dyad %d in:\n', i);
   fprintf('%s ...\n', file_path);
   INFADI_saveData(cfg, 'data_bpfilt_alpha', data_bpfilt_alpha);
   fprintf('Data stored!\n\n');
@@ -169,12 +169,12 @@ for i = numOfPart
   fprintf('Data stored!\n\n');
   clear data_hilbert_theta data_bpfilt_theta
   
-  % calculate hilbert phase at alpha (8-12Hz)
+  % calculate hilbert phase at alpha (6-9Hz)
   cfg             = [];
   cfg.srcFolder   = strcat(desPath, '06a_bpfilt/');
   cfg.filename    = sprintf('INFADI_d%02d_06a_bpfiltAlpha', i);
   cfg.sessionStr  = sessionStr;
-  fprintf('Load the at alpha (8-12Hz) bandpass filtered data ...\n');
+  fprintf('Load the at alpha (6-9Hz) bandpass filtered data ...\n');
   INFADI_loadData( cfg );
   
   data_hilbert_alpha = INFADI_hilbertPhase(data_bpfilt_alpha);
@@ -188,7 +188,7 @@ for i = numOfPart
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                      '.mat');
                    
-  fprintf('Saving Hilbert phase data (alpha: 8-12Hz) of dyad %d in:\n', i); 
+  fprintf('Saving Hilbert phase data (alpha: 6-9Hz) of dyad %d in:\n', i);
   fprintf('%s ...\n', file_path);
   INFADI_saveData(cfg, 'data_hilbert_alpha', data_hilbert_alpha);
   fprintf('Data stored!\n\n');

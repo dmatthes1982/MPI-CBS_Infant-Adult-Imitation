@@ -31,13 +31,13 @@ end
 cprintf([1,0.4,1], '<strong>[5] - Automatic and manual artifact detection</strong>\n');
 fprintf('\n');
 
-default_threshold = [75, 75;  ...                                           % default for method 'minmax'
-                     100, 100; ...                                          % default for method 'range'
-                     50, 50;  ...                                           % default for method 'stddev'
+default_threshold = [100, 200;  ...                                         % default for method 'minmax'
+                     150, 350; ...                                          % default for method 'range'
+                     40, 80;  ...                                           % default for method 'stddev'
                      7, 7];                                                 % default for method 'mad'
-threshold_range   = [50, 200; ...                                           % range for method 'minmax'
-                     50, 200; ...                                           % range for method 'range'
-                     20, 80; ...                                            % range for method 'stddev'
+threshold_range   = [50, 300; ...                                           % range for method 'minmax'
+                     50, 400; ...                                           % range for method 'range'
+                     20, 100; ...                                           % range for method 'stddev'
                      3, 7];                                                 % range for method 'mad'
 
 % method selectiom
