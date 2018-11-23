@@ -4,7 +4,7 @@ function [ data ] = INFADI_preprocessing( cfg, data )
 % Use as
 %   [ data ] = INFADI_preprocessing(cfg, data)
 %
-% where the input data have to be the result from INFADI_IMPORTATASET
+% where the input data has to be the result of INFADI_IMPORTATASET
 %
 % The configuration options are
 %   cfg.bpfreq            = passband range [begin end] (default: [0.1 48])
@@ -42,7 +42,7 @@ end
 cfgBP                   = [];
 cfgBP.bpfilter          = 'yes';                                            % use bandpass filter
 cfgBP.bpfreq            = bpfreq;                                           % bandpass range  
-cfgBP.bpfilttype        = bpfilttype;                                       % bandpass filter type = fir      
+cfgBP.bpfilttype        = bpfilttype;                                       % bandpass filter type
 cfgBP.bpinstabilityfix  = bpinstabilityfix;                                 % deal with filter instability
 cfgBP.channel           = 'all';                                            % use all channels
 cfgBP.trials            = 'all';                                            % use all trials

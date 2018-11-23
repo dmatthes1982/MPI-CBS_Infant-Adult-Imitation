@@ -62,7 +62,7 @@ else                                                                        % el
   end
 end
 
-if ~ismember(part, {'experimenter', 'child'})                                     % check cfg.part definition
+if ~ismember(part, {'experimenter', 'child'})                               % check cfg.part definition
   error('cfg.part has to either ''experimenter'' or ''child.''');
 end
 

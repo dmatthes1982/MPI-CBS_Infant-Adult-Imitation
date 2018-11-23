@@ -6,9 +6,9 @@ function [ data ] = INFADI_phaseLockVal( cfg, data )
 % Use as
 %   [ data ] = INFADI_phaseLockVal( cfg, data )
 %
-% where the input data have to be the result from INFADI_HILBERTPHASE
+% where the input data has to be the result of INFADI_HILBERTPHASE
 %
-% The configuration options are
+% The configuration option is
 %   cfg.winlen    = length of window over which the PLV will be calculated. (default: 1 sec)
 %                   minimum = 1 sec
 % 
