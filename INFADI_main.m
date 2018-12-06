@@ -20,7 +20,7 @@ cprintf([1,0.4,1], '<strong>---------------------------------------------------<
 % Path settings
 % -------------------------------------------------------------------------
 srcPath = '/data/pt_01905/eegData/DualEEG_INFADI_rawData/';
-desPath = '/data/pt_01905/eegData/DualEEG_INFADI_processedData/';
+desPath = '/data/pt_01905/eegData/DualEEG_INFADI_processedDataOld/';
 
 fprintf('\nThe default paths are:\n');
 fprintf('Source: %s\n',srcPath);
