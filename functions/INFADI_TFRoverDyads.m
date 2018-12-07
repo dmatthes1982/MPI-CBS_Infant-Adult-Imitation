@@ -6,7 +6,7 @@ function  [ data_tfrod ] = INFADI_TFRoverDyads( cfg )
 %   [ data_tfrod ] = INFADI_TFRoverDyads( cfg )
 %
 % The configuration options are
-%   cfg.path      = source path' (i.e. '/data/pt_01905/eegData/DualEEG_INFADI_processedDataOld/08a_tfr/')
+%   cfg.path      = source path' (i.e. '/data/pt_01905/eegData/DualEEG_INFADI_processedData/08a_tfr/')
 %   cfg.session   = session number (default: 1)
 %
 % This function requires the fieldtrip toolbox
@@ -19,7 +19,7 @@ function  [ data_tfrod ] = INFADI_TFRoverDyads( cfg )
 % Get and check config options
 % -------------------------------------------------------------------------
 path      = ft_getopt(cfg, 'path', ...
-              '/data/pt_01905/eegData/DualEEG_INFADI_processedDataOld/08a_tfr/');
+              '/data/pt_01905/eegData/DualEEG_INFADI_processedData/08a_tfr/');
 session   = ft_getopt(cfg, 'session', 1);
 
 % -------------------------------------------------------------------------

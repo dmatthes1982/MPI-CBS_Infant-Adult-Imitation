@@ -12,7 +12,7 @@ clear LASTN
 
 cprintf([1,0.4,1], '<strong>---------------------------------------------------</strong>\n');
 cprintf([1,0.4,1], '<strong>Infant adult imitation project - data processing</strong>\n');
-cprintf([1,0.4,1], '<strong>Version: 0.1</strong>\n');
+cprintf([1,0.4,1], '<strong>Version: 0.2</strong>\n');
 cprintf([1,0.4,1], 'Copyright (C) 2018, Daniel Matthes, MPI CBS\n');
 cprintf([1,0.4,1], '<strong>---------------------------------------------------</strong>\n');
 
@@ -20,7 +20,7 @@ cprintf([1,0.4,1], '<strong>---------------------------------------------------<
 % Path settings
 % -------------------------------------------------------------------------
 srcPath = '/data/pt_01905/eegData/DualEEG_INFADI_rawData/';
-desPath = '/data/pt_01905/eegData/DualEEG_INFADI_processedDataOld/';
+desPath = '/data/pt_01905/eegData/DualEEG_INFADI_processedData/';
 
 fprintf('\nThe default paths are:\n');
 fprintf('Source: %s\n',srcPath);

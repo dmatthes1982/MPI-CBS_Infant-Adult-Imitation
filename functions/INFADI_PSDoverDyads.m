@@ -7,7 +7,7 @@ function  [ data_pwelchod ] = INFADI_PSDoverDyads( cfg )
 %   [ data_pwelchod ] = INFADI_PSDoverDyads( cfg )
 %
 % The configuration options are
-%   cfg.path      = source path' (i.e. '/data/pt_01905/eegData/DualEEG_INFADI_processedDataOld/08b_pwelch/')
+%   cfg.path      = source path' (i.e. '/data/pt_01905/eegData/DualEEG_INFADI_processedData/08b_pwelch/')
 %   cfg.session   = session number (default: 1)
 %
 % This function requires the fieldtrip toolbox
@@ -20,7 +20,7 @@ function  [ data_pwelchod ] = INFADI_PSDoverDyads( cfg )
 % Get and check config options
 % -------------------------------------------------------------------------
 path      = ft_getopt(cfg, 'path', ...
-              '/data/pt_01905/eegData/DualEEG_INFADI_processedDataOld/08b_pwelch/');
+              '/data/pt_01905/eegData/DualEEG_INFADI_processedData/08b_pwelch/');
 session   = ft_getopt(cfg, 'session', 1);
 
 % -------------------------------------------------------------------------

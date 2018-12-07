@@ -6,7 +6,7 @@ function [ data_mplv ] = INFADI_mPLVoverDyads( cfg )
 %   [ data_mplv ] = INFADI_mPLVoverDyads( cfg )
 %
 % The configuration options are
-%   cfg.path      = source path' (i.e. '/data/pt_01905/eegData/DualEEG_INFADI_processedDataOld/07b_mplv/')
+%   cfg.path      = source path' (i.e. '/data/pt_01905/eegData/DualEEG_INFADI_processedData/07b_mplv/')
 %   cfg.session   = session number (default: 1)
 %   cfg.passband  = select passband of interest (default: theta)
 %                   (accepted values: theta, alpha, beta, gamma)
@@ -21,7 +21,7 @@ function [ data_mplv ] = INFADI_mPLVoverDyads( cfg )
 % Get and check config options
 % -------------------------------------------------------------------------
 path      = ft_getopt(cfg, 'path', ...
-              '/data/pt_01905/eegData/DualEEG_INFADI_processedDataOld/07b_mplv/');
+              '/data/pt_01905/eegData/DualEEG_INFADI_processedData/07b_mplv/');
 session   = ft_getopt(cfg, 'session', 1);
 passband  = ft_getopt(cfg, 'passband', 'theta');
 

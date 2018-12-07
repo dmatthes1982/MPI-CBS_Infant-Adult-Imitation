@@ -6,7 +6,7 @@ function [ num ] = INFADI_getSessionNum( cfg )
 %   [ num ] = INFADI_getSessionNum( cfg )
 %
 % The configuration options are
-%   cfg.desFolder   = destination folder (default: '/data/pt_01905/eegData/DualEEG_INFADI_processedDataOld/')
+%   cfg.desFolder   = destination folder (default: '/data/pt_01905/eegData/DualEEG_INFADI_processedData/')
 %   cfg.subFolder   = name of subfolder (default: '01_raw/')
 %   cfg.filename    = filename (default: 'INFADI_d01_01_raw')
 %
@@ -17,7 +17,7 @@ function [ num ] = INFADI_getSessionNum( cfg )
 % -------------------------------------------------------------------------
 % Get config options
 % -------------------------------------------------------------------------
-desFolder   = ft_getopt(cfg, 'desFolder', '/data/pt_01905/eegData/DualEEG_INFADI_processedDataOld/');
+desFolder   = ft_getopt(cfg, 'desFolder', '/data/pt_01905/eegData/DualEEG_INFADI_processedData/');
 subFolder   = ft_getopt(cfg, 'subFolder', '01_raw/');
 filename    = ft_getopt(cfg, 'filename', 'INFADI_d01_01_raw');
 
