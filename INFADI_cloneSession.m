@@ -49,9 +49,9 @@ end
 % -------------------------------------------------------------------------
 % Session selection
 % -------------------------------------------------------------------------
-tmpPath = strcat(path, '01a_raw/');
+tmpPath = strcat(path, '01_raw/');
 
-fileList     = dir([tmpPath, 'INFADI_d*_01a_raw_*.mat']);
+fileList     = dir([tmpPath, 'INFADI_d*_01_raw_*.mat']);
 fileList     = struct2cell(fileList);
 fileList     = fileList(1,:);
 numOfFiles   = length(fileList);
@@ -66,7 +66,7 @@ sessionNum   = zeros(1, numOfFiles);
 fileListCopy = fileList;
 
 for i=1:1:numOfFiles
-  fileListCopy{i} = strsplit(fileList{i}, '01a_raw_');
+  fileListCopy{i} = strsplit(fileList{i}, '01_raw_');
   fileListCopy{i} = fileListCopy{i}{end};
   sessionNum(i) = sscanf(fileListCopy{i}, '%d.mat');
 end

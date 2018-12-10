@@ -1,8 +1,8 @@
 %% check if basic variables are defined
 if ~exist('sessionStr', 'var')
   cfg           = [];
-  cfg.subFolder = '02_preproc/';
-  cfg.filename  = 'INFADI_d01_02_preproc';
+  cfg.subFolder = '02b_preproc1/';
+  cfg.filename  = 'INFADI_d01_02b_preproc1';
   sessionStr    = sprintf('%03d', INFADI_getSessionNum( cfg ));             % estimate current session number
 end
 
@@ -11,7 +11,7 @@ if ~exist('desPath', 'var')
 end
 
 if ~exist('numOfPart', 'var')                                               % estimate number of participants in preprocessed data folder
-  sourceList    = dir([strcat(desPath, '02_preproc/'), ...
+  sourceList    = dir([strcat(desPath, '02b_preproc1/'), ...
                        strcat('*_', sessionStr, '.mat')]);
   sourceList    = struct2cell(sourceList);
   sourceList    = sourceList(1,:);
@@ -20,7 +20,7 @@ if ~exist('numOfPart', 'var')                                               % es
 
   for i=1:1:numOfSources
     numOfPart(i)  = sscanf(sourceList{i}, ...
-                    strcat('INFADI_d%d_02_preproc_', sessionStr, '.mat'));
+                    strcat('INFADI_d%d_02b_preproc1_', sessionStr, '.mat'));
   end
 end
 
@@ -39,8 +39,8 @@ fprintf('\n');
 
 for i = numOfPart
   cfg             = [];
-  cfg.srcFolder   = strcat(desPath, '02_preproc/');
-  cfg.filename    = sprintf('INFADI_d%02d_02_preproc', i);
+  cfg.srcFolder   = strcat(desPath, '02b_preproc1/');
+  cfg.filename    = sprintf('INFADI_d%02d_02b_preproc1', i);
   cfg.sessionStr  = sessionStr;
   
   fprintf('<strong>Dyad %d</strong>\n', i);
@@ -51,9 +51,9 @@ for i = numOfPart
   cfg             = [];
   cfg.part        = 'experimenter';
   
-  data_continuous = INFADI_concatData( cfg, data_preproc );
+  data_continuous = INFADI_concatData( cfg, data_preproc1 );
   
-  clear data_preproc
+  clear data_preproc1
   fprintf('\n');
   
   % Detect and reject transient artifacts (200uV delta within 200 ms. 

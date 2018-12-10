@@ -1,8 +1,8 @@
 %% check if basic variables are defined
 if ~exist('sessionStr', 'var')
   cfg           = [];
-  cfg.subFolder = '04b_eyecor/';
-  cfg.filename  = 'INFADI_d01_04b_eyecor';
+  cfg.subFolder = '04c_preproc2/';
+  cfg.filename  = 'INFADI_d01_04c_preproc2';
   sessionStr    = sprintf('%03d', INFADI_getSessionNum( cfg ));             % estimate current session number
 end
 
@@ -11,7 +11,7 @@ if ~exist('desPath', 'var')
 end
 
 if ~exist('numOfPart', 'var')                                               % estimate number of participants in eyecor data folder
-  sourceList    = dir([strcat(desPath, '04b_eyecor/'), ...
+  sourceList    = dir([strcat(desPath, '04c_preproc2/'), ...
                        strcat('*_', sessionStr, '.mat')]);
   sourceList    = struct2cell(sourceList);
   sourceList    = sourceList(1,:);
@@ -20,7 +20,7 @@ if ~exist('numOfPart', 'var')                                               % es
 
   for i=1:1:numOfSources
     numOfPart(i)  = sscanf(sourceList{i}, ...
-                    strcat('INFADI_d%d_04b_eyecor_', sessionStr, '.mat'));
+                    strcat('INFADI_d%d_04c_preproc2_', sessionStr, '.mat'));
   end
 end
 
@@ -165,17 +165,17 @@ end
 if isempty(selChan)
   cprintf([1,0.4,1], '\nAvailable channels will be determined. Please wait...\n');
   cfg             = [];
-  cfg.srcFolder   = strcat(desPath, '04b_eyecor/');
-  cfg.filename    = sprintf('INFADI_d%02d_04b_eyecor', numOfPart(1));
+  cfg.srcFolder   = strcat(desPath, '04c_preproc2/');
+  cfg.filename    = sprintf('INFADI_d%02d_04c_preproc2', numOfPart(1));
   cfg.sessionStr  = sessionStr;
 
   INFADI_loadData( cfg );
 
-  label = data_eyecor.experimenter.label;
-  label = label(~ismember(label, {'V1', 'V2', 'REF', 'EOGV', 'EOGH'}));   % remove 'V1', 'V2', 'REF', 'EOGV' and 'EOGH'
-  clear data_eyecor
+  label = data_preproc2.experimenter.label;
+  label = label(~ismember(label, {'V1', 'V2', 'REF', 'EOGV', 'EOGH'}));     % remove 'V1', 'V2', 'REF', 'EOGV' and 'EOGH'
+  clear data_preproc2
 
-  sel = listdlg('PromptString', 'Select channels of interest...', ...     % open the dialog window --> the user can select the channels of interest
+  sel = listdlg('PromptString', 'Select channels of interest...', ...       % open the dialog window --> the user can select the channels of interest
               'ListString', label, ...
               'ListSize', [220, 300] );
 
@@ -210,12 +210,12 @@ writetable(T, file_path);
 
 for i = numOfPart
   cfg             = [];
-  cfg.srcFolder   = strcat(desPath, '04b_eyecor/');
-  cfg.filename    = sprintf('INFADI_d%02d_04b_eyecor', i);
+  cfg.srcFolder   = strcat(desPath, '04c_preproc2/');
+  cfg.filename    = sprintf('INFADI_d%02d_04c_preproc2', i);
   cfg.sessionStr  = sessionStr;
   
   fprintf('<strong>Dyad %d</strong>\n', i);
-  fprintf('Load eye-artifact corrected data...\n');
+  fprintf('Load preprocessed data...\n');
   INFADI_loadData( cfg );
 
  % automatic artifact detection
@@ -233,14 +233,14 @@ for i = numOfPart
   cfg.stddev      = threshold;                                              % stddev: threshold µV
   cfg.mad         = threshold;                                              % mad: multiples of median absolute deviation
 
-  cfg_autoart     = INFADI_autoArtifact(cfg, data_eyecor);
+  cfg_autoart     = INFADI_autoArtifact(cfg, data_preproc2);
   
   % verify automatic detected artifacts / manual artifact detection
   cfg           = [];
   cfg.artifact  = cfg_autoart;
   cfg.dyad      = i;
   
-  cfg_allart    = INFADI_manArtifact(cfg, data_eyecor);                           
+  cfg_allart    = INFADI_manArtifact(cfg, data_preproc2);
   
   % export the automatic selected artifacts into a *.mat file
   cfg             = [];
@@ -255,7 +255,7 @@ for i = numOfPart
   fprintf('%s ...\n', file_path);
   INFADI_saveData(cfg, 'cfg_autoart', cfg_autoart);
   fprintf('Data stored!\n');
-  clear cfg_autoart cfg_manart data_eyecor trl
+  clear cfg_autoart cfg_manart data_preproc2 trl
   
   % export the verified and the additional artifacts into a *.mat file
   cfg             = [];

@@ -1,8 +1,8 @@
 %% check if basic variables are defined
 if ~exist('sessionStr', 'var')
   cfg           = [];
-  cfg.subfolder = '04b_eyecor';
-  cfg.filename  = 'INFADI_d01_04b_eyecor';
+  cfg.subfolder = '04c_preproc2';
+  cfg.filename  = 'INFADI_d01_04c_preproc2';
   sessionStr    = sprintf('%03d', INFADI_getSessionNum( cfg ));             % estimate current session number
 end
 
@@ -11,7 +11,7 @@ if ~exist('desPath', 'var')
 end
 
 if ~exist('numOfPart', 'var')                                               % estimate number of participants in eyecor data folder
-  sourceList    = dir([strcat(desPath, '04b_eyecor/'), ...
+  sourceList    = dir([strcat(desPath, '04c_preproc2/'), ...
                        strcat('*_', sessionStr, '.mat')]);
   sourceList    = struct2cell(sourceList);
   sourceList    = sourceList(1,:);
@@ -20,7 +20,7 @@ if ~exist('numOfPart', 'var')                                               % es
 
   for i=1:1:numOfSources
     numOfPart(i)  = sscanf(sourceList{i}, ...
-                    strcat('INFADI_d%d_04b_eyecor_', sessionStr, '.mat'));
+                    strcat('INFADI_d%d_04c_preproc2_', sessionStr, '.mat'));
   end
 end
 
@@ -53,11 +53,11 @@ if tfr == true
     fprintf('<strong>Dyad %d</strong>\n', i);
 
     cfg             = [];                                                   % load EOG-artifact corrected data
-    cfg.srcFolder   = strcat(desPath, '04b_eyecor/');
+    cfg.srcFolder   = strcat(desPath, '04c_preproc2/');
     cfg.sessionStr  = sessionStr;
-    cfg.filename    = sprintf('INFADI_d%02d_04b_eyecor', i);
+    cfg.filename    = sprintf('INFADI_d%02d_04c_preproc2', i);
 
-    fprintf('Load eye-artifact corrected data...\n\n');
+    fprintf('Load preprocessed data...\n\n');
     INFADI_loadData( cfg );
 
     cfg         = [];
@@ -141,11 +141,11 @@ if pwelch == true
     
     % Load eye-artifact corrected data
     cfg             = [];
-    cfg.srcFolder   = strcat(desPath, '04b_eyecor/');
-    cfg.filename    = sprintf('INFADI_d%02d_04b_eyecor', i);
+    cfg.srcFolder   = strcat(desPath, '04c_preproc2/');
+    cfg.filename    = sprintf('INFADI_d%02d_04c_preproc2', i);
     cfg.sessionStr  = sessionStr;
 
-    fprintf('Load eye-artifact corrected data...\n\n');
+    fprintf('Load preprocessed data...\n\n');
     INFADI_loadData( cfg );
     
     % Segmentation of conditions in segments of one second with 75 percent

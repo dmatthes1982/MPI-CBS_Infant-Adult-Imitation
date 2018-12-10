@@ -85,6 +85,7 @@ fig.Position = [0 528 560 420];                                             % --
 INFADI_databrowser( cfg, data_raw );
 badLabel = INFADI_channelCheckbox();
 close(gcf);                                                                 % close also databrowser view when the channelCheckbox will be closed
+close(gcf);                                                                 % close also total power diagram when the channelCheckbox will be closed
 if any(strcmp(badLabel, 'TP10'))
   warning backtrace off;
   warning(['You have repaired ''TP10'', accordingly selecting linked ' ...

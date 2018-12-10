@@ -1,8 +1,8 @@
 %% check if basic variables are defined
 if ~exist('sessionStr', 'var')
   cfg           = [];
-  cfg.subFolder = '01c_repaired/';
-  cfg.filename  = 'INFADI_d01_01c_repaired';
+  cfg.subFolder = '01_raw/';
+  cfg.filename  = 'INFADI_d01_01_raw';
   sessionStr    = sprintf('%03d', INFADI_getSessionNum( cfg ));             % estimate current session number
 end
 
@@ -11,7 +11,7 @@ if ~exist('desPath', 'var')
 end
 
 if ~exist('numOfPart', 'var')                                               % estimate number of participants in segmented data folder
-  sourceList    = dir([strcat(desPath, '01c_repaired/'), ...
+  sourceList    = dir([strcat(desPath, '01_raw/'), ...
                        strcat('*_', sessionStr, '.mat')]);
   sourceList    = struct2cell(sourceList);
   sourceList    = sourceList(1,:);
@@ -20,66 +20,21 @@ if ~exist('numOfPart', 'var')                                               % es
 
   for i=1:1:numOfSources
     numOfPart(i)  = sscanf(sourceList{i}, ...
-                    strcat('INFADI_d%d_01c_repaired_', sessionStr, '.mat'));
+                    strcat('INFADI_d%d_01_raw_', sessionStr, '.mat'));
   end
 end
 
 %% part 2
-% preprocess the raw data
-% export the preprocessed data into a *.mat file
+% 1. select bad/noisy channels
+% 2. filter the good channels (basic bandpass filtering)
 
-cprintf([1,0.4,1], '<strong>[2] - Preprocessing, filtering, re-referencing</strong>\n');
+cprintf([1,0.4,1], '<strong>[2] - Preproc I: bad channel detection, filtering</strong>\n');
 fprintf('\n');
 
-selection = false;
-while selection == false
-  cprintf([1,0.4,1], 'Please select sampling rate for preprocessing:\n');
-  fprintf('[1] - 500 Hz (original sampling rate)\n');
-  fprintf('[2] - 250 Hz (downsampling factor 2)\n');
-  fprintf('[3] - 125 Hz (downsampling factor 4)\n');
-  x = input('Option: ');
-
-  switch x
-    case 1
-      selection = true;
-      samplingRate = 500;
-    case 2
-      selection = true;
-      samplingRate = 250;
-    case 3
-      selection = true;
-      samplingRate = 125;
-    otherwise
-      cprintf([1,0.5,0], 'Wrong input!\n');
-  end
-end
-fprintf('\n');
-
-selection = false;
-while selection == false
-  cprintf([1,0.4,1], 'Please select favoured reference:\n');
-  fprintf('[1] - Linked mastoid (''TP9'', ''TP10'')\n');
-  fprintf('[2] - Common average reference\n');
-  x = input('Option: ');
-
-  switch x
-     case 1
-      selection = true;
-      refchannel = 'TP10';
-      reference = {'LM'};
-    case 2
-      selection = true;
-      refchannel = {'all', '-V1', '-V2'};
-      reference = {'CAR'};
-    otherwise
-      cprintf([1,0.5,0], 'Wrong input!\n');
-  end
-end
-fprintf('\n');
-
-% Write selected settings to settings file
-file_path = [desPath '00_settings/' sprintf('settings_%s', sessionStr) '.xls'];
-if ~(exist(file_path, 'file') == 2)                                         % check if settings file already exist
+% Create settings file if not existing
+settings_file = [desPath '00_settings/' ...
+                  sprintf('settings_%s', sessionStr) '.xls'];
+if ~(exist(settings_file, 'file') == 2)                                     % check if settings file already exist
   cfg = [];
   cfg.desFolder   = [desPath '00_settings/'];
   cfg.type        = 'settings';
@@ -88,50 +43,107 @@ if ~(exist(file_path, 'file') == 2)                                         % ch
   INFADI_createTbl(cfg);                                                    % create settings file
 end
 
-T = readtable(file_path);                                                   % update settings table
+% Load settings file
+T = readtable(settings_file);
 warning off;
-T.fsample(numOfPart) = samplingRate;
-T.reference(numOfPart) = reference;
+T.dyad(numOfPart) = numOfPart;
 warning on;
-delete(file_path);
-writetable(T, file_path);
 
 for i = numOfPart
+  fprintf('<strong>Dyad %d</strong>\n\n', i);
+
+  %% selection of corrupted channels %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  fprintf('<strong>Selection of corrupted channels</strong>\n\n');
+
   cfg             = [];
-  cfg.srcFolder   = strcat(desPath, '01c_repaired/');
-  cfg.filename    = sprintf('INFADI_d%02d_01c_repaired', i);
+  cfg.srcFolder   = strcat(desPath, '01_raw/');
+  cfg.filename    = sprintf('INFADI_d%02d_01_raw', i);
   cfg.sessionStr  = sessionStr;
-  
-  fprintf('<strong>Dyad %d</strong>\n', i);
-  fprintf('Load repaired raw data...\n');
+
+  fprintf('Load raw data...\n');
   INFADI_loadData( cfg );
   
+  % concatenated raw trials to a continuous stream
+  cfg = [];
+  cfg.part = 'both';
+
+  data_continuous = INFADI_concatData( cfg, data_raw );
+
+  fprintf('\n');
+
+  % detect noisy channels automatically
+  data_noisy = INFADI_estNoisyChan( data_continuous );
+
+  fprintf('\n');
+
+  % select corrupted channels
+  data_badchan = INFADI_selectBadChan( data_continuous, data_noisy );
+  clear data_noisy
+
+  % export the bad channels in a *.mat file
+  cfg             = [];
+  cfg.desFolder   = strcat(desPath, '02a_badchan/');
+  cfg.filename    = sprintf('INFADI_d%02d_02a_badchan', i);
+  cfg.sessionStr  = sessionStr;
+
+  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
+                     '.mat');
+
+  fprintf('Bad channels of dyad %d will be saved in:\n', i);
+  fprintf('%s ...\n', file_path);
+  INFADI_saveData(cfg, 'data_badchan', data_badchan);
+  fprintf('Data stored!\n\n');
+  clear data_continuous
+
+  % add bad labels of bad channels to the settings file
+  if isempty(data_badchan.experimenter.badChan)
+    badChanPart1 = {'---'};
+  else
+    badChanPart1 = {strjoin(data_badchan.experimenter.badChan,',')};
+  end
+  if isempty(data_badchan.child.badChan)
+    badChanPart2 = {'---'};
+  else
+    badChanPart2 = {strjoin(data_badchan.child.badChan,',')};
+  end
+  warning off;
+  T.badChanPart1(i) = badChanPart1;
+  T.badChanPart2(i) = badChanPart2;
+  warning on;
+
+  % store settings table
+  delete(settings_file);
+  writetable(T, settings_file);
+
+  %% basic bandpass filtering of good channels %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  fprintf('<strong>Basic preprocessing of good channels</strong>\n');
+
   cfg                   = [];
   cfg.bpfreq            = [1 48];                                           % passband from 1 to 48 Hz
   cfg.bpfilttype        = 'but';
   cfg.bpinstabilityfix  = 'split';
-  cfg.samplingRate      = samplingRate;
-  cfg.refchannel        = refchannel;
-  
+  cfg.expBadChan        = data_badchan.experimenter.badChan';
+  cfg.childBadChan      = data_badchan.child.badChan';
+
   ft_info off;
-  data_preproc = INFADI_preprocessing( cfg, data_repaired);
+  data_preproc1 = INFADI_preprocessing( cfg, data_raw);
   ft_info on;
-  
+
   cfg             = [];
-  cfg.desFolder   = strcat(desPath, '02_preproc/');
-  cfg.filename    = sprintf('INFADI_d%02d_02_preproc', i);
+  cfg.desFolder   = strcat(desPath, '02b_preproc1/');
+  cfg.filename    = sprintf('INFADI_d%02d_02b_preproc1', i);
   cfg.sessionStr  = sessionStr;
-  
+
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                      '.mat');
 
-  fprintf('The preprocessed data of dyad %d will be saved in:\n', i); 
+  fprintf('The bandpass filtered data of dyad %d will be saved in:\n', i);
   fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'data_preproc', data_preproc);
+  INFADI_saveData(cfg, 'data_preproc1', data_preproc1);
   fprintf('Data stored!\n\n');
-  clear data_preproc data_repaired
+  clear data_preproc1 data_raw data_badchan
 end
 
 %% clear workspace
-clear file_path cfg sourceList numOfSources i selection samplingRate x ...
-      refchannel reference T
+clear file_path cfg sourceList numOfSources i selection badChanPart1 ...
+      badChanPart2 T settings_file
