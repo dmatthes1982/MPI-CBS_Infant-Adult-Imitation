@@ -25,7 +25,7 @@ if ~exist('numOfPart', 'var')                                               % es
 end
 
 %% part 8
-% Calculate TFRs of the EOG-artifact corrected data
+% Calculate TFRs of the preprocessed data
 
 cprintf([1,0.4,1], '<strong>[8] - Power analysis (TFR, pWelch)</strong>\n');
 fprintf('\n');
@@ -52,7 +52,7 @@ if tfr == true
   for i = numOfPart
     fprintf('<strong>Dyad %d</strong>\n', i);
 
-    cfg             = [];                                                   % load EOG-artifact corrected data
+    cfg             = [];                                                   % load preprocessed data
     cfg.srcFolder   = strcat(desPath, '04c_preproc2/');
     cfg.sessionStr  = sessionStr;
     cfg.filename    = sprintf('INFADI_d%02d_04c_preproc2', i);
@@ -64,7 +64,7 @@ if tfr == true
     cfg.foi     = 2:1:50;                                                   % frequency of interest
     cfg.toi     = 4:0.5:176;                                                % time of interest
 
-    data_tfr = INFADI_timeFreqanalysis( cfg, data_eyecor );
+    data_tfr = INFADI_timeFreqanalysis( cfg, data_preproc2 );
 
     % export TFR data into a *.mat file
     cfg             = [];
@@ -79,7 +79,7 @@ if tfr == true
     fprintf('%s ...\n', file_path);
     INFADI_saveData(cfg, 'data_tfr', data_tfr);
     fprintf('Data stored!\n\n');
-    clear data_tfr data_eyecor
+    clear data_tfr data_preproc2
   end
 end
 
@@ -139,7 +139,7 @@ if pwelch == true
   for i = numOfPart
     fprintf('<strong>Dyad %d</strong>\n', i);
     
-    % Load eye-artifact corrected data
+    % Load preprocessed data
     cfg             = [];
     cfg.srcFolder   = strcat(desPath, '04c_preproc2/');
     cfg.filename    = sprintf('INFADI_d%02d_04c_preproc2', i);
@@ -154,8 +154,8 @@ if pwelch == true
     cfg.length   = 1;                                                       % window length: 1 sec       
     cfg.overlap  = 0.75;                                                    % 75 percent overlap
     
-    fprintf('<strong>Segmentation of eye-artifact corrected data.</strong>\n');
-    data_eyecor = INFADI_segmentation( cfg, data_eyecor );
+    fprintf('<strong>Segmentation of preprocessed data.</strong>\n');
+    data_preproc2 = INFADI_segmentation( cfg, data_preproc2 );
 
     fprintf('\n');
     
@@ -188,8 +188,8 @@ if pwelch == true
         cfg.reject    = 'complete';
         cfg.target    = 'single';
 
-        fprintf('<strong>Artifact Rejection with eye-artifact corrected data.</strong>\n');
-        data_eyecor = INFADI_rejectArtifacts(cfg, data_eyecor);
+        fprintf('<strong>Artifact Rejection with preprocessed data.</strong>\n');
+        data_preproc2 = INFADI_rejectArtifacts(cfg, data_preproc2);
         fprintf('\n');
       end
       
@@ -200,9 +200,9 @@ if pwelch == true
     cfg         = [];
     cfg.foi     = 1:1:50;                                                   % frequency of interest
       
-    data_eyecor = INFADI_pWelch( cfg, data_eyecor );                        % calculate power spectral density using Welch's method
-    data_pwelch = data_eyecor;                                              % to save need of RAM
-    clear data_eyecor
+    data_preproc2 = INFADI_pWelch( cfg, data_preproc2 );                        % calculate power spectral density using Welch's method
+    data_pwelch = data_preproc2;                                              % to save need of RAM
+    clear data_preproc2
     
     % export number of good trials into a spreadsheet
     cfg           = [];
