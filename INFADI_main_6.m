@@ -43,7 +43,7 @@ for i = numOfPart
   fprintf('Load preprocessed data...\n\n');
   INFADI_loadData( cfg );
   
-  filtCoeffDiv = 500 / data_eyecor.experimenter.fsample;                    % estimate sample frequency dependent divisor of filter length
+  filtCoeffDiv = 500 / data_preproc2.experimenter.fsample;                  % estimate sample frequency dependent divisor of filter length
 
   % bandpass filter data at theta (4-7 Hz)
   cfg           = [];
@@ -51,7 +51,7 @@ for i = numOfPart
   cfg.filtorder = fix(500 / filtCoeffDiv);
   cfg.channel   = {'all', '-REF', '-EOGV', '-EOGH', '-V1', '-V2'};
   
-  data_bpfilt_theta = INFADI_bpFiltering(cfg, data_eyecor);
+  data_bpfilt_theta = INFADI_bpFiltering(cfg, data_preproc2);
   
   % export the filtered data into a *.mat file
   cfg             = [];
@@ -74,7 +74,7 @@ for i = numOfPart
   cfg.filtorder = fix(250 / filtCoeffDiv);
   cfg.channel   = {'all', '-REF', '-EOGV', '-EOGH', '-V1', '-V2'};
   
-  data_bpfilt_alpha = INFADI_bpFiltering(cfg, data_eyecor);
+  data_bpfilt_alpha = INFADI_bpFiltering(cfg, data_preproc2);
   
   % export the filtered data into a *.mat file
   cfg             = [];
@@ -97,7 +97,7 @@ for i = numOfPart
   cfg.filtorder = fix(250 / filtCoeffDiv);
   cfg.channel   = {'all', '-REF', '-EOGV', '-EOGH', '-V1', '-V2'};
   
-  data_bpfilt_beta = INFADI_bpFiltering(cfg, data_eyecor);
+  data_bpfilt_beta = INFADI_bpFiltering(cfg, data_preproc2);
 
   % export the filtered data into a *.mat file
   cfg             = [];
@@ -120,7 +120,7 @@ for i = numOfPart
   cfg.filtorder = fix(250 / filtCoeffDiv);
   cfg.channel   = {'all', '-REF', '-EOGV', '-EOGH', '-V1', '-V2'};
   
-  data_bpfilt_gamma = INFADI_bpFiltering(cfg, data_eyecor);
+  data_bpfilt_gamma = INFADI_bpFiltering(cfg, data_preproc2);
 
   % export the filtered data into a *.mat file
   cfg             = [];
@@ -135,7 +135,7 @@ for i = numOfPart
   fprintf('%s ...\n', file_path);
   INFADI_saveData(cfg, 'data_bpfilt_gamma', data_bpfilt_gamma);
   fprintf('Data stored!\n\n');
-  clear data_bpfilt_gamma data_eyecor
+  clear data_bpfilt_gamma data_preproc2
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
