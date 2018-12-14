@@ -37,8 +37,10 @@ cfg.showcallinfo  = 'no';                                                   % pr
 
 fprintf('Re-reference experimenter data...\n');
 data.experimenter = ft_preprocessing(cfg, data.experimenter);
+data.experimenter.label  = data.experimenter.label';
   
 fprintf('Re-reference child data...\n');
 data.child        = ft_preprocessing(cfg, data.child);
+data.child.label  = data.child.label';
 
 end
