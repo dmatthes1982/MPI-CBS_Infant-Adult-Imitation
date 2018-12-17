@@ -320,11 +320,11 @@ numOfFreq   = length(freqNum);
 numOfPart   = numOfFiles * 2;
 tableLength = max([numOfChan, numOfFreq]);
 
-part_suffix = repmat([1;2],numOfFiles,1);                                   % generate participants identifiers
+part_suffix = repmat({'Exp';'Child'},numOfFiles,1);                         % generate participants identifiers
 part_prefix = repmat(dyads',2,1);
 part_prefix = reshape(part_prefix,1,[])';
-part = cellfun(@(x,y) sprintf('%d_%d',x,y), num2cell(part_prefix), ... 
-                num2cell(part_suffix), 'UniformOutput', false);
+part = cellfun(@(x,y) sprintf('%d_%s',x,y), num2cell(part_prefix), ...
+                part_suffix, 'UniformOutput', false);
 
 cell_array      = cell(tableLength, 4);                                     % create info template                                 
 cell_array(1:numOfChan,1) = label;
