@@ -11,8 +11,8 @@ function [ data ] = INFADI_preprocessing( cfg, data )
 %   cfg.bpfreq            = passband range [begin end] (default: [0.1 48])
 %   cfg.bpfilttype        = bandpass filter type, 'but' or 'fir' (default: fir')
 %   cfg.bpinstabilityfix  = deal with filter instability, 'no' or 'split' (default: 'no')
-%   cgf.expBadChan        = bad channels of experimimenter which should be excluded (default: [])
-%   cgf.childBadChan      = bad channels of child which should be excluded (default: [])
+%   cfg.expBadChan        = bad channels of experimimenter which should be excluded (default: [])
+%   cfg.childBadChan      = bad channels of child which should be excluded (default: [])
 %
 % This function requires the fieldtrip toolbox.
 %
