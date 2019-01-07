@@ -5,7 +5,7 @@ function [ data ] = INFADI_calcMeanPLV( data )
 % Use as
 %   [ data ] = INFADI_calcMeanPLV( data )
 %
-%  where the input data have to be the result from INFADI_PHASELOCKVAL
+% where the input data has to be the result from INFADI_PHASELOCKVAL
 %
 % This function requires the fieldtrip toolbox
 % 
