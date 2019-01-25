@@ -81,11 +81,15 @@ if isfield(cfg_artifact1, 'experimenter') && isfield(cfg_artifact2, 'experimente
   artPart1 = [ cfg_artifact1.experimenter.artfctdef.threshold.artifact; ... % concatenate artifact specifications
     cfg_artifact2.experimenter.artfctdef.threshold.artifact ];
 
-  [~,idx] = sort(artPart1(:,1));                                            % sort values in a ascending order
-  artPart1 = artPart1(idx, :);
+  if ~isempty(artPart1)                                                     % sort values in a ascending order and remove duplicates
+    [~,idx] = sort(artPart1(:,1));
+    artPart1 = artPart1(idx, :);
 
-  idx       = [true; sum(diff(artPart1),2) ~= 0];                           % remove duplicates
-  artPart1  = artPart1(idx,:);
+    if size(artPart1, 1) > 1
+      idx       = [true; sum(diff(artPart1),2) ~= 0];
+      artPart1  = artPart1(idx,:);
+    end
+  end
 
   cfg_artifact.experimenter.artfctdef.threshold.artifact = artPart1;
 
@@ -110,11 +114,15 @@ if isfield(cfg_artifact1, 'child') && isfield(cfg_artifact2, 'child')
   artPart2 = [ cfg_artifact1.child.artfctdef.threshold.artifact; ...        % concatenate artifact specifications
     cfg_artifact2.child.artfctdef.threshold.artifact ];
 
-  [~,idx] = sort(artPart2(:,1));                                            % sort values in a ascending order
-  artPart2 = artPart2(idx, :);
+  if ~isempty(artPart2)                                                     % sort values in a ascending order and remove duplicates
+    [~,idx] = sort(artPart2(:,1));
+    artPart2 = artPart2(idx, :);
 
-  idx       = [true; sum(diff(artPart2),2) ~= 0];                           % remove duplicates
-  artPart2  = artPart2(idx,:);
+    if size(artPart2, 1) > 1
+      idx       = [true; sum(diff(artPart2),2) ~= 0];
+      artPart2  = artPart2(idx,:);
+    end
+  end
 
   cfg_artifact.child.artfctdef.threshold.artifact = artPart2;
 
