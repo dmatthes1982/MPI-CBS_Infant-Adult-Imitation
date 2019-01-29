@@ -1,22 +1,22 @@
 function [ data ] = INFADI_correctSignals( cfg, data_eogcomp, data )
-% INFADI_REMOVEEOGART is a function which removes eye artifacts from data
-% using in advance estimated ica components
+% INFADI_CORRECTSIGNALS is a function which removes artifacts from data
+% using previously estimated ica components
 %
 % Use as
-%   [ data ] = INFADI_removeEOGArt( data_eogcomp, data )
+%   [ data ] = INFADI_correctSignals( data_eogcomp, data )
 %
-% where data_eogcomp has to be the result of INFADI_VERIFYCOMP or 
-% INFADI_CORRCOMP and data has to be the result of INFADI_PREPROCESSING
+% here data_eogcomp has to be the result of INFADI_SELECTBADCOMP or
+% INFADI_DETEOGCOMP and data has to be the result of INFADI_PREPROCESSING
 %
 % The configuration options are
 %   cfg.part        = participants which shall be processed: experimenter, child or both (default: both)
 %
 % This function requires the fieldtrip toolbox
 %
-% See also INFADI_VERIFYCOMP, INFADI_CORRCOMP, INFADI_PREPROCESSING,
+% See also INFADI_SELECTBADCOMP, INFADI_DETEOGCOMP, INFADI_PREPROCESSING,
 % FT_COMPONENTANALYSIS and FT_REJECTCOMPONENT
 
-% Copyright (C) 2018, Daniel Matthes, MPI CBS
+% Copyright (C) 2018-2019, Daniel Matthes, MPI CBS
 
 % -------------------------------------------------------------------------
 % Get and check config options
@@ -31,12 +31,12 @@ end
 % Remove EOG artifacts
 % -------------------------------------------------------------------------
 if ismember(part, {'experimenter', 'both'})
-  fprintf('<strong>Cleanig data of experimenter from eye-artifacts...</strong>\n');
+  fprintf('<strong>Artifact correction with data of participant 1...</strong>\n');
   data.experimenter = removeArtifacts(data_eogcomp.experimenter, data.experimenter);
 end
 
 if ismember(part, {'child', 'both'})
-  fprintf('<strong>Cleanig data of child from eye-artifacts...</strong>\n');
+  fprintf('<strong>Artifact correction with data of participant 2...</strong>\n');
   data.child = removeArtifacts(data_eogcomp.child, data.child);
 end
 
@@ -54,7 +54,7 @@ cfg.demean        = 'no';
 cfg.showcallinfo  = 'no';
 
 ft_info off;
-dataComp = ft_componentanalysis(cfg, dataOfPart);                           % estimate components with the in previous part 3 calculated unmixing matrix
+dataComp = ft_componentanalysis(cfg, dataOfPart);                           % estimate components by using the in previous part 3 calculated unmixing matrix
 ft_info on;
 
 for i=1:length(dataEOG.elements)

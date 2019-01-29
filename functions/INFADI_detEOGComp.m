@@ -1,9 +1,9 @@
 function [ data_eogcomp ] = INFADI_detEOGComp( cfg, data_icacomp, data_sensor )
-% INFADI_CORRCOMP estimates components which have a high correlation
-% (> 80%) with the EOGV and EOGH components of the original data
+% INFADI_DETEOGCOMP determines components with a high correlation (> 80%)
+% in respect of EOGV and EOGH components of the original data.
 %
 % Use as
-%   [ data_eogcomp ] = INFADI_corrComp( data_icacomp, data_sensor )
+%   [ data_eogcomp ] = JAI_detEOGComp( data_icacomp, data_sensor )
 %
 % where input data_icacomp has to be the results of INFADI_ICA and 
 % data_sensor the results of INFADI_SELECTDATA
@@ -17,7 +17,7 @@ function [ data_eogcomp ] = INFADI_detEOGComp( cfg, data_icacomp, data_sensor )
 %
 % See also INFADI_ICA and INFADI_SELECTDATA
 
-% Copyright (C) 2018, Daniel Matthes, MPI CBS
+% Copyright (C) 2018-2019, Daniel Matthes, MPI CBS
 
 % -------------------------------------------------------------------------
 % Get and check config options
@@ -37,12 +37,12 @@ end
 % Estimate correlating components
 % -------------------------------------------------------------------------
 if ismember(part, {'experimenter', 'both'})
-  fprintf('<strong>Estimate EOG-correlating components at experimenter...</strong>\n');
+  fprintf('<strong>Determine EOG-correlating components at experimenter...</strong>\n');
   data_eogcomp.experimenter = corrComp(data_icacomp.experimenter, data_sensor.experimenter, threshold(1));
 end
 
 if ismember(part, {'child', 'both'})
-  fprintf('<strong>Estimate EOG-correlating components at child...</strong>\n');
+  fprintf('<strong>Determine EOG-correlating components at child...</strong>\n');
   data_eogcomp.child = corrComp(data_icacomp.child, data_sensor.child, threshold(2));
 end
 
@@ -87,4 +87,3 @@ dataEOGComp.unmixing   = dataICAComp.unmixing;
 dataEOGComp.elements   = dataICAComp.label(eogvCorr | eoghCorr);
 
 end
-
