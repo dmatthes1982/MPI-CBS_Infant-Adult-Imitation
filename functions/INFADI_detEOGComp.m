@@ -1,4 +1,4 @@
-function [ data_eogcomp ] = INFADI_corrComp( cfg, data_icacomp, data_sensor )
+function [ data_eogcomp ] = INFADI_detEOGComp( cfg, data_icacomp, data_sensor )
 % INFADI_CORRCOMP estimates components which have a high correlation
 % (> 80%) with the EOGV and EOGH components of the original data
 %

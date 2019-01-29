@@ -1,4 +1,4 @@
-function [ data_eogcomp ] = INFADI_verifyComp( cfg, data_eogcomp, data_icacomp )
+function [ data_eogcomp ] = INFADI_selectBadComp( cfg, data_eogcomp, data_icacomp )
 % INFADI_VERIFYCOMP is a function to verify visually the ICA components
 % having a high correlation with one of the measured EOG signals.
 %

@@ -1,4 +1,4 @@
-function [ data ] = INFADI_removeEOGArt( cfg, data_eogcomp, data )
+function [ data ] = INFADI_correctSignals( cfg, data_eogcomp, data )
 % INFADI_REMOVEEOGART is a function which removes eye artifacts from data
 % using in advance estimated ica components
 %

@@ -140,7 +140,7 @@ for i = numOfPart
   cfg.part      = 'experimenter';
   cfg.threshold = threshold;
   
-  data_eogcomp  = INFADI_corrComp(cfg, data_icacomp, data_eogchan);
+  data_eogcomp  = INFADI_detEOGComp(cfg, data_icacomp, data_eogchan);
   
   clear data_eogchan
   fprintf('\n');
@@ -149,7 +149,7 @@ for i = numOfPart
   cfg           = [];
   cfg.part      = 'experimenter';
 
-  data_eogcomp  = INFADI_verifyComp(cfg, data_eogcomp, data_icacomp);
+  data_eogcomp  = INFADI_selectBadComp(cfg, data_eogcomp, data_icacomp);
   
   clear data_icacomp
 
@@ -195,7 +195,7 @@ for i = numOfPart
   cfg           = [];
   cfg.part      = 'experimenter';
 
-  data_eyecor = INFADI_removeEOGArt(cfg, data_eogcomp, data_preproc1);
+  data_eyecor = INFADI_correctSignals(cfg, data_eogcomp, data_preproc1);
   
   clear data_eogcomp data_preproc1
   fprintf('\n');
