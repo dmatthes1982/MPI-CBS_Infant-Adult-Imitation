@@ -5,7 +5,7 @@ function [ data ] = INFADI_correctSignals( cfg, data_eogcomp, data )
 % Use as
 %   [ data ] = INFADI_correctSignals( data_eogcomp, data )
 %
-% here data_eogcomp has to be the result of INFADI_SELECTBADCOMP or
+% where data_eogcomp has to be the result of INFADI_SELECTBADCOMP or
 % INFADI_DETEOGCOMP and data has to be the result of INFADI_PREPROCESSING
 %
 % The configuration options are
@@ -31,12 +31,12 @@ end
 % Remove EOG artifacts
 % -------------------------------------------------------------------------
 if ismember(part, {'experimenter', 'both'})
-  fprintf('<strong>Artifact correction with data of participant 1...</strong>\n');
+  fprintf('<strong>Artifact correction with data of experimenter...</strong>\n');
   data.experimenter = removeArtifacts(data_eogcomp.experimenter, data.experimenter);
 end
 
 if ismember(part, {'child', 'both'})
-  fprintf('<strong>Artifact correction with data of participant 2...</strong>\n');
+  fprintf('<strong>Artifact correction with data of child...</strong>\n');
   data.child = removeArtifacts(data_eogcomp.child, data.child);
 end
 

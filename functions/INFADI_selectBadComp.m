@@ -2,7 +2,8 @@ function [ data_eogcomp ] = INFADI_selectBadComp( cfg, data_eogcomp, data_icacom
 % INFADI_SELECTBADCOMP is a function for exploring previously estimated ICA
 % components visually. Within the GUI, each component can be set to either
 % keep or reject for a later artifact correction operation. The result of
-% JAI_DETEOGCOMP are preselected, but it should be visually explored too.
+% INFADI_DETEOGCOMP are preselected, but it should be visually explored
+% too.
 %
 % Use as
 %   [ data_eogcomp ] = INFADI_selectBadComp( data_eogcomp, data_icacomp )
@@ -32,21 +33,23 @@ end
 % Verify correlating components
 % -------------------------------------------------------------------------
 if ismember(part, {'experimenter', 'both'})
-  fprintf('<strong>Select ICA components which shall be subtracted from participants 1 data...</strong>\n');
+  fprintf('<strong>Select ICA components which shall be subtracted from experimenter''S data...</strong>\n');
   data_eogcomp.experimenter = selectComp(data_eogcomp.experimenter, data_icacomp.experimenter);
 end
 
 fprintf('\n');
 
 if ismember(part, {'child', 'both'})
-  fprintf('<strong>Select ICA components which shall be subtracted from participants 2 data...</strong>\n');
+  fprintf('<strong>Select ICA components which shall be subtracted from child''s data...</strong>\n');
   data_eogcomp.child = selectComp(data_eogcomp.child, data_icacomp.child);
 end
 
 end
 
 %--------------------------------------------------------------------------
-% SUBFUNCTION which does the verification of the EOG-correlating components
+% SUBFUNCTION which provides the ft_icabrowser for verification of the
+% EOG-correlating components and for the selection of further bad
+% components.
 %--------------------------------------------------------------------------
 function [ dataEOGComp ] = selectComp( dataEOGComp, dataICAcomp )
 

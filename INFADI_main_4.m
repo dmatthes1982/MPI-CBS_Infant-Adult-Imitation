@@ -27,8 +27,9 @@ end
 %% part 4
 % 1. Find EOG-like ICA Components (Correlation with EOGV and EOGH, 80 %
 %    confirmity)
-% 2. Verify the estimated components by using the ft_databrowser function
-% 3. Remove eye artifacts
+% 2. Verify the estimated components by using the ft_icabrowser function
+%    and add further bad components to the selection
+% 3. Correct EEG data
 % 4. Recovery of bad channels
 % 5. Re-referencing
 
@@ -117,7 +118,7 @@ warning on;
 for i = numOfPart
   fprintf('<strong>Dyad %d</strong>\n\n', i);
 
-  %% Eye artifact correction %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% ICA-based artifact correction %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   fprintf('<strong>ICA-based artifact correction</strong>\n\n');
 
   cfg             = [];
@@ -145,7 +146,8 @@ for i = numOfPart
   clear data_eogchan
   fprintf('\n');
   
-  % Verify the estimated components
+  % Verify EOG-like ICA Components and add further bad components to the
+  % selection
   cfg           = [];
   cfg.part      = 'experimenter';
 
@@ -153,7 +155,7 @@ for i = numOfPart
   
   clear data_icacomp
 
-  % export the determined eog components and the unmixing matrix into 
+  % export the selected ICA components and the unmixing matrix into
   % a *.mat file
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '04a_eogcomp/');
@@ -168,14 +170,14 @@ for i = numOfPart
   INFADI_saveData(cfg, 'data_eogcomp', data_eogcomp);
   fprintf('Data stored!\n\n');
 
-  % add eye-artifact related components to the settings file
+  % add selected ICA components to the settings file
   if isempty(data_eogcomp.experimenter.elements)
-    EOGcompExp = {'---'};
+    ICAcompExp = {'---'};
   else
-    EOGcompExp = {strjoin(data_eogcomp.experimenter.elements,',')};
+    ICAcompExp = {strjoin(data_eogcomp.experimenter.elements,',')};
   end
   warning off;
-  T.EOGcompExp(i) = EOGcompExp;
+  T.ICAcompExp(i) = ICAcompExp;
   warning on;
 
   % store settings table
@@ -191,7 +193,7 @@ for i = numOfPart
   fprintf('Load bandpass filtered data...\n');
   INFADI_loadData( cfg );
   
-  % remove eye artifacts
+  % correct EEG signals
   cfg           = [];
   cfg.part      = 'experimenter';
 
@@ -255,4 +257,4 @@ end
 
 %% clear workspace
 clear file_path cfg sourceList numOfSources i threshold selection x T ...
-      settings_file EOGcompExp reference refchannel
+      settings_file ICAcompExp reference refchannel
