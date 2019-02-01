@@ -1,10 +1,9 @@
-function  [ data_pwelchod ] = INFADI_PSDoverDyads( cfg )
-% INFADI_PSDOVERDYADS estimates the mean of the power spectral density
-% values over dyads for all conditions separately for experimenters and
-% children.
+function  [ data_pwelchod ] = INFADI_powOverDyads( cfg )
+% INFADI_POWOVERDYADS estimates the mean of the power actifity over dyads
+% for all conditions separately for experimenters and children.
 %
 % Use as
-%   [ data_pwelchod ] = INFADI_PSDoverDyads( cfg )
+%   [ data_pwelchod ] = INFADI_powOverDyads( cfg )
 %
 % The configuration options are
 %   cfg.path      = source path' (i.e. '/data/pt_01905/eegData/DualEEG_INFADI_processedData/08b_pwelch/')
@@ -33,7 +32,7 @@ load(sprintf('%s/../general/INFADI_generalDefinitions.mat', filepath), ...
 % -------------------------------------------------------------------------
 % Select dyads
 % -------------------------------------------------------------------------    
-fprintf('<strong>Averaging PSD values over dyads...</strong>\n');
+fprintf('<strong>Averaging power values over dyads...</strong>\n');
 
 dyadsList   = dir([path, sprintf('INFADI_d*_08b_pwelch_%03d.mat', session)]);
 dyadsList   = struct2cell(dyadsList);
@@ -116,7 +115,7 @@ dataChild = cellfun(@(x) shiftdim(x, 2), dataChild, 'UniformOutput', false);
 dataChild = cat(4, dataChild{:});
 
 % -------------------------------------------------------------------------
-% Estimate averaged power spectral density (over dyads)
+% Estimate averaged power spectrum (over dyads)
 % -------------------------------------------------------------------------
 dataExp   = nanmean(dataExp, 4);
 dataChild = nanmean(dataChild, 4);

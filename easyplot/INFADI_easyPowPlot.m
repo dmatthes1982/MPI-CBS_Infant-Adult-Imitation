@@ -1,9 +1,9 @@
-function INFADI_easyPSDplot(cfg, data)
-% INFADI_EASYPSDPLOT is a function, which makes it easier to plot the power
-% spectral density within a specific condition of the INFADI_DATASTRUCTURE
+function INFADI_easyPowPlot(cfg, data)
+% INFADI_EASYPOWPLOT is a function, which makes it easier to plot the
+% signal power within a specific condition of the INFADI_DATASTRUCTURE
 %
 % Use as
-%   INFADI_easyPSDplot(cfg, data)
+%   INFADI_easyPowPlot(cfg, data)
 %
 % where the input data have to be a result from INFADI_PWELCH.
 %
@@ -59,6 +59,9 @@ if isnumeric(elec)                                                          % ch
     end
   end
 else
+  if ischar(elec)
+    elec = {elec};
+  end
   tmpElec = zeros(1, length(elec));
   for i=1:length(elec)
     tmpElec(i) = find(strcmp(label, elec{i}));
@@ -74,7 +77,7 @@ if ~ismember(avgelec, {'yes', 'no'})                                        % ch
 end
 
 % -------------------------------------------------------------------------
-% Plot power spectral density (PSD)
+% Plot power activity
 % -------------------------------------------------------------------------
 legend('-DynamicLegend');
 hold on;
@@ -90,7 +93,7 @@ else
         'DisplayName', labelString);
 end
 
-title(sprintf('PSD - Part.: %s - Cond.: %d', part, cond));
+title(sprintf('Power - Part.: %s - Cond.: %d', part, cond));
 xlabel('frequency in Hz');                                                  % set xlabel
 ylabel('power in uV^2');                                                    % set ylabel
 

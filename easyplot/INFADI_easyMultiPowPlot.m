@@ -1,10 +1,9 @@
-function INFADI_easyMultiPSDplot(cfg, data)
-% INFADI_EASYMULTIPSDPLOT is a function, which makes it easier to plot the
-% power spectral density of all electrodes within a specific condition on a
-% head model.
+function INFADI_easyMultiPowPlot(cfg, data)
+% INFADI_EASYMULTIPOWPLOT is a function, which makes it easier to plot the
+% power of all electrodes within a specific condition on a head model.
 %
 % Use as
-%   INFADI_easyMultiPSDplot(cfg, data)
+%   INFADI_easyMultiPowPlot(cfg, data)
 %
 % where the input data have to be a result from INFADI_PWELCH.
 %
@@ -62,7 +61,7 @@ chanWidth         = lay.width(sellay);
 chanHeight        = lay.height(sellay);
 
 % -------------------------------------------------------------------------
-% Multi power spectral density (PSD) plot 
+% Multi power plot
 % -------------------------------------------------------------------------
 datamatrix  = squeeze(dataPlot.powspctrm(trialNum, selchan, :));            %#ok<FNDSB> % extract the powerspctrm matrix    
 xval        = dataPlot.freq;                                                % extract the freq vector
@@ -108,7 +107,7 @@ if ~isempty(k)
 end
 
 % set figure title
-title(sprintf('PSD - Part.: %s - Cond.: %d', cfg.part, cfg.cond));
+title(sprintf('Power - Part.: %s - Cond.: %d', cfg.part, cfg.cond));
 
 axis tight;                                                                 % format the layout
 axis off;                                                                   % remove the axis
@@ -128,13 +127,13 @@ info.(ident).cfg.avgelec  = 'no';
 info.(ident).data         = data;
 guidata(gcf, info);
 set(gcf, 'WindowButtonUpFcn', {@ft_select_channel, 'multiple', ...
-    true, 'callback', {@select_easyPSDplot}, ...
+    true, 'callback', {@select_easyPowPlot}, ...
     'event', 'WindowButtonUpFcn'});
 set(gcf, 'WindowButtonDownFcn', {@ft_select_channel, 'multiple', ...
-    true, 'callback', {@select_easyPSDplot}, ...
+    true, 'callback', {@select_easyPowPlot}, ...
     'event', 'WindowButtonDownFcn'});
 set(gcf, 'WindowButtonMotionFcn', {@ft_select_channel, 'multiple', ...
-    true, 'callback', {@select_easyPSDplot}, ...
+    true, 'callback', {@select_easyPowPlot}, ...
     'event', 'WindowButtonMotionFcn'});
 
 end
@@ -179,7 +178,7 @@ end
 %--------------------------------------------------------------------------
 % SUBFUNCTION which is called after selecting channels
 %--------------------------------------------------------------------------
-function select_easyPSDplot(label, varargin)
+function select_easyPowPlot(label, varargin)
 % fetch cfg/data based on axis indentifier given as tag
 ident = get(gca,'tag');
 info  = guidata(gcf);
@@ -193,7 +192,7 @@ if ~isempty(label)
     fprintf('selected cfg.electrode = {%s}\n', vec2str(cfg.electrode, [], [], 0));
     % ensure that the new figure appears at the same position
     figure('Position', get(gcf, 'Position'));
-    INFADI_easyPSDplot(cfg, data);
+    INFADI_easyPowPlot(cfg, data);
   end
 end
 

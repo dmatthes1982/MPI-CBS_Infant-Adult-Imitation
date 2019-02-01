@@ -25,7 +25,8 @@ if ~exist('numOfPart', 'var')                                               % es
 end
 
 %% part 8
-% Calculate TFRs of the preprocessed data
+% 1. Calculate TFRs of the preprocessed data
+% 2. Calculate the power scpectrum of the processed data
 
 cprintf([1,0.4,1], '<strong>[8] - Power analysis (TFR, pWelch)</strong>\n');
 fprintf('\n');
@@ -84,10 +85,10 @@ if tfr == true
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Calculation of power spectral density using Welch's method (pWelch)
+%% Calculation of the power spectrum using Welch's method (pWelch)
 choise = false;
 while choise == false
-  cprintf([1,0.4,1], 'Should the power spectral density by using Welch''s method be calculated?\n');
+  cprintf([1,0.4,1], 'Should the power spectrum by using Welch''s method be calculated?\n');
   x = input('Select [y/n]: ','s');
   if strcmp('y', x)
     choise = true;
@@ -104,7 +105,7 @@ fprintf('\n');
 if pwelch == true
   choise = false;
   while choise == false
-    cprintf([1,0.4,1], 'Should rejection of detected artifacts be applied before PSD estimation?\n');
+    cprintf([1,0.4,1], 'Should rejection of detected artifacts be applied before power estimation?\n');
     x = input('Select [y/n]: ','s');
     if strcmp('y', x)
       choise = true;
@@ -131,7 +132,7 @@ if pwelch == true
 
   T = readtable(file_path);                                                 % update settings table
   warning off;
-  T.artRejectPSD(numOfPart) = { x };
+  T.artRejectPow(numOfPart) = { x };
   warning on;
   delete(file_path);
   writetable(T, file_path);
@@ -196,12 +197,12 @@ if pwelch == true
       clear cfg_allart
     end
     
-    % Estimation of power spectral density
+    % Estimation of power spectrum
     cfg         = [];
     cfg.foi     = 1:1:50;                                                   % frequency of interest
       
-    data_preproc2 = INFADI_pWelch( cfg, data_preproc2 );                        % calculate power spectral density using Welch's method
-    data_pwelch = data_preproc2;                                              % to save need of RAM
+    data_preproc2 = INFADI_pWelch( cfg, data_preproc2 );                    % calculate power activity using Welch's method
+    data_pwelch = data_preproc2;                                            % to save need of RAM
     clear data_preproc2
     
     % export number of good trials into a spreadsheet
@@ -212,7 +213,7 @@ if pwelch == true
     cfg.sessionStr = sessionStr;
     INFADI_writeTbl(cfg, data_pwelch);
 
-    % export PSD data into a *.mat file
+    % export power spectrum into a *.mat file
     cfg             = [];
     cfg.desFolder   = strcat(desPath, '08b_pwelch/');
     cfg.filename    = sprintf('INFADI_d%02d_08b_pwelch', i);
@@ -221,7 +222,7 @@ if pwelch == true
     file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                        '.mat');
 
-    fprintf('Power spectral density data of dyad %d will be saved in:\n', i); 
+    fprintf('The Power spectrum of dyad %d will be saved in:\n', i);
     fprintf('%s ...\n', file_path);
     INFADI_saveData(cfg, 'data_pwelch', data_pwelch);
     fprintf('Data stored!\n\n');

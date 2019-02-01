@@ -141,7 +141,7 @@ if avgOverDyads == true
   
   data_tfrod     = INFADI_TFRoverDyads( cfg );
   
-  % export the averaged PSD values into a *.mat file
+  % export the averaged TFR values into a *.mat file
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '09b_tfrod/');
   cfg.filename    = 'INFADI_09b_tfrod';
@@ -158,10 +158,10 @@ if avgOverDyads == true
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Averaging PSD over dyads
+%% Averaging power over dyads
 choise = false;
 while choise == false
-  cprintf([1,0.4,1], 'Averaging PSD over dyads?\n');
+  cprintf([1,0.4,1], 'Averaging power over dyads?\n');
   x = input('Select [y/n]: ','s');
   if strcmp('y', x)
     choise = true;
@@ -180,9 +180,9 @@ if avgOverDyads == true
   cfg.path        = strcat(desPath, '08b_pwelch/');
   cfg.session     = str2double(sessionStr);
   
-  data_pwelchod     = INFADI_PSDoverDyads( cfg );
+  data_pwelchod     = INFADI_powOverDyads( cfg );
   
-  % export the averaged PSD values into a *.mat file
+  % export the averaged power spectra into a *.mat file
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '09c_pwelchod/');
   cfg.filename    = 'INFADI_09c_pwelchod';
@@ -191,7 +191,7 @@ if avgOverDyads == true
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                      '.mat');
                    
-  fprintf('Saving PSD values over dyads in:\n'); 
+  fprintf('Saving averaged power spectra over dyads in:\n');
   fprintf('%s ...\n', file_path);
   INFADI_saveData(cfg, 'data_pwelchod', data_pwelchod);
   fprintf('Data stored!\n');
