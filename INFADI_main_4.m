@@ -36,25 +36,37 @@ end
 cprintf([1,0.4,1], '<strong>[4] - Preproc II: ICA-based artifact correction, bad channel recovery, re-referencing</strong>\n');
 fprintf('\n');
 
-% favoured reference
+% determine available channels
+fprintf('Determine available channels...\n');
+cfg             = [];
+cfg.srcFolder   = strcat(desPath, '02b_preproc1/');
+cfg.filename    = sprintf('INFADI_d%02d_02b_preproc1', numOfPart(1));
+cfg.sessionStr  = sessionStr;
+
+INFADI_loadData( cfg );
+mastoid = ismember('TP10', data_preproc1.experimenter.label);
+clear data_preproc1;
+
+% select favoured reference
 selection = false;
 while selection == false
-  cprintf([1,0.4,1], 'Please select favoured reference:\n');
-  fprintf('[1] - Linked mastoid (''TP9'', ''TP10'')\n');
-  fprintf('[2] - Common average reference\n');
+  cprintf([0,0.6,0], 'Please select favoured reference:\n');
+  fprintf('[1] - Common average reference\n');
+  if(mastoid == true)
+    fprintf('[2] - Linked mastoid (''TP9'', ''TP10'')\n');
+  end
   x = input('Option: ');
 
-  switch x
-     case 1
-      selection = true;
-      refchannel = 'TP10';
-      reference = {'LM'};
-    case 2
-      selection = true;
-      refchannel = {'all', '-V1', '-V2'};
-      reference = {'CAR'};
-    otherwise
-      cprintf([1,0.5,0], 'Wrong input!\n');
+  if x == 1
+     selection = true;
+     refchannel = {'all', '-V1', '-V2'};
+     reference = {'CAR'};
+  elseif x == 2 && mastoid == true
+     selection = true;
+     refchannel = 'TP10';
+     reference = {'LM'};
+  else
+    cprintf([1,0.5,0], 'Wrong input!\n\n');
   end
 end
 fprintf('\n');
@@ -257,4 +269,4 @@ end
 
 %% clear workspace
 clear file_path cfg sourceList numOfSources i threshold selection x T ...
-      settings_file ICAcompExp reference refchannel
+      settings_file ICAcompExp reference refchannel mastoid

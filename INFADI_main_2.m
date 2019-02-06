@@ -45,9 +45,6 @@ end
 
 % Load settings file
 T = readtable(settings_file);
-warning off;
-T.dyad(numOfPart) = numOfPart;
-warning on;
 
 for i = numOfPart
   fprintf('<strong>Dyad %d</strong>\n\n', i);

@@ -8,6 +8,7 @@ function [ data ] = INFADI_importDataset(cfg)
 % The configuration options are
 %   cfg.path          = source path' (i.e. '/data/pt_01905/eegData/DualEEG_INFADI_rawData/')
 %   cfg.dyad          = number of dyad
+%   cfg.noichan       = channels which are not of interest (default: [])
 %   cfg.continuous    = 'yes' or 'no' (default: 'no')
 %   cfg.prestim       = define pre-Stimulus offset in seconds (default: 0)
 %   cfg.rejectoverlap = reject first of two overlapping trials, 'yes' or 'no' (default: 'yes')
@@ -28,6 +29,7 @@ function [ data ] = INFADI_importDataset(cfg)
 % -------------------------------------------------------------------------
 path          = ft_getopt(cfg, 'path', []);
 dyad          = ft_getopt(cfg, 'dyad', []);
+noichan       = ft_getopt(cfg, 'noichan', []);
 continuous    = ft_getopt(cfg, 'continuous', 'no');
 prestim       = ft_getopt(cfg, 'prestim', 0);
 rejectoverlap = ft_getopt(cfg, 'rejectoverlap', 'yes');
@@ -127,22 +129,33 @@ end
 % -------------------------------------------------------------------------
 % Data import
 % -------------------------------------------------------------------------
-cfg.channel = {'all', '-T7_1', '-T7_2', '-T8_1', '-T8_2', ...               % exclude all general bad channels
-               '-PO9_1', '-PO9_2', '-PO10_1','-PO10_2', ...
-               '-P7_1', '-P7_2', '-P8_1', '-P8_2', ...
-               '-V1_1', '-V2_1'};                                           % V1 and V2 are not connected with children
+if ~isempty(noichan)
+  noichan = cellfun(@(x) strcat('-', x), noichan, ...
+                          'UniformOutput', false);
+  noichanp1 = cellfun(@(x) strcat(x, '_1'), noichan, ...
+                          'UniformOutput', false);
+  noichanp2 = cellfun(@(x) strcat(x, '_2'), noichan, ...
+                          'UniformOutput', false);
+  cfg.channel = [{'all'} noichanp1 noichanp2 ...                            % exclude channels which are not of interest
+                {'-V1_1', '-V2_1'}];                                        % V1 and V2 are not connected with children, reject them always
+else
+  cfg.channel = {'all', '-V1_1', '-V2_1'};
+end
+
 dataTmp = ft_preprocessing(cfg);                                            % import data
 
+numOfChan = (numel(dataTmp.label) - 2)/2;
+
 data.experimenter = dataTmp;                                                % split dataset into two datasets, one for each participant
-data.experimenter.label = strrep(dataTmp.label(25:50), '_2', '');
+data.experimenter.label = strrep(dataTmp.label(numOfChan+1:end), '_2', '');
 for i=1:1:length(dataTmp.trial)
-  data.experimenter.trial{i} = dataTmp.trial{i}(25:50,:);
+  data.experimenter.trial{i} = dataTmp.trial{i}(numOfChan+1:end,:);
 end
 
 data.child = dataTmp;
-data.child.label = strrep(dataTmp.label(1:24), '_1', '');
+data.child.label = strrep(dataTmp.label(1:numOfChan), '_1', '');
 for i=1:1:length(dataTmp.trial)                                           
-  data.child.trial{i} = dataTmp.trial{i}(1:24,:);
+  data.child.trial{i} = dataTmp.trial{i}(1:numOfChan,:);
 end
 
 end

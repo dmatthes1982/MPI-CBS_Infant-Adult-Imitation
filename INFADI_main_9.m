@@ -182,7 +182,7 @@ if avgOverDyads == true
   
   data_pwelchod     = INFADI_powOverDyads( cfg );
   
-  % export the averaged power spectra into a *.mat file
+  % export the averaged power spectrum into a *.mat file
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '09c_pwelchod/');
   cfg.filename    = 'INFADI_09c_pwelchod';
@@ -191,7 +191,7 @@ if avgOverDyads == true
   file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
                      '.mat');
                    
-  fprintf('Saving averaged power spectra over dyads in:\n');
+  fprintf('Saving averaged power spectrum over dyads in:\n');
   fprintf('%s ...\n', file_path);
   INFADI_saveData(cfg, 'data_pwelchod', data_pwelchod);
   fprintf('Data stored!\n');
