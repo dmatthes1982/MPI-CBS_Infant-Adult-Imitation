@@ -36,7 +36,7 @@ if ~ismember(part, {'experimenter', 'child'})                               % ch
 end
 
 switch part                                                                 % extract selected participant
-    case 'experimenter'
+  case 'experimenter'
     data = data.experimenter;
   case 'child'
     data = data.child;
