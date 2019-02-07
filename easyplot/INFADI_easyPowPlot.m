@@ -57,7 +57,7 @@ else
 end
 
 if ~isempty(baseline)
-  baseline    = JAI_checkCondition( baseline );                             % check cfg.baseline definition
+  baseline    = INFADI_checkCondition( baseline );                          % check cfg.baseline definition
   if isempty(find(trialinfo == baseline, 1))
     error('The selected dataset contains no condition %d.', baseline);
   else
