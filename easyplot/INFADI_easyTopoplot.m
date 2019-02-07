@@ -27,7 +27,7 @@ function INFADI_easyTopoplot(cfg , data)
 part      = ft_getopt(cfg, 'part', 'experimenter');
 condition = ft_getopt(cfg, 'condition', 4);
 baseline  = ft_getopt(cfg, 'baseline', []);
-freqlim   = ft_getopt(cfg, 'freqrange', 10);
+freqlim   = ft_getopt(cfg, 'freqlim', 10);
 
 filepath = fileparts(mfilename('fullpath'));                                % add utilities folder to path
 addpath(sprintf('%s/../utilities', filepath));
