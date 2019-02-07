@@ -10,7 +10,10 @@ function INFADI_easyTopoplot(cfg , data)
 % The configuration options are 
 %   cfg.part        = participant identifier, options: 'experimenter' or 'child' (default: 'experimenter')   
 %   cfg.condition   = condition (default: 4 or 'Baseline', see INFADI_DATASTRUCTURE)
-%   cfg.freqrange   = limits for frequency in Hz (e.g. [6 9] or 10) (default: 10) 
+%   cfg.baseline    = baseline condition (default: [], can by any valid condition)
+%                     the values of the baseline condition will be subtracted
+%                     from the values of the selected condition (cfg.condition)
+%   cfg.freqlim     = limits for frequency in Hz (e.g. [6 9] or 10) (default: 10)
 %
 % This function requires the fieldtrip toolbox
 %
@@ -21,9 +24,10 @@ function INFADI_easyTopoplot(cfg , data)
 % -------------------------------------------------------------------------
 % Get and check config options
 % -------------------------------------------------------------------------
-part        = ft_getopt(cfg, 'part', 'experimenter');
-condition   = ft_getopt(cfg, 'condition', 4);
-freqrange   = ft_getopt(cfg, 'freqrange', 10);
+part      = ft_getopt(cfg, 'part', 'experimenter');
+condition = ft_getopt(cfg, 'condition', 4);
+baseline  = ft_getopt(cfg, 'baseline', []);
+freqlim   = ft_getopt(cfg, 'freqrange', 10);
 
 filepath = fileparts(mfilename('fullpath'));                                % add utilities folder to path
 addpath(sprintf('%s/../utilities', filepath));
@@ -48,8 +52,17 @@ else
   trialNum = ismember(trialinfo, condition);
 end
 
-if numel(freqrange) == 1
-  freqrange = [freqrange freqrange];
+if ~isempty(baseline)
+  baseline    = JAI_checkCondition( baseline );                             % check cfg.baseline definition
+  if isempty(find(trialinfo == baseline, 1))
+    error('The selected dataset contains no condition %d.', baseline);
+  else
+    baseNum = ismember(trialinfo, baseline);
+  end
+end
+
+if numel(freqlim) == 1
+  freqlim = [freqlim freqlim];
 end
 
 % -------------------------------------------------------------------------
@@ -59,7 +72,7 @@ load(sprintf('%s/../layouts/mpi_customized_acticap32.mat', filepath), 'lay');
 
 cfg               = [];
 cfg.parameter     = 'powspctrm';
-cfg.xlim          = freqrange;
+cfg.xlim          = freqlim;
 cfg.zlim          = 'maxmin';
 cfg.trials        = trialNum;
 cfg.colormap      = 'jet';
@@ -70,10 +83,20 @@ cfg.gridscale     = 200;                                                    % gr
 cfg.layout        = lay;
 cfg.showcallinfo  = 'no';
 
+if ~isempty(baseline)                                                       % subtract baseline condition
+  data.powspctrm(trialNum,:,:) = data.powspctrm(trialNum,:,:) - ...
+                                  data.powspctrm(baseNum,:,:);
+end
+
 ft_topoplotER(cfg, data);
 
-title(sprintf('Power - %s - Condition %d - Freqrange [%d %d]', ...
-                part, condition, freqrange));
+if isempty(baseline)
+  title(sprintf(['Power - %s - Condition %d - Freqrange '...
+            '[%d %d]'], part, condition, freqlim));
+else
+  title(sprintf(['Power - %s - Condition %d-%d - '...
+            'Freqrange [%d %d]'], part, condition, baseline, freqlim));
+end
 
 set(gcf, 'Position', [0, 0, 750, 550]);
 movegui(gcf, 'center');
