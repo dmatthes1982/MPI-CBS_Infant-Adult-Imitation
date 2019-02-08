@@ -63,7 +63,7 @@ if tfr == true
 
     cfg         = [];
     cfg.foi     = 2:1:50;                                                   % frequency of interest
-    cfg.toi     = 0:0.5:180;                                                % time of interest
+    cfg.toi     = 0:0.5:200;                                                % time of interest
 
     data_tfr = INFADI_timeFreqanalysis( cfg, data_preproc2 );
 
