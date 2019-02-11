@@ -47,7 +47,7 @@ fig = gcf;                                                                  % de
 fig.Position = [0 528 560 420];                                             % --> first figure will be placed on the left side of figure 2
 INFADI_databrowser( cfg, data_raw );
 cfgCC.maxchan = fix(numel(data_raw.experimenter.label) * 0.1);              % estimate 10% of the total number of channels in the data
-badLabel = JAI_channelCheckbox( cfgCC );
+badLabel = INFADI_channelCheckbox( cfgCC );
 close(gcf);                                                                 % close also databrowser view when the channelCheckbox will be closed
 close(gcf);                                                                 % close also total power diagram when the channelCheckbox will be closed
 if any(strcmp(badLabel, 'TP10'))
@@ -85,7 +85,7 @@ fig = gcf;                                                                  % de
 fig.Position = [0 528 560 420];                                             % --> first figure will be placed on the left side of figure 2
 INFADI_databrowser( cfg, data_raw );
 cfgCC.maxchan = fix(numel(data_raw.child.label) * 0.1);                     % estimate 10% of the total number of channels in the data
-badLabel = JAI_channelCheckbox( cfgCC );
+badLabel = INFADI_channelCheckbox( cfgCC );
 close(gcf);                                                                 % close also databrowser view when the channelCheckbox will be closed
 close(gcf);                                                                 % close also total power diagram when the channelCheckbox will be closed
 if any(strcmp(badLabel, 'TP10'))
