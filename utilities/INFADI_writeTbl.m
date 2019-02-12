@@ -91,7 +91,7 @@ elseif strcmp(type, 'pwelch')
   goodtrials1 = zeros(1, length(generalDefinitions.condNum));
   for i = 1:1:length(generalDefinitions.condNum)
     if loc(i) ~= 0
-      goodtrials1(i) = data.experimenter.goodtrials(loc(i));
+      goodtrials1(i) = data.experimenter.numOfGoodSeg(loc(i));
     end
   end
   goodtrials1 = num2cell(goodtrials1);
@@ -109,7 +109,7 @@ elseif strcmp(type, 'pwelch')
   goodtrials2 = zeros(1, length(generalDefinitions.condNum));
   for i = 1:1:length(generalDefinitions.condNum)
     if loc(i) ~= 0
-      goodtrials2(i) = data.child.goodtrials(loc(i));
+      goodtrials2(i) = data.child.numOfGoodSeg(loc(i));
     end
   end
   goodtrials2 = num2cell(goodtrials2);
