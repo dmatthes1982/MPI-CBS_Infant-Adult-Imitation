@@ -13,6 +13,7 @@ function INFADI_easyMultiPowPlot(cfg, data)
 %   cfg.baseline    = baseline condition (default: [], can by any valid condition)
 %                     the values of the baseline condition will be subtracted
 %                     from the values of the selected condition (cfg.condition)
+%   cfg.log         = use a logarithmic scale for the y axis, options: 'yes' or 'no' (default: 'no')
 %
 % This function requires the fieldtrip toolbox
 %
@@ -26,6 +27,7 @@ function INFADI_easyMultiPowPlot(cfg, data)
 cfg.part      = ft_getopt(cfg, 'part', 'experimenter');
 cfg.condition = ft_getopt(cfg, 'condition', 4);
 cfg.baseline  = ft_getopt(cfg, 'baseline', []);
+cfg.log       = ft_getopt(cfg, 'log', 'no');
 
 if ~ismember(cfg.part, {'experimenter', 'child'})                           % check cfg.part definition
   error('cfg.part has to either ''experimenter'' or ''child''.');
@@ -81,6 +83,10 @@ if isempty(cfg.baseline)                                                    % ex
 else
   datamatrix = squeeze(dataPlot.powspctrm(trialNum,selchan,:)) - ...        % subtract baseline condition
                 squeeze(dataPlot.powspctrm(baseNum,selchan,:));
+end
+
+if strcmp(cfg.log, 'yes')
+  datamatrix = 10 * log10( datamatrix );
 end
 
 xval        = dataPlot.freq;                                                % extract the freq vector
