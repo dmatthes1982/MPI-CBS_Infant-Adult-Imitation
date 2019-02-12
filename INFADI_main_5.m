@@ -187,6 +187,23 @@ if isempty(selChan)
 end
 fprintf('\n');
 
+% handle existing manual selected artifacts
+selection = false;
+while selection == false
+  cprintf([1,0.4,1], 'Do you want to load existing manual selected artifacts?\n');
+  y = input('Select [y/n]: ','s');
+  if strcmp('y', y)
+    selection = true;
+    importArt = true;
+  elseif strcmp('n', y)
+    selection = true;
+    importArt = false;
+  else
+    selection = false;
+  end
+end
+fprintf('\n');
+
 % Write selected settings to settings file
 file_path = [desPath '00_settings/' sprintf('settings_%s', sessionStr) '.xls'];
 if ~(exist(file_path, 'file') == 2)                                         % check if settings file already exist
@@ -235,6 +252,29 @@ for i = numOfPart
 
   cfg_autoart     = INFADI_autoArtifact(cfg, data_preproc2);
   
+  % import existing manual selected artifacts
+  if importArt == true
+    cfg             = [];
+    cfg.srcFolder   = strcat(desPath, '05b_allart/');
+    cfg.filename    = sprintf('INFADI_d%02d_05b_allart', i);
+    cfg.sessionStr  = sessionStr;
+
+    filename = strcat(cfg.srcFolder, cfg.filename, '_', cfg.sessionStr, ...
+                      '.mat');
+
+    if ~exist( filename, 'file')
+      cprintf([1,0.5,0], ['\nThere are no manual defined artifacts existing'...
+                          ' for dyad %d.\n'], i);
+    else
+      fprintf('\nImport existing manual defined artifacts...\n');
+      INFADI_loadData( cfg );
+      cfg_autoart.experimenter.artfctdef.visual = ...
+                                    cfg_allart.experimenter.artfctdef.visual;
+      cfg_autoart.child.artfctdef.visual = cfg_allart.child.artfctdef.visual;
+      clear cfg_allart filename
+    end
+  end
+
   % verify automatic detected artifacts / manual artifact detection
   cfg           = [];
   cfg.artifact  = cfg_autoart;
@@ -243,6 +283,11 @@ for i = numOfPart
   cfg_allart    = INFADI_manArtifact(cfg, data_preproc2);
   
   % export the automatic selected artifacts into a *.mat file
+  cfg_autoart.experimenter.artfctdef = removefields(...
+                        cfg_autoart.experimenter.artfctdef, {'visual'});
+  cfg_autoart.child.artfctdef = removefields(cfg_autoart.child.artfctdef, ...
+                                          {'visual'});
+
   cfg             = [];
   cfg.desFolder   = strcat(desPath, '05a_autoart/');
   cfg.filename    = sprintf('INFADI_d%02d_05a_autoart', i);
@@ -293,4 +338,4 @@ end
 %% clear workspace
 clear file_path numOfSources sourceList cfg i x y selection T threshold ...
       method winsize sliding default_threshold threshold_range ...
-      identifier selChan channels label sel
+      identifier selChan channels label sel importArt
