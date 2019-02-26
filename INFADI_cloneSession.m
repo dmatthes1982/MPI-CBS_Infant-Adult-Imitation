@@ -130,6 +130,8 @@ for i = 1:1:length(folderList)
   fileList      = dir(tmpPath);
   fileList      = struct2cell(fileList);
   fileList      = fileList(1,~cell2mat(fileList(5,:)))';
+  tf            = ~startsWith(fileList,'.');
+  fileList      = fileList(tf);                                             % remove temporary files from list
   fileList      = cellfun(@(x) strsplit(x, '.'), fileList, ...
                           'UniformOutput', false);
   fileList      = cat(1, fileList{:});
