@@ -50,7 +50,7 @@ clear data_preproc1;
 % select favoured reference
 selection = false;
 while selection == false
-  cprintf([0,0.6,0], 'Please select favoured reference:\n');
+  cprintf([1,0.4,1], 'Please select favoured reference:\n');
   fprintf('[1] - Common average reference\n');
   if(mastoid == true)
     fprintf('[2] - Linked mastoid (''TP9'', ''TP10'')\n');

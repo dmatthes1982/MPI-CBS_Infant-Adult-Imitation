@@ -30,7 +30,6 @@ dyad      = ft_getopt(cfg, 'dyad', []);
 % -------------------------------------------------------------------------
 cfg             = [];
 cfg.dyad        = dyad;
-cfg.channel     = {'all', '-V1', '-V2'};
 cfg.ylim        = [-100 100];
 cfgAllArt.experimenter = [];                                       
 cfgAllArt.child = [];
@@ -41,6 +40,7 @@ cfgAllArt.child = [];
 
 fprintf('\n<strong>Search for artifacts with experimenter...</strong>\n');
 cfg.part = 'experimenter';
+cfg.channel     = {'all', '-V1', '-V2'};
 cfg.trialinfo = data.experimenter.trialinfo;                                % specification of a trialinfo will lead into a combiend
                                                                             % presentation of trials of the same condition
 cfg.artifact = artifact.experimenter.artfctdef;
@@ -54,6 +54,7 @@ cfgAllArt.experimenter = keepfields(cfgAllArt.experimenter, {'artfctdef', 'showc
   
 fprintf('\n<strong>Search for artifacts with child...</strong>\n');
 cfg.part = 'child';
+cfg.channel     = {'all'};
 cfg.trialinfo = data.child.trialinfo;                                       % specification of a trialinfo will lead into a combiend
                                                                             % presentation of trials of the same condition
 cfg.artifact = artifact.child.artfctdef;

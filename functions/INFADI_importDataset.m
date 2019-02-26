@@ -137,14 +137,14 @@ if ~isempty(noichan)
   noichanp2 = cellfun(@(x) strcat(x, '_2'), noichan, ...
                           'UniformOutput', false);
   cfg.channel = [{'all'} noichanp1 noichanp2 ...                            % exclude channels which are not of interest
-                {'-V1_1', '-V2_1'}];                                        % V1 and V2 are not connected with children, reject them always
+                {'-V2_1'}];                                                 % V2 is not connected with children, reject them always
 else
-  cfg.channel = {'all', '-V1_1', '-V2_1'};
+  cfg.channel = {'all', '-V2_1'};
 end
 
 dataTmp = ft_preprocessing(cfg);                                            % import data
 
-numOfChan = (numel(dataTmp.label) - 2)/2;
+numOfChan = (numel(dataTmp.label) - 1)/2;
 
 data.experimenter = dataTmp;                                                % split dataset into two datasets, one for each participant
 data.experimenter.label = strrep(dataTmp.label(numOfChan+1:end), '_2', '');
