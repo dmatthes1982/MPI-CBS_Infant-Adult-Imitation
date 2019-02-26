@@ -29,12 +29,12 @@ function INFADI_easyArtfctmapPlot(cfg, cfg_autoart)
 part      = ft_getopt(cfg, 'part', 'experimenter');                         % get participant identifier
 trialinfo = ft_getopt(cfg, 'trialinfo', []);                                % get trialinfo of dataset
 
-label = cfg_autoart.label;                                                  % get labels which were used for artifact detection
-
 if strcmp(part, 'experimenter')
+  label = cfg_autoart.labelExp;                                             % get labels which were used for artifact detection
   badNumChan  = cfg_autoart.bad1NumChan;
   cfg_autoart = cfg_autoart.experimenter;
 elseif strcmp(part, 'child')
+  label = cfg_autoart.labelChild;                                           % get labels which were used for artifact detection
   badNumChan  = cfg_autoart.bad2NumChan;
   cfg_autoart = cfg_autoart.child;
 else                                                                        % check validity of cfg.part

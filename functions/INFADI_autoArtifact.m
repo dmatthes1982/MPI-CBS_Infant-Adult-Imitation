@@ -11,7 +11,7 @@ function [ cfgAutoArt ] = INFADI_autoArtifact( cfg, data )
 %
 % The configuration options are
 %   cfg.part        = participants which shall be processed: experimenter, child or both (default: both)
-%   cfg.channel     = cell-array with channel labels (default: {'Cz', 'O1', 'O2'}))
+%   cfg.channel     = 1x2 cell-array with channel labels for experimenter and child (default: {{'Cz', 'O1', 'O2'}, {'Cz', 'O1', 'O2'}}))
 %   cfg.method      = 'minmax', 'range' or 'stddev' (default: 'minmax'
 %   cfg.sliding     = use a sliding window, 'yes' or 'no', (default: 'no')
 %   cfg.winsize     = size of sliding window (default: 200 ms)
@@ -38,7 +38,7 @@ function [ cfgAutoArt ] = INFADI_autoArtifact( cfg, data )
 % See also INFADI_GENTRL, INFADI_PREPROCESSING, INFADI_SEGMENTATION, 
 % INFADI_CONCATDATA, FT_ARTIFACT_THRESHOLD
 
-% Copyright (C) 2018, Daniel Matthes, MPI CBS
+% Copyright (C) 2018-2019, Daniel Matthes, MPI CBS
 
 % -------------------------------------------------------------------------
 % Load general definitions
@@ -51,7 +51,8 @@ load(sprintf('%s/../general/INFADI_generalDefinitions.mat', filepath), ...
 % Get and check config options
 % -------------------------------------------------------------------------
 part        = ft_getopt(cfg, 'part', 'both');                               % participant selection
-chan        = ft_getopt(cfg, 'channel', {'Cz', 'O1', 'O2'});                % channels to test
+chan        = ft_getopt(cfg, 'channel', ...                                 % channels to test
+                          {{'Cz', 'O1', 'O2'},{'Cz', 'O1', 'O2'}});
 method      = ft_getopt(cfg, 'method', 'minmax');                           % artifact detection method
 sliding     = ft_getopt(cfg, 'sliding', 'no');                              % use a sliding window
 
@@ -132,7 +133,6 @@ end
 cfg = [];
 cfg.method                        = method;
 cfg.sliding                       = sliding;
-cfg.artfctdef.threshold.channel   = chan;                                   % specify channels of interest
 cfg.artfctdef.threshold.bpfilter  = 'no';                                   % use no additional bandpass
 cfg.artfctdef.threshold.bpfreq    = [];                                     % use no additional bandpass
 cfg.artfctdef.threshold.onset     = [];                                     % just defined to get a similar output from ft_artifact_threshold and artifact_threshold
@@ -174,7 +174,7 @@ end
 % Estimate artifacts
 % -------------------------------------------------------------------------
 if ismember(part, {'experimenter', 'both'})
-  cfgAutoArt.experimenter = [];                                               % build output structure
+  cfgAutoArt.experimenter = [];                                             % build output structure
   cfgAutoArt.bad1Num = [];
 end
 
@@ -189,6 +189,7 @@ ft_info off;
 
 if ismember(part, {'experimenter', 'both'})
   fprintf('<strong>Estimate artifacts in experimenter...</strong>\n');      % experimenter
+  cfg.artfctdef.threshold.channel   = chan{1};                              % specify channels of interest
   cfgAutoArt.experimenter = artifact_detect(cfg, data.experimenter);
   cfgAutoArt.experimenter = keepfields(cfgAutoArt.experimenter, {'artfctdef', 'showcallinfo'});
   [cfgAutoArt.experimenter.artfctdef.threshold, cfgAutoArt.bad1Num] = ...   % extend artifacts to subtrial definition
@@ -203,6 +204,10 @@ if ismember(part, {'experimenter', 'both'})
     artfctmap = cfgAutoArt.experimenter.artfctdef.threshold.artfctmap;
     artfctmap = cellfun(@(x) sum(x, 2), artfctmap, 'UniformOutput', false);
     cfgAutoArt.bad1NumChan = nansum(cat(2,artfctmap{:}),2);
+
+    cfgAutoArt.labelExp = ft_channelselection(...
+                cfgAutoArt.experimenter.artfctdef.threshold.channel, ...
+                data.experimenter.label);
   end
 end
 
@@ -219,7 +224,8 @@ if ismember(part, {'child', 'both'})
       cfg.artfctdef.threshold.mad  = mad(2);                                % mad
   end
 
-  fprintf('<strong>Estimate artifacts in child...</strong>\n');     % child
+  fprintf('<strong>Estimate artifacts in child...</strong>\n');             % child
+  cfg.artfctdef.threshold.channel   = chan{2};                              % specify channels of interest
   cfgAutoArt.child = artifact_detect(cfg, data.child);
   cfgAutoArt.child = keepfields(cfgAutoArt.child, {'artfctdef', 'showcallinfo'});
   [cfgAutoArt.child.artfctdef.threshold, cfgAutoArt.bad2Num] = ...          % extend artifacts to subtrial definition
@@ -235,7 +241,7 @@ if ismember(part, {'child', 'both'})
     artfctmap = cellfun(@(x) sum(x, 2), artfctmap, 'UniformOutput', false);
     cfgAutoArt.bad2NumChan = nansum(cat(2,artfctmap{:}),2);
 
-    cfgAutoArt.label = ft_channelselection(...
+    cfgAutoArt.labelChild = ft_channelselection(...
                 cfgAutoArt.child.artfctdef.threshold.channel, ...
                 data.child.label);
   end

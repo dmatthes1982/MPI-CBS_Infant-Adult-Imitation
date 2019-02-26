@@ -151,18 +151,21 @@ while selection == false
   x = input('Select [y/n]: ','s');
   if strcmp('y', x)
     selection = true;
-    selChan = {'all', '-V1', '-V2', '-REF', '-EOGV', '-EOGH'};
-    channels = {'all'};
+    selChanExp    = {'all', '-V1', '-V2', '-REF', '-EOGV', '-EOGH'};
+    selChanChild  = {'all', '-V1', '-V2', '-REF', '-EOGV', '-EOGH'};
+    channelsExp   = {'all'};
+    channelsChild = {'all'};
   elseif strcmp('n', x)
     selection = true;
-    selChan = [];
+    selChanExp    = [];
+    selChanChild  = [];
   else
     selection = false;
   end
 end
 
 % channel selection (user specification)
-if isempty(selChan)
+if isempty(selChanExp) && isempty(selChanChild)
   cprintf([1,0.4,1], '\nAvailable channels will be determined. Please wait...\n');
   cfg             = [];
   cfg.srcFolder   = strcat(desPath, '04c_preproc2/');
@@ -175,15 +178,27 @@ if isempty(selChan)
   label = label(~ismember(label, {'V1', 'V2', 'REF', 'EOGV', 'EOGH'}));     % remove 'V1', 'V2', 'REF', 'EOGV' and 'EOGH'
   clear data_preproc2
 
-  sel = listdlg('PromptString', 'Select channels of interest...', ...       % open the dialog window --> the user can select the channels of interest
+  sel = listdlg('PromptString', ...                                         % open the dialog window --> the user can select the channels of interest for the experimenter
+              'Select channels of interest for experimenter...', ...
               'ListString', label, ...
-              'ListSize', [220, 300] );
+              'ListSize', [300, 300] );
 
-  selChan = label(sel);
-  channels = {strjoin(selChan,',')};
+  selChanExp  = label(sel);
+  channelsExp = {strjoin(selChanExp,',')};
 
-  fprintf('You have selected the following channels:\n');
-  fprintf('%s\n', channels{1});
+  fprintf('You have selected the following channels of the experimenter:\n');
+  fprintf('%s\n', channelsExp{1});
+
+  sel = listdlg('PromptString', ...                                         % open the dialog window --> the user can select the channels of interest for the child
+              'Select channels of interest for experimenter...', ...
+              'ListString', label, ...
+              'ListSize', [300, 300] );
+
+  selChanChild  = label(sel);
+  channelsChild = {strjoin(selChanChild,',')};
+
+  fprintf('You have selected the following channels of the child:\n');
+  fprintf('%s\n', channelsChild{1});
 end
 fprintf('\n');
 
@@ -217,10 +232,11 @@ end
 
 T = readtable(file_path);                                                   % update settings table
 warning off;
-T.artMethod(numOfPart) = {method};
-T.artTholdExp(numOfPart) = threshold(1);
-T.artTholdChild(numOfPart) = threshold(2);
-T.artChan(numOfPart) = channels;
+T.artMethod(numOfPart)      = {method};
+T.artTholdExp(numOfPart)    = threshold(1);
+T.artTholdChild(numOfPart)  = threshold(2);
+T.artChanExp(numOfPart)     = channelsExp;
+T.artChanChild(numOfPart)   = channelsChild;
 warning on;
 delete(file_path);
 writetable(T, file_path);
@@ -237,7 +253,7 @@ for i = numOfPart
 
  % automatic artifact detection
   cfg             = [];
-  cfg.channel     = selChan;
+  cfg.channel     = {selChanExp, selChanChild};
   cfg.method      = method;                                                 % artifact detection method
   cfg.sliding     = sliding;                                                % use sliding window or not
   cfg.winsize     = winsize;                                                % size of sliding window
@@ -338,4 +354,5 @@ end
 %% clear workspace
 clear file_path numOfSources sourceList cfg i x y selection T threshold ...
       method winsize sliding default_threshold threshold_range ...
-      identifier selChan channels label sel importArt
+      identifier selChanExp selChanChild channelsChild channelsExp label...
+      sel importArt

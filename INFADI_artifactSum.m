@@ -111,14 +111,15 @@ for i = 1:1:numOfFiles
   numOfPart(i) = sscanf(fileList{i}, strcat('INFADI_d%d*', sessionStr, '.mat'));
 end
 
-file_path = strcat(tmpPath, fileList{i});
+file_path = strcat(tmpPath, fileList{1});
 load(file_path, 'cfg_autoart');
 
-label = cfg_autoart.label;
-label_1 = cellfun(@(x) strcat(x, '_1'), label, 'UniformOutput', false)';
-label_2 = cellfun(@(x) strcat(x, '_2'), label, 'UniformOutput', false)';
+labelExp    = cfg_autoart.labelExp;
+labelChild  = cfg_autoart.labelChild;
+label_1 = cellfun(@(x) strcat(x, '_1'), labelExp,   'UniformOutput', false)';
+label_2 = cellfun(@(x) strcat(x, '_2'), labelChild, 'UniformOutput', false)';
 
-T = cell2table(num2cell(zeros(1, length(label) * 2 + 3 )));
+T = cell2table(num2cell(zeros(1, length(label_1) + length(label_2) + 3 )));
 T.Properties.VariableNames = [{'dyad', 'ArtifactsPart1', ...
                                 'ArtifactsPart2'} label_1 label_2];         % create empty table with variable names
 
@@ -126,23 +127,27 @@ for i = 1:1:length(fileList)
   file_path = strcat(tmpPath, fileList{i});
   load(file_path, 'cfg_autoart');
 
-  chan = ismember(label, cfg_autoart.label);                                % determine all channels which were used for artifact detection
-  pos = find(ismember(cfg_autoart.label, label));                           % determine the order of the channels
+  chan = ismember(labelExp, cfg_autoart.labelExp);                          % determine all channels which were used for artifact detection
+  pos = ismember(cfg_autoart.labelExp, labelExp);                           % determine the order of the channels
 
-  tmpArt1 = zeros(1,length(label));
+  tmpArt1 = zeros(1,length(labelExp));
   tmpArt1(chan) = cfg_autoart.bad1NumChan(pos);                             % extract number of artifacts per channel for participant 1
   tmpArt1 = num2cell(tmpArt1);
 
-  tmpArt2 = zeros(1,length(label));
+  chan = ismember(labelChild, cfg_autoart.labelChild);                      % determine all channels which were used for artifact detection
+  pos = ismember(cfg_autoart.labelChild, labelChild);                       % determine the order of the channels
+
+  tmpArt2 = zeros(1,length(labelChild));
   tmpArt2(chan) = cfg_autoart.bad2NumChan(pos);                             % extract number of artifacts per channel for participant 2
   tmpArt2 = num2cell(tmpArt2);
-  
+
   warning off;
   T.dyad(i) = numOfPart(i);
   T.ArtifactsPart1(i) = cfg_autoart.bad1Num;
   T.ArtifactsPart2(i) = cfg_autoart.bad2Num;
-  T(i,4:length(label) + 3)                            = tmpArt1;
-  T(i, (length(label) + 4):(2 * length(label) + 3))   = tmpArt2;
+  T(i,4:length(label_1) + 3)  = tmpArt1;
+  T(i, (length(label_1) + 4):(length(label_1) + length(label_2) + 3)) = ...
+                                tmpArt2;
   warning on;
 end
 
@@ -179,5 +184,5 @@ fprintf('%s\n', file_path);
 
 %% clear workspace
 clear tmpPath path sessionStr fileList numOfFiles numOfPart i ...
-      file_path cfg_autoart T newPaths filename selection x chan label ...
-      label_1 label_2 pos tmpArt1 tmpArt2
+      file_path cfg_autoart T newPaths filename selection x chan ...
+      labelChild labelExp label_1 label_2 pos tmpArt1 tmpArt2
