@@ -38,7 +38,7 @@ fprintf('\n');
 
 selection = false;
 while selection == false
-  cprintf([0,0.6,0], 'Select channels, which are NOT of interest?\n');
+  cprintf([1,0.4,1], 'Select channels, which are NOT of interest?\n');
   fprintf('[1] - import all channels\n');
   fprintf('[2] - reject T7, T8, PO9, PO10, P7, P8\n');
   fprintf('[3] - reject specific selection\n');

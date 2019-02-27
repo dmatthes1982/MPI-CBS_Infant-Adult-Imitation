@@ -61,8 +61,8 @@ for i = numOfPart
   fprintf('<strong>Search for artifacts in all electrodes except F9, F10, V1 and V2...\n</strong>');
   cfg             = [];
   cfg.part        = 'experimenter';
-  cfg.channel     = {'all', '-F9', '-F10', '-V1' '-V2', '-EOGV', ...        % use all channels for transient artifact detection expect EOGV, EOGH and REF
-                      '-EOGH', '-REF'};
+  cfg.channel     = repmat({{'all', '-F9', '-F10', '-V1' '-V2', '-EOGV',... % use all channels for transient artifact detection expect EOGV, EOGH and REF
+                             '-EOGH', '-REF'}},1,2);
   cfg.method      = 'range';
   cfg.sliding     = 'no';
   cfg.continuous  = 'yes';
@@ -75,7 +75,7 @@ for i = numOfPart
   fprintf('\n<strong>Search for artifacts in F9, F10, V1 and V2...\n</strong>');
   cfg             = [];
   cfg.part        = 'experimenter';
-  cfg.channel     = {'V1', 'V2', 'F9', 'F10'};                              % use only F9, F10, V1 and V2
+  cfg.channel     = repmat({{'V1', 'V2', 'F9', 'F10'}},1,2);                % use only F9, F10, V1 and V2
   cfg.method      = 'range';
   cfg.sliding     = 'no';
   cfg.continuous  = 'yes';
