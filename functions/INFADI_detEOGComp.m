@@ -43,7 +43,11 @@ end
 
 if ismember(part, {'child', 'both'})
   fprintf('<strong>Determine EOG-correlating components at child...</strong>\n');
-  data_eogcomp.child = corrComp(data_icacomp.child, data_sensor.child, threshold(2));
+  if numel(threshold) == 2
+    data_eogcomp.child = corrComp(data_icacomp.child, data_sensor.child, threshold(2));
+  else
+    data_eogcomp.child = corrComp(data_icacomp.child, data_sensor.child, 0.8);
+  end
 end
 
 end
@@ -61,13 +65,14 @@ eoghCorr = zeros(2,2,numOfComp);
 eogvNum = strcmp('EOGV', dataEOG.label);
 eoghNum = strcmp('EOGH', dataEOG.label);
 
-for i=1:numOfComp
-  eogvCorr(:,:,i) = corrcoef( dataEOG.trial{1}(eogvNum,:), ...
-                              dataICAComp.trial{1}(i,:));
-  eoghCorr(:,:,i) = corrcoef( dataEOG.trial{1}(eoghNum,:), ...
-                              dataICAComp.trial{1}(i,:));
+if ~isempty(eogvNum & eoghNum)
+  for i=1:numOfComp
+    eogvCorr(:,:,i) = corrcoef( dataEOG.trial{1}(eogvNum,:), ...
+                                dataICAComp.trial{1}(i,:));
+    eoghCorr(:,:,i) = corrcoef( dataEOG.trial{1}(eoghNum,:), ...
+                                dataICAComp.trial{1}(i,:));
+  end
 end
-
 eogvCorr = squeeze(eogvCorr(1,2,:));
 eoghCorr = squeeze(eoghCorr(1,2,:));
 

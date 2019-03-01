@@ -49,7 +49,7 @@ for i = numOfPart
   
   % Concatenated preprocessed trials to a continuous stream
   cfg             = [];
-  cfg.part        = 'experimenter';
+  cfg.part        = 'both';
   
   data_continuous = INFADI_concatData( cfg, data_preproc1 );
   
@@ -60,7 +60,7 @@ for i = numOfPart
   % The window is shifted with 100 ms, what means 50 % overlapping.)
   fprintf('<strong>Search for artifacts in all electrodes except F9, F10, V1 and V2...\n</strong>');
   cfg             = [];
-  cfg.part        = 'experimenter';
+  cfg.part        = 'both';
   cfg.channel     = repmat({{'all', '-F9', '-F10', '-V1' '-V2', '-EOGV',... % use all channels for transient artifact detection expect EOGV, EOGH and REF
                              '-EOGH', '-REF'}},1,2);
   cfg.method      = 'range';
@@ -74,7 +74,7 @@ for i = numOfPart
 
   fprintf('\n<strong>Search for artifacts in F9, F10, V1 and V2...\n</strong>');
   cfg             = [];
-  cfg.part        = 'experimenter';
+  cfg.part        = 'both';
   cfg.channel     = repmat({{'V1', 'V2', 'F9', 'F10'}},1,2);                % use only F9, F10, V1 and V2
   cfg.method      = 'range';
   cfg.sliding     = 'no';
@@ -90,7 +90,7 @@ for i = numOfPart
   clear cfg_autoart1 cfg_autoart2
    
   cfg           = [];
-  cfg.part      = 'experimenter';
+  cfg.part      = 'both';
   cfg.artifact  = cfg_autoart;
   cfg.reject    = 'partial';                                                % partial rejection
   cfg.target    = 'single';                                                 % target of rejection
@@ -102,13 +102,13 @@ for i = numOfPart
   
   % Concatenated cleaned data to a continuous stream
   cfg             = [];
-  cfg.part        = 'experimenter';
+  cfg.part        = 'both';
   
   data_cleaned = INFADI_concatData( cfg, data_cleaned );
   
   % ICA decomposition
   cfg               = [];
-  cfg.part          = 'experimenter';
+  cfg.part          = 'both';
   cfg.channel       = {'all', '-EOGV', '-EOGH', '-REF'};                    % use all channels for EOG decomposition expect EOGV, EOGH and REF
   cfg.numcomponent  = 'all';
   
@@ -132,7 +132,7 @@ for i = numOfPart
   
   % Extract EOG channels from the cleaned continuous data 
   cfg               = [];
-  cfg.part          = 'experimenter';
+  cfg.part          = 'both';
   cfg.channel       = {'EOGV', 'EOGH'};
   cfg.trials        = 'all';
   data_eogchan      = INFADI_selectdata(cfg, data_cleaned);

@@ -56,10 +56,12 @@ function [ dataEOGComp ] = selectComp( dataEOGComp, dataICAcomp )
 numOfElements = 1:length(dataEOGComp.elements);
 idx = find(ismember(dataICAcomp.label, dataEOGComp.elements))';
 
-fprintf(['Select components to reject!\n'...
-         'Components which exceeded the selected EOG correlation '...'
-         'threshold are already marked as bad.\n'...
-         'These are:\n']);
+fprintf('Select components to reject!\n');
+if ~isempty(numOfElements)
+  fprintf(['Components which exceeded the selected EOG correlation '...'
+           'threshold are already marked as bad.\n'...
+           'These are:\n']);
+end
 
 for i = numOfElements
   [~, pos] = max(abs([dataEOGComp.eoghCorr(idx(i)) ...
