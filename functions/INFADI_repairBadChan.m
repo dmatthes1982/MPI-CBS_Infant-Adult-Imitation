@@ -16,7 +16,7 @@ function [ data ] = INFADI_repairBadChan( data_badchan, data )
 %
 % SEE also FT_CHANNELREPAIR
 
-% Copyright (C) 2018, Daniel Matthes, MPI CBS
+% Copyright (C) 2018-2019, Daniel Matthes, MPI CBS
 
 % -------------------------------------------------------------------------
 % Load layout and neighbour definitions
@@ -49,7 +49,7 @@ else
   data.experimenter = removefields(data.experimenter, {'elec'});
   fprintf('\n');
 end
-label = [lay.label; {'REF'; 'EOGV'; 'EOGH'}];
+label = [lay.label; {'EOGV'; 'EOGH'}];
 data.experimenter = correctChanOrder( data.experimenter, label);
 
 cfg.missingchannel = data_badchan.child.badChan;

@@ -11,7 +11,7 @@ function [ data ] = INFADI_reref( cfg, data )
 %
 % See also FT_PREPROCESSING, INFADI_DATASTRUCTURE
 
-% Copyright (C) 2018, Daniel Matthes, MPI CBS
+% Copyright (C) 2018-2019, Daniel Matthes, MPI CBS
 
 % -------------------------------------------------------------------------
 % Get and check the config option
@@ -30,17 +30,48 @@ else
 end
 cfg.implicitref   = 'REF';                                                  % add implicit channel 'REF' to the channels
 cfg.refmethod     = 'avg';                                                  % average over selected electrodes
-cfg.channel       = 'all';                                                  % use all channels
+cfg.channel       = {'all', '-EOGH', '-EOGV'};                              % use all channels except eogv and eogh
 cfg.trials        = 'all';                                                  % use all trials
 cfg.feedback      = 'no';                                                   % feedback should not be presented
 cfg.showcallinfo  = 'no';                                                   % prevent printing the time and memory after each function call
 
 fprintf('Re-reference experimenter data...\n');
-data.experimenter = ft_preprocessing(cfg, data.experimenter);
-data.experimenter.label  = data.experimenter.label';
+data.experimenter = reref(cfg, data.experimenter);
   
 fprintf('Re-reference child data...\n');
-data.child        = ft_preprocessing(cfg, data.child);
-data.child.label  = data.child.label';
+data.child        = reref(cfg, data.child);
+
+end
+
+% -------------------------------------------------------------------------
+% SUBFUNCTION
+% does rereferencing
+% -------------------------------------------------------------------------
+function [ data ] = reref(cfgRef, data)
+
+cfg               = [];
+cfg.channel       = 'EOGV';
+cfg.showcallinfo  = 'no';
+
+eogv              = ft_selectdata(cfg, data);                               % copy eogv
+
+cfg               = [];
+cfg.channel       = 'EOGH';
+cfg.showcallinfo  = 'no';
+
+eogh              = ft_selectdata(cfg, data);                               % copy eogh
+
+data        = ft_preprocessing(cfgRef, data);
+data.label  = data.label';
+
+if ~isempty(eogh.label) || ~isempty(eogv.label)
+  cfg               = [];
+  cfg.showcallinfo  = 'no';
+  ft_info off;
+  fsample       = data.fsample;
+  data          = ft_appenddata(cfg, data, eogv, eogh);                     % add eogv and eogh
+  data.fsample  = fsample;
+  ft_info on;
+end
 
 end

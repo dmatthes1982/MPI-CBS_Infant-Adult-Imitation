@@ -19,7 +19,7 @@ function [ data ] = INFADI_preprocessing( cfg, data )
 % See also INFADI_IMPORTDATASET, INFADI_SELECTBADCHAN, FT_PREPROCESSING,
 % INFADI_DATASTRUCTURE
 
-% Copyright (C) 2018, Daniel Matthes, MPI CBS
+% Copyright (C) 2018-2019, Daniel Matthes, MPI CBS
 
 % -------------------------------------------------------------------------
 % Get and check config options
@@ -50,7 +50,7 @@ childChan = [{'all'} childBadChan];
 % -------------------------------------------------------------------------
 cfg                   = [];
 cfg.bpfilter          = 'yes';                                              % use bandpass filter
-cfg.bpfreq            = bpfreq;                                             % bandpass range  
+cfg.bpfreq            = bpfreq;                                             % bandpass range
 cfg.bpfilttype        = bpfilttype;                                         % bandpass filter type
 cfg.bpinstabilityfix  = bpinstabilityfix;                                   % deal with filter instability
 cfg.trials            = 'all';                                              % use all trials
@@ -113,7 +113,5 @@ ft_info off;
 data_out          = ft_appenddata(cfg, data_in, eogv, eogh);
 data_out.fsample  = data_in.fsample;
 ft_info on;
-
-
 
 end

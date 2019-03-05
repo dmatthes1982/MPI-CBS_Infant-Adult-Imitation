@@ -16,7 +16,7 @@ function [ data_eogcomp ] = INFADI_selectBadComp( cfg, data_eogcomp, data_icacom
 %
 % This function requires the fieldtrip toolbox
 %
-% See also INFADI_DETEOGCOMP, INFADI_ICA and FT_DATABROWSER
+% See also INFADI_DETEOGCOMP, INFADI_ICA and FT_ICABROWSER
 
 % Copyright (C) 2018-2019, Daniel Matthes, MPI CBS
 
@@ -82,6 +82,7 @@ cfg               = [];
 cfg.rejcomp       = idx;
 cfg.blocksize     = 30;
 cfg.layout        = lay;
+cfg.zlim          = 'maxabs';
 cfg.colormap      = 'jet';
 cfg.showcallinfo  = 'no';
 
