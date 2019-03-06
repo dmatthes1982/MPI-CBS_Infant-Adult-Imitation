@@ -29,12 +29,18 @@ end
 cprintf([1,0.4,1], '<strong>[6] - Narrow band filtering and Hilbert transform</strong>\n');
 fprintf('\n');
 
+%% passband specifications
+[pbSpec(1:4).freqRange]     = deal([4 7],[6 9],[13 30],[31 48]);
+[pbSpec(1:4).fileSuffix]    = deal('Theta','Alpha','Beta','Gamma');
+[pbSpec(1:4).name]          = deal('theta','alpha','beta','gamma');
+[pbSpec(1:4).filtOrdBase]   = deal(500, 250, 250, 250);
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% bandpass filtering
 
 for i = numOfPart
   fprintf('<strong>Dyad %d</strong>\n', i);
-  
+
   cfg             = [];
   cfg.srcFolder   = strcat(desPath, '04c_preproc2/');
   cfg.filename    = sprintf('INFADI_d%02d_04c_preproc2', i);
@@ -45,97 +51,33 @@ for i = numOfPart
   
   filtCoeffDiv = 500 / data_preproc2.experimenter.fsample;                  % estimate sample frequency dependent divisor of filter length
 
-  % bandpass filter data at theta (4-7 Hz)
-  cfg           = [];
-  cfg.bpfreq    = [4 7];
-  cfg.filtorder = fix(500 / filtCoeffDiv);
-  cfg.channel   = {'all', '-REF', '-EOGV', '-EOGH', '-V1', '-V2'};
-  
-  data_bpfilt_theta = INFADI_bpFiltering(cfg, data_preproc2);
-  
-  % export the filtered data into a *.mat file
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '06a_bpfilt/');
-  cfg.filename    = sprintf('INFADI_d%02d_06a_bpfiltTheta', i);
-  cfg.sessionStr  = sessionStr;
+  % bandpass filter data
+  for j = 1:1:numel(pbSpec)
+    cfg           = [];
+    cfg.bpfreq    = pbSpec(j).freqRange;
+    cfg.filtorder = fix(pbSpec(j).filtOrdBase / filtCoeffDiv);
+    cfg.channel   = {'all', '-REF', '-EOGV', '-EOGH', '-V1', '-V2'};
 
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
+    data_bpfilt   = INFADI_bpFiltering(cfg, data_preproc2);
+  
+    % export the filtered data into a *.mat file
+    cfg             = [];
+    cfg.desFolder   = strcat(desPath, '06a_bpfilt/');
+    cfg.filename    = sprintf('INFADI_d%02d_06a_bpfilt%s', i, ...
+                                pbSpec(j).fileSuffix);
+    cfg.sessionStr  = sessionStr;
+
+    file_path = strcat(cfg.desFolder, cfg.filename, '_', ...
+                        cfg.sessionStr, '.mat');
                    
-  fprintf('Saving bandpass filtered data (theta: 4-7Hz) of dyad %d in:\n', i); 
-  fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'data_bpfilt_theta', data_bpfilt_theta);
-  fprintf('Data stored!\n\n');
-  clear data_bpfilt_theta
-  
-  % bandpass filter data at alpha (6-9 Hz)
-  cfg           = [];
-  cfg.bpfreq    = [6 9];
-  cfg.filtorder = fix(250 / filtCoeffDiv);
-  cfg.channel   = {'all', '-REF', '-EOGV', '-EOGH', '-V1', '-V2'};
-  
-  data_bpfilt_alpha = INFADI_bpFiltering(cfg, data_preproc2);
-  
-  % export the filtered data into a *.mat file
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '06a_bpfilt/');
-  cfg.filename    = sprintf('INFADI_d%02d_06a_bpfiltAlpha', i);
-  cfg.sessionStr  = sessionStr;
-
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
-                   
-  fprintf('Saving bandpass filtered data (alpha: 6-9Hz) of dyad %d in:\n', i);
-  fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'data_bpfilt_alpha', data_bpfilt_alpha);
-  fprintf('Data stored!\n\n');
-  clear data_bpfilt_alpha
-
-  % bandpass filter data at beta (13-30Hz)
-  cfg           = [];
-  cfg.bpfreq    = [13 30];
-  cfg.filtorder = fix(250 / filtCoeffDiv);
-  cfg.channel   = {'all', '-REF', '-EOGV', '-EOGH', '-V1', '-V2'};
-  
-  data_bpfilt_beta = INFADI_bpFiltering(cfg, data_preproc2);
-
-  % export the filtered data into a *.mat file
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '06a_bpfilt/');
-  cfg.filename    = sprintf('INFADI_d%02d_06a_bpfiltBeta', i);
-  cfg.sessionStr  = sessionStr;
-
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
-                   
-  fprintf('Saving bandpass filtered data (beta: 13-30Hz) of dyad %d in:\n', i); 
-  fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'data_bpfilt_beta', data_bpfilt_beta);
-  fprintf('Data stored!\n\n');
-  clear data_bpfilt_beta
-  
-  % bandpass filter data at gamma (31-48Hz)
-  cfg           = [];
-  cfg.bpfreq    = [31 48];
-  cfg.filtorder = fix(250 / filtCoeffDiv);
-  cfg.channel   = {'all', '-REF', '-EOGV', '-EOGH', '-V1', '-V2'};
-  
-  data_bpfilt_gamma = INFADI_bpFiltering(cfg, data_preproc2);
-
-  % export the filtered data into a *.mat file
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '06a_bpfilt/');
-  cfg.filename    = sprintf('INFADI_d%02d_06a_bpfiltGamma', i);
-  cfg.sessionStr  = sessionStr;
-
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
-                   
-  fprintf('Saving bandpass filtered data (beta: 31-48Hz) of dyad %d in:\n', i); 
-  fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'data_bpfilt_gamma', data_bpfilt_gamma);
-  fprintf('Data stored!\n\n');
-  clear data_bpfilt_gamma data_preproc2
+    fprintf(['Saving bandpass filtered data (%s: %g-%gHz) of dyad %d '...
+              'in:\n'], pbSpec(j).name, pbSpec(j).freqRange, i);
+    fprintf('%s ...\n', file_path);
+    INFADI_saveData(cfg, 'data_bpfilt', data_bpfilt);
+    fprintf('Data stored!\n\n');
+    clear data_bpfilt
+  end
+  clear data_preproc2
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -143,107 +85,39 @@ end
 
 for i = numOfPart
   fprintf('<strong>Dyad %d</strong>\n\n', i);
-    
-  % calculate hilbert phase at theta (4-7Hz)
-  cfg             = [];
-  cfg.srcFolder   = strcat(desPath, '06a_bpfilt/');
-  cfg.filename    = sprintf('INFADI_d%02d_06a_bpfiltTheta', i);
-  cfg.sessionStr  = sessionStr;
-  fprintf('Load the at theta (4-7Hz) bandpass filtered data...\n');
-  INFADI_loadData( cfg );
-  
-  data_hilbert_theta = INFADI_hilbertPhase(data_bpfilt_theta);
-  
-  % export the hilbert phase data into a *.mat file
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '06b_hilbert/');
-  cfg.filename    = sprintf('INFADI_d%02d_06b_hilbertTheta', i);
-  cfg.sessionStr  = sessionStr;
 
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
-                   
-  fprintf('Saving Hilbert phase data (theta: 4-7Hz) of dyad %d in:\n', i); 
-  fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'data_hilbert_theta', data_hilbert_theta);
-  fprintf('Data stored!\n\n');
-  clear data_hilbert_theta data_bpfilt_theta
-  
-  % calculate hilbert phase at alpha (6-9Hz)
-  cfg             = [];
-  cfg.srcFolder   = strcat(desPath, '06a_bpfilt/');
-  cfg.filename    = sprintf('INFADI_d%02d_06a_bpfiltAlpha', i);
-  cfg.sessionStr  = sessionStr;
-  fprintf('Load the at alpha (6-9Hz) bandpass filtered data ...\n');
-  INFADI_loadData( cfg );
-  
-  data_hilbert_alpha = INFADI_hilbertPhase(data_bpfilt_alpha);
-  
-  % export the hilbert phase data into a *.mat file
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '06b_hilbert/');
-  cfg.filename    = sprintf('INFADI_d%02d_06b_hilbertAlpha', i);
-  cfg.sessionStr  = sessionStr;
+  % calculate hilbert phase
+  for j = 1:1:numel(pbSpec)
+    cfg             = [];
+    cfg.srcFolder   = strcat(desPath, '06a_bpfilt/');
+    cfg.filename    = sprintf('INFADI_d%02d_06a_bpfilt%s', i, ...
+                                pbSpec(j).fileSuffix);
+    cfg.sessionStr  = sessionStr;
 
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
-                   
-  fprintf('Saving Hilbert phase data (alpha: 6-9Hz) of dyad %d in:\n', i);
-  fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'data_hilbert_alpha', data_hilbert_alpha);
-  fprintf('Data stored!\n\n');
-  clear data_hilbert_alpha data_bpfilt_alpha
-  
-  % calculate hilbert phase at beta (13-30Hz)
-  cfg             = [];
-  cfg.srcFolder   = strcat(desPath, '06a_bpfilt/');
-  cfg.filename    = sprintf('INFADI_d%02d_06a_bpfiltBeta', i);
-  cfg.sessionStr  = sessionStr;
-  fprintf('Load the at beta (13-30 Hz) bandpass filtered data ...\n');
-  INFADI_loadData( cfg );
-  
-  data_hilbert_beta = INFADI_hilbertPhase(data_bpfilt_beta);
-  
-  % export the hilbert phase data into a *.mat file
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '06b_hilbert/');
-  cfg.filename    = sprintf('INFADI_d%02d_06b_hilbertBeta', i);
-  cfg.sessionStr  = sessionStr;
+    fprintf('Load the at %s (%g-%gHz) bandpass filtered data...\n', ...
+              pbSpec(j).name, pbSpec(j).freqRange);
+    INFADI_loadData( cfg );
 
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
-                   
-  fprintf('Saving Hilbert phase data (beta: 13-30Hz) of dyad %d in:\n', i); 
-  fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'data_hilbert_beta', data_hilbert_beta);
-  fprintf('Data stored!\n\n');
-  clear data_hilbert_beta data_bpfilt_beta
-  
-  % calculate hilbert phase at gamma (31-48Hz)
-  cfg             = [];
-  cfg.srcFolder   = strcat(desPath, '06a_bpfilt/');
-  cfg.filename    = sprintf('INFADI_d%02d_06a_bpfiltGamma', i);
-  cfg.sessionStr  = sessionStr;
-  fprintf('Load the at gamma (31-48 Hz) bandpass filtered data ...\n');
-  INFADI_loadData( cfg );
-  
-  data_hilbert_gamma = INFADI_hilbertPhase(data_bpfilt_gamma);
-  
-  % export the hilbert phase data into a *.mat file
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '06b_hilbert/');
-  cfg.filename    = sprintf('INFADI_d%02d_06b_hilbertGamma', i);
-  cfg.sessionStr  = sessionStr;
+    data_hilbert = INFADI_hilbertPhase(data_bpfilt);
 
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
-                   
-  fprintf('Saving Hilbert phase data (gamma: 31-48Hz) of dyad %d in:\n', i); 
-  fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'data_hilbert_gamma', data_hilbert_gamma);
-  fprintf('Data stored!\n\n');
-  clear data_hilbert_gamma data_bpfilt_gamma
+    % export the hilbert phase data into a *.mat file
+    cfg             = [];
+    cfg.desFolder   = strcat(desPath, '06b_hilbert/');
+    cfg.filename    = sprintf('INFADI_d%02d_06b_hilbert%s', i, ...
+                                pbSpec(j).fileSuffix);
+    cfg.sessionStr  = sessionStr;
+
+    file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
+                       '.mat');
+
+    fprintf(['Saving Hilbert phase data (%s: %g-%gHz) of dyad %d  '...
+              'in:\n'], pbSpec(j).name, pbSpec(j).freqRange, i);
+    fprintf('%s ...\n', file_path);
+    INFADI_saveData(cfg, 'data_hilbert', data_hilbert);
+    fprintf('Data stored!\n\n');
+    clear data_hilbert data_bpfilt
+  end
 end
 
 %% clear workspace
-clear cfg file_path numOfSources sourceList i filtCoeffDiv 
+clear cfg file_path numOfSources sourceList i filtCoeffDiv pbSpec j

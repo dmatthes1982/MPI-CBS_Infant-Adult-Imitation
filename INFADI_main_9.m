@@ -35,85 +35,34 @@ end
 fprintf('\n');
 
 if avgOverDyads == true
-  cfg               = [];
-  cfg.path          = strcat(desPath, '07b_mplv/');
-  cfg.session       = str2double(sessionStr);
-  cfg.passband      = 'theta';
+  % passband specifications
+  [pbSpec(1:4).fileSuffix]  = deal('Theta','Alpha','Beta','Gamma');
+  [pbSpec(1:4).name]        = deal('theta','alpha','beta','gamma');
 
-  data_mplvod_theta = INFADI_mPLVoverDyads( cfg );
-  
-  cfg.passband      = 'alpha';
+  for i = 1:1:numel(pbSpec)
+    cfg               = [];
+    cfg.path          = strcat(desPath, '07b_mplv/');
+    cfg.session       = str2double(sessionStr);
+    cfg.passband      = pbSpec(i).name;
 
-  data_mplvod_alpha = INFADI_mPLVoverDyads( cfg );
-  
-  cfg.passband      = 'beta';
+    data_mplvod   = INFADI_mPLVoverDyads( cfg );
 
-  data_mplvod_beta  = INFADI_mPLVoverDyads( cfg );
-  
-  cfg.passband      = 'gamma';
+    % export the averaged PLVs into a *.mat file
+    cfg             = [];
+    cfg.desFolder   = strcat(desPath, '09a_mplvod/');
+    cfg.filename    = sprintf('INFADI_09a_mplvod%s', pbSpec(i).fileSuffix);
+    cfg.sessionStr  = sessionStr;
 
-  data_mplvod_gamma = INFADI_mPLVoverDyads( cfg );
-
-  % export the averaged PLVs into a *.mat file
-  % theta
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '09a_mplvod/');
-  cfg.filename    = 'INFADI_09a_mplvodTheta';
-  cfg.sessionStr  = sessionStr;
-
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
+    file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
+                      '.mat');
                    
-  fprintf('Saving mean PLVs over dyads at theta (4-7Hz) in:\n'); 
-  fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'data_mplvod_theta', data_mplvod_theta);
-  fprintf('Data stored!\n');
-  clear data_mplvod_theta
-  
-  % alpha
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '09a_mplvod/');
-  cfg.filename    = 'INFADI_09a_mplvodAlpha';
-  cfg.sessionStr  = sessionStr;
-
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
-                   
-  fprintf('Saving mean PLVs over dyads at alpha (8-12Hz) in:\n'); 
-  fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'data_mplvod_alpha', data_mplvod_alpha);
-  fprintf('Data stored!\n');
-  clear data_mplvod_alpha
-  
-  % beta
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '09a_mplvod/');
-  cfg.filename    = 'INFADI_09a_mplvodBeta';
-  cfg.sessionStr  = sessionStr;
-
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
-                   
-  fprintf('Saving mean PLVs over dyads at beta (13-30Hz) in:\n'); 
-  fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'data_mplvod_beta', data_mplvod_beta);
-  fprintf('Data stored!\n');
-  clear data_mplvod_beta
-  
-  % gamma
-  cfg             = [];
-  cfg.desFolder   = strcat(desPath, '09a_mplvod/');
-  cfg.filename    = 'INFADI_09a_mplvodGamma';
-  cfg.sessionStr  = sessionStr;
-
-  file_path = strcat(cfg.desFolder, cfg.filename, '_', cfg.sessionStr, ...
-                     '.mat');
-                   
-  fprintf('Saving mean PLVs over dyads at gamma (31.48Hz) in:\n'); 
-  fprintf('%s ...\n', file_path);
-  INFADI_saveData(cfg, 'data_mplvod_gamma', data_mplvod_gamma);
-  fprintf('Data stored!\n\n');
-  clear data_mplvod_gamma
+    fprintf('Saving mean PLVs over dyads at %s (%g-%gHz) in:\n', ...
+              pbSpec(i).name, data_mplvod.bpFreq);
+    fprintf('%s ...\n', file_path);
+    INFADI_saveData(cfg, 'data_mplvod', data_mplvod);
+    fprintf('Data stored!\n\n');
+    clear data_mplvod
+  end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -199,4 +148,4 @@ if avgOverDyads == true
 end
 
 %% clear workspace
-clear cfg file_path avgOverDyads x choise
+clear cfg file_path avgOverDyads x choise i pbSpec
