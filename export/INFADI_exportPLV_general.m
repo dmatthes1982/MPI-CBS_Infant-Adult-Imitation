@@ -1,14 +1,14 @@
 % -------------------------------------------------------------------------
-% Add directory and subfolders to path
+% Add directory and subfolders to path, clear workspace, clear command
+% windwow
 % -------------------------------------------------------------------------
-clc;
 filepath = fileparts(mfilename('fullpath'));
 run([filepath '/../INFADI_init.m']);
 
 cprintf([0,0.6,0], '<strong>------------------------------------------------</strong>\n');
 cprintf([0,0.6,0], '<strong>Infant adult imitation project</strong>\n');
 cprintf([0,0.6,0], '<strong>Export of PLV results (general script)</strong>\n');
-cprintf([0,0.6,0], 'Copyright (C) 2018, Daniel Matthes, MPI CBS\n');
+cprintf([0,0.6,0], 'Copyright (C) 2018-2019, Daniel Matthes, MPI CBS\n');
 cprintf([0,0.6,0], '<strong>------------------------------------------------</strong>\n');
 
 % -------------------------------------------------------------------------
@@ -108,7 +108,6 @@ clear sessionNum fileListCopy y userList match filePath cmdout attrib ...
 % -------------------------------------------------------------------------
 fprintf('<strong>Passband selection...</strong>\n');
 passband  = {'Theta', 'Alpha', 'Beta', 'Gamma'};                            % all available passbands
-suffix    = {'theta', 'alpha', 'beta', 'gamma'};
 
 part = listdlg('PromptString',' Select passband...', ...                    % open the dialog window --> the user can select the passband of interest
                 'SelectionMode', 'single', ...
@@ -116,7 +115,6 @@ part = listdlg('PromptString',' Select passband...', ...                    % op
                 'ListSize', [220, 300] );
               
 passband  = passband{part};
-suffix    = suffix{part};
 fprintf('You have selected the following passband: %s\n\n', passband);
 
 % -------------------------------------------------------------------------
@@ -205,9 +203,6 @@ while selection == false
 end
 
 load([srcPath fileList{1}]);                                                % load data of first dyad
-
-eval(['data_mplv=' sprintf('data_mplv_%s', suffix) ';']);                   % transfrom passband specific variable name into the common term data_mplv
-eval(['clear ' sprintf('data_mplv_%s', suffix)]);
 
 label     = data_mplv.dyad.label;                                           % extract channel names
 numOfChan = length(label);
@@ -348,8 +343,6 @@ f = waitbar(0,'Please wait...');
 
 for dyad = 1:1:numOfFiles
   load([srcPath fileList{dyad}]);                                           % load data
-  eval(['data_mplv=' sprintf('data_mplv_%s', suffix) ';']);                 % transfrom passband specific variable name into the common term data_mplv
-  eval(['clear ' sprintf('data_mplv_%s', suffix)]);
 
   if any(~strcmp(data_mplv.dyad.label, label))
     error(['Error with dyad %d. The channels are not in the correct ' ...
@@ -377,9 +370,8 @@ for dyad = 1:1:numOfFiles
 end
 
 close(f);
-clear f dyad numOfFiles srcPath fileList suffix label dyads trl ...
-      numOfTrials loc_trl condNum connMatrixBool data_mplv clusterSize ...
-      start stop mode
+clear f dyad numOfFiles srcPath fileList label dyads trl numOfTrials ...
+      loc_trl condNum connMatrixBool data_mplv clusterSize start stop mode
 
 % -------------------------------------------------------------------------
 % Export itpc table into spreadsheet

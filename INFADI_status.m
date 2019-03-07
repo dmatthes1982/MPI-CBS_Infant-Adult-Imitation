@@ -1,7 +1,7 @@
 % -------------------------------------------------------------------------
-% Add directory and subfolders to path
+% Add directory and subfolders to path, clear workspace, clear command
+% windwow
 % -------------------------------------------------------------------------
-clc;
 INFADI_init;
 
 cprintf([1,0.4,1], '<strong>------------------------------------------------</strong>\n');

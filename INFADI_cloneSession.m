@@ -1,13 +1,13 @@
 % -------------------------------------------------------------------------
-% Add directory and subfolders to path
+% Add directory and subfolders to path, clear workspace, clear command
+% windwow
 % -------------------------------------------------------------------------
-clc;
 INFADI_init;
 
 cprintf([1,0.4,1], '<strong>------------------------------------------------</strong>\n');
 cprintf([1,0.4,1], '<strong>Infant adult imitation project</strong>\n');
 cprintf([1,0.4,1], '<strong>Clone session script</strong>\n');
-cprintf([1,0.4,1], 'Copyright (C) 2018, Daniel Matthes, MPI CBS\n');
+cprintf([1,0.4,1], 'Copyright (C) 2018-2019, Daniel Matthes, MPI CBS\n');
 cprintf([1,0.4,1], '<strong>------------------------------------------------</strong>\n');
 
 % -------------------------------------------------------------------------
