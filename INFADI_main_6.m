@@ -29,8 +29,36 @@ end
 cprintf([1,0.4,1], '<strong>[6] - Narrow band filtering and Hilbert transform</strong>\n');
 fprintf('\n');
 
+% option to define passbands manually
+selection = false;
+while selection == false
+  cprintf([0,0.6,0], 'Do you want to use the default passbands?\n');
+  cprintf([0,0.6,0], '-------------------\n');
+  cprintf([0,0.6,0], 'theta:  4 - 7 Hz\n');
+  cprintf([0,0.6,0], 'alpha:  6 - 9 Hz\n');
+  cprintf([0,0.6,0], 'beta:   13 - 30 Hz\n');
+  cprintf([0,0.6,0], 'gamma:  31 - 48 Hz\n');
+  cprintf([0,0.6,0], '-------------------\n');
+  x = input('Select [y/n]: ','s');
+  if strcmp('y', x)
+    selection = true;
+    passband = true;
+  elseif strcmp('n', x)
+    selection = true;
+    passband = false;
+  else
+    selection = false;
+  end
+end
+fprintf('\n');
+
 %% passband specifications
-[pbSpec(1:4).freqRange]     = deal([4 7],[6 9],[13 30],[31 48]);
+if passband == true
+  [pbSpec(1:4).freqRange]   = deal([4 7],[6 9],[13 30],[31 48]);
+else
+  passband = INFADI_pbSelectbox();
+  [pbSpec(1:4).freqRange]   = deal(passband{:});
+end
 [pbSpec(1:4).fileSuffix]    = deal('Theta','Alpha','Beta','Gamma');
 [pbSpec(1:4).name]          = deal('theta','alpha','beta','gamma');
 [pbSpec(1:4).filtOrdBase]   = deal(500, 250, 250, 250);
@@ -120,4 +148,5 @@ for i = numOfPart
 end
 
 %% clear workspace
-clear cfg file_path numOfSources sourceList i filtCoeffDiv pbSpec j
+clear cfg file_path numOfSources sourceList i filtCoeffDiv pbSpec j ...
+      passband x selection
