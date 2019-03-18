@@ -5,18 +5,18 @@
 filepath = fileparts(mfilename('fullpath'));
 run([filepath '/../INFADI_init.m']);
 
-cprintf([1,0.4,1], '<strong>------------------------------------------------</strong>\n');
+cprintf([1,0.4,1], '<strong>-------------------------------------------</strong>\n');
 cprintf([1,0.4,1], '<strong>Infant adult imitation project</strong>\n');
-cprintf([1,0.4,1], '<strong>Export of PLV results (general script)</strong>\n');
-cprintf([1,0.4,1], 'Copyright (C) 2018-2019, Daniel Matthes, MPI CBS\n');
-cprintf([1,0.4,1], '<strong>------------------------------------------------</strong>\n');
+cprintf([1,0.4,1], '<strong>Permutation test on mplv level</strong>\n');
+cprintf([1,0.4,1], 'Copyright (C) 2019, Daniel Matthes, MPI CBS\n');
+cprintf([1,0.4,1], '<strong>-------------------------------------------</strong>\n');
 
 % -------------------------------------------------------------------------
 % Path settings
 % -------------------------------------------------------------------------
-path = '/data/pt_01905/eegData/';                                           % root path to eeg data
+datastorepath = '/data/pt_01905/eegData/';                                  % root path to eeg data
 
-fprintf('\nThe default path is: %s\n', path);
+fprintf('\nThe default path is: %s\n', datastorepath);
 
 selection = false;
 while selection == false
@@ -34,8 +34,8 @@ while selection == false
 end
 
 if newPaths == true
-  path = uigetdir(pwd, 'Select folder...');
-  path = strcat(path, '/');
+  datastorepath = uigetdir(pwd, 'Select folder...');
+  datastorepath = strcat(datastorepath, '/');
 end
 
 clear newPaths
@@ -44,7 +44,7 @@ clear newPaths
 % Session selection
 % -------------------------------------------------------------------------
 fprintf('\n<strong>Session selection...</strong>\n');
-srcPath = [path 'DualEEG_INFADI_processedData/'];
+srcPath = [datastorepath 'DualEEG_INFADI_processedData/'];
 srcPath = [srcPath  '07b_mplv/'];
 
 fileList     = dir([srcPath, 'INFADI_d*_07b_mplvTheta_*.mat']);
@@ -121,7 +121,7 @@ fprintf('You have selected the following passband: %s\n\n', passband);
 % Dyad selection
 % -------------------------------------------------------------------------
 fprintf('<strong>Dyad selection...</strong>\n');
-fileList     = dir([srcPath 'INFADI_d*_07b_mplv' passband '_' sessionStr...
+fileList     = dir([srcPath 'INFADI_d*_07b_mplv' passband '_' sessionStr ...
                     '.mat']);
 fileList     = struct2cell(fileList);
 fileList     = fileList(1,:);                                               % generate list with filenames of all existing dyads
@@ -166,41 +166,36 @@ load(sprintf('%s/../general/INFADI_generalDefinitions.mat', filepath), ...  % lo
 condMark  = generalDefinitions.condMark(1, :);                              % extract condition identifiers
 condNum   = generalDefinitions.condNum;
 
-part = listdlg('PromptString',' Select conditions...', ...                  % open the dialog window --> the user can select the conditions of interest
+part = listdlg('PromptString',' Select condition 1...', ...                 % open the dialog window --> the user can select the first condition of interest
                 'ListString', condMark, ...
-                'ListSize', [220, 300] );
+                'ListSize', [220, 300], ...
+                'SelectionMode', 'single');
+condMark1 = condMark(part);
+condNum1  = condNum(part);             
 
-condMark  = condMark(part);
-condNum   = condNum(part);
+part = listdlg('PromptString',' Select condition 2...', ...                 % open the dialog window --> the user can select the second condition of interest
+                'ListString', condMark, ...
+                'ListSize', [220, 300], ...
+                'SelectionMode', 'single');
+condMark2 = condMark(part);
+condNum2  = condNum(part); 
+
+condMark  = [condMark1, condMark2];
+condNum   = [condNum1, condNum2];
 
 fprintf('You have selected the following conditions:\n');
 cellfun(@(x) fprintf('%s, ', x), condMark, 'UniformOutput', false);         % show the identifiers of the selected conditions in the command window
 fprintf('\b\b.\n\n');
 
-clear generalDefinitions part filepath
+clear generalDefinitions part filepath condNum1 condNum2 condMark1 ...
+      condMark2 condMark
 
 % -------------------------------------------------------------------------
-% Channel selection
+% Cluster specification
 % -------------------------------------------------------------------------
-fprintf('<strong>Channel selection...</strong>\n');
-selection = false;
-while selection == false
-  fprintf('Available options:\n');
-  fprintf('[1] - Export the cluster average\n')
-  fprintf('[2] - Export the values of single connections\n'),
-  x = input('Option: ');
-  switch x
-    case 1
-      selection = true;
-      mode = 'cluster';
-    case 2
-      selection = true;
-      mode = 'single';
-    otherwise
-      selection = false;
-      cprintf([1,0.5,0], 'Wrong input!\n');
-  end
-end
+fprintf('<strong>Connection selection...</strong>\n');
+fprintf(['If you are selecting multiple connections, the selection '...
+          'will be considered as cluster\n']);
 
 load([srcPath fileList{1}]);                                                % load data of first dyad
 
@@ -212,11 +207,7 @@ label_y = repmat(label', numOfChan, 1);
 connMatrix = cellfun(@(x,y) [x '_' y], label_x, label_y, ...
                 'UniformOutput', false);
 
-if strcmp(mode, 'cluster')
-  prompt_string = 'Select cluster members...';
-elseif strcmp(mode, 'single')
-  prompt_string = 'Select connections of interest...';
-end
+prompt_string = 'Select connections of interest...';
 
 part = listdlg('PromptString', prompt_string, ...                           % open the dialog window --> the user can select the connections of interest
                 'ListString', connMatrix, ...
@@ -240,19 +231,175 @@ clear data_mplv numOfChan connMatrix row col part i label_x label_y ...
       selection x prompt_string
 
 % -------------------------------------------------------------------------
-% Identifier specification
-% Generate xls file
+% Import data
 % -------------------------------------------------------------------------
-fprintf('<strong>Identifier specification...</strong>\n');
-desPath = [path 'DualEEG_INFADI_results/PLV_export/general/' sessionStr ... % destination path
-          '/'];
+fprintf('<strong>Import of PLV values...</strong>\n');
+f = waitbar(0,'Please wait...');
 
+cnt               = 0;
+data_stat.goodDyadsNum = NaN(numOfFiles, 1);
+data_stat.trialinfo    = NaN(numOfFiles * 2, 1);
+data_stat.mPLV         = NaN(1, numOfFiles * 2);
+
+for dyad = 1:1:numOfFiles
+  waitbar(dyad/numOfFiles, f, sprintf('Please wait %d/%d...', dyad, ...
+          numOfFiles));
+  load([srcPath fileList{dyad}]);                                           % load data
+  
+  if any(~strcmp(data_mplv.dyad.label, label))
+    error(['Error with dyad %d. The channels are not in the correct ' ...
+            'order!\n'], dyads(dyad));
+  end
+
+  if dyad == 1                                                              % extract bandpass specification
+    data_stat.passband    = passband;
+    data_stat.range       = data_mplv.bpFreq;
+    data_stat.connections = connections;
+  end
+  
+  tf = ismember(data_mplv.dyad.trialinfo, condNum);                         % check if selected conditions are exisiting
+  if(sum(tf) ~=2)
+    cprintf([1,0.5,0], sprintf(['At least one condition is missing. ' ...
+                        'Dyad %d will not be considered.\n'], dyad));
+  else                                                                      % extract PLV values
+    cnt       = cnt + 1;
+    mPLVtemp  = data_mplv.dyad.mPLV(tf);
+    mPLVtemp  = cellfun(@(x) x(connMatrixBool), ...
+                       mPLVtemp, 'UniformOutput', false);
+    mPLVtemp  = cellfun(@(x) mean(x), ...                                   % average over connections
+                       mPLVtemp, 'UniformOutput', false);
+    
+    data_stat.mPLV(2*cnt-1:2*cnt)      = cell2mat(mPLVtemp);
+    data_stat.trialinfo(2*cnt-1:2*cnt) = data_mplv.dyad.trialinfo(tf);
+    data_stat.goodDyadsNum(cnt)        = dyads(dyad);
+  end
+  clear data_mplv
+end
+
+close(f);
+
+data_stat.goodDyadsNum = data_stat.goodDyadsNum(1:cnt);
+data_stat.trialinfo    = data_stat.trialinfo(1:2*cnt);
+data_stat.mPLV         = data_stat.mPLV(1:2*cnt);
+numOfGoodDyads         = numel(data_stat.goodDyadsNum);
+
+fprintf('\n');
+
+clear f cnt mPLVtemp tf dyad connections connMatrixBool dyads fileList ...
+      passband label numOfFiles
+
+% -------------------------------------------------------------------------
+% Run t-Test
+% -------------------------------------------------------------------------
+fprintf('<strong>Run paired-sample t-test...</strong>\n');
+
+cond1 = ismember(data_stat.trialinfo, condNum(1));
+cond2 = ismember(data_stat.trialinfo, condNum(2));
+[h,p,ci,stats] = ttest(data_stat.mPLV(cond1),data_stat.mPLV(cond2));
+data_stat.stat.h      = h;
+data_stat.stat.p      = p;
+data_stat.stat.ci     = ci;
+data_stat.stat.tstat  = stats.tstat;
+data_stat.stat.df     = stats.df;
+data_stat.stat.sd     = stats.sd;
+
+
+if data_stat.stat.p < 0.05                                                  % check if result is signifikant
+  fprintf('The t-test result is significant: %s=%g\n\n', ...
+          char(945), data_stat.stat.p);
+else
+  fprintf('The t-test result is NOT significant: %s=%g\n', ...
+          char(945), data_stat.stat.p);
+  fprintf('Skip permutation test...\n\n');
+  clear cond1 cond2 h p ci stats condNum datastorepath numOfGoodDyads ...
+        sessionStr srcPath
+  return                                                                    % return if result is non-signifikant
+end
+
+clear cond1 cond2 h p ci stats
+
+% -------------------------------------------------------------------------
+% Run permutation Test
+% -------------------------------------------------------------------------
+fprintf('<strong>Run permutation test...</strong>\n');
+
+design(:,1) = 1:2:2*numOfGoodDyads;                                         % specify permutation design
+design(:,2) = 2:2:2*numOfGoodDyads;
+design = mat2cell(design,ones(1,numOfGoodDyads), 2);
+design = design';
+
+numOfPerm = 2500;                                                           % specify number of permutations (500 more than required)
+resample = zeros(numOfPerm, 2*numOfGoodDyads);
+hasDuplicates    = true;
+
+fprintf('Generate permutation matrix...\n');
+while hasDuplicates
+  for i=1:numOfPerm
+    for j=1:numOfGoodDyads
+      resample(i, design{j}) = design{j}(randperm(2));
+    end
+  end
+
+  [u, loc] = unique(resample, 'rows', 'first');                             % test for duplicates
+  hasDuplicates = size(u,1) < size(resample,1);
+  if(hasDuplicates)
+    loc = sort(loc);
+    resample = resample(loc, :);
+    if(size(resample,1) > numOfPerm - 500)
+      numOfPerm = numOfPerm - 500;
+      resample  = resample(1:numOfPerm,:);
+      hasDuplicates = false;
+    end
+  else
+    numOfPerm = numOfPerm - 500;
+    resample  = resample(1:numOfPerm, :);
+  end
+end
+
+fprintf('Run test...\n');
+data_stat.tstatPerm = zeros(1, numOfPerm);
+
+for i=1:1:numOfPerm
+  tmptrialinfo = data_stat.trialinfo(resample(i,:));
+  cond1 = ismember(tmptrialinfo, condNum(1));
+  cond2 = ismember(tmptrialinfo, condNum(2));
+  [~,~,~,stats] = ttest(data_stat.mPLV(cond1),data_stat.mPLV(cond2));
+  data_stat.tstatPerm(i) = stats.tstat;
+end
+
+fprintf('Evaluate test...\n\n');
+
+data_stat.pPerm = sum(abs(data_stat.tstatPerm) > ...
+                      abs(data_stat.stat.tstat)) / numOfPerm;
+data_stat.numOfPerm = numOfPerm;
+
+clear design numOfPerm resample hasDuplicates i j u loc cond1 cond2 ...
+      tmptrialinfo stats condNum numOfGoodDyads
+
+% -------------------------------------------------------------------------
+% Test result
+% -------------------------------------------------------------------------    
+fprintf('<strong>Test result:</strong>\n');
+if data_stat.pPerm < 0.05
+  fprintf('The permutation test result is also significant: %s=%g\n\n', ...
+          char(945), data_stat.pPerm);
+else
+  fprintf('The permutation test result is NOT significant: %s=%g\n', ...
+          char(945), data_stat.pPerm);
+  fprintf('The result of the t-test might be spurious.\n\n');
+  return
+end
+
+% -------------------------------------------------------------------------
+% Save result
+% -------------------------------------------------------------------------
+fprintf('<strong>Save data...</strong>\n');
+
+desPath = [datastorepath 'DualEEG_INFADI_results/PLV_stats/' ...            % destination path
+            sessionStr '/'];
 if ~exist(desPath, 'dir')                                                   % generate session dir, if not exist
   mkdir(desPath);
 end
-
-template_file = [path 'DualEEG_INFADI_templates/' ...                       % template file
-                  'general/Export_template.xls'];
 
 selection = false;
 while selection == false
@@ -262,9 +409,10 @@ while selection == false
     cprintf([1,0.5,0], ['Use only letters and or numbers for the file '...
                         'identifier\n']);
   else
-    xlsFile = [desPath 'PLV_general_export_' identifier{1} '_' ...          % build filename
-              sessionStr '.xls'];
-    if exist(xlsFile, 'file')                                               % check if file already exists
+    matFile = [desPath 'INFADI_mplvStats_' identifier{1} '_' sessionStr ... % build filename
+                '.mat'];
+
+    if exist(matFile, 'file')                                               % check if file already exists
       cprintf([1,0.5,0], 'A file with this identifier exists!');
       selection2 = false;
       while selection2 == false
@@ -273,7 +421,7 @@ while selection == false
         if strcmp('y', x)
           selection2 = true;
           selection = true;
-          [~] = copyfile(template_file, xlsFile);                           % copy template to destination
+          save(matFile, 'data_stat');                                       % store data structure
           fprintf('\n');
         elseif strcmp('n', x)
           selection2 = true;
@@ -285,103 +433,16 @@ while selection == false
       end
     else
       selection = true;
-      [~] = copyfile(template_file, xlsFile);                               % copy template to destination
+      save(matFile, 'data_stat');                                           % store data structure
     end
   end
 end
 
-fprintf('Your destination file is:\n');
-fprintf('%s\n\n', xlsFile);
+fprintf('Data stored!\n');
 
-clear desPath template_file path identifier selection selection2 x ...
-      sessionStr
-
-% -------------------------------------------------------------------------
-% Generate table templates
-% -------------------------------------------------------------------------
-numOfTrials = length(condNum);
-clusterSize = length(connections);
-condMark    = cellfun(@(x) erase(x, ' '), condMark, 'UniformOutput', false);
-numOfCond   = length(condMark);
-
-cell_array      = cell(clusterSize, 3);
-cell_array(:,1) = connections;
-cell_array{1,2} = passband;
-cell_array{1,3} = mode;
-Tinfo    = cell2table(cell_array);                                          % create cluster_info table
-if strcmp(mode, 'cluster')
-  Tinfo.Properties.VariableNames = {'cluster', 'passband', 'mode'};
-elseif strcmp(mode, 'single')
-  Tinfo.Properties.VariableNames = {'connections', 'passband', 'mode'};
-end
-
-if strcmp(mode, 'cluster')
-  cell_array      = num2cell(NaN(numOfFiles, numOfTrials + 1));
-  cell_array(:,1) = num2cell(dyads);
-  Tdata           = cell2table(cell_array);                                 % create data table
-  Tdata.Properties.VariableNames = ['dyad' condMark];
-elseif strcmp(mode, 'single')
-  cell_array      = num2cell(NaN(numOfFiles, numOfTrials * clusterSize + 1));
-  cell_array(:,1) = num2cell(dyads);
-  Tdata           = cell2table(cell_array);                                 % create data table
-  condMark        = repmat(condMark, clusterSize, 1);
-  condMark        = reshape(condMark,1,[]);
-  connections     = repmat(connections, 1, numOfCond);
-  connections     = reshape(connections,1,[]);
-  headline        = cellfun(@(x,y) [x '_' y], condMark, connections, ...
-                            'UniformOutput', false);
-  Tdata.Properties.VariableNames = ['dyad' headline];
-end
-
-clear cell_array passband condMark connections headline numOfCond
-
-% -------------------------------------------------------------------------
-% Import plv values into tables
-% -------------------------------------------------------------------------
-fprintf('<strong>Import of PLV values...</strong>\n\n');
-f = waitbar(0,'Please wait...');
-
-for dyad = 1:1:numOfFiles
-  load([srcPath fileList{dyad}]);                                           % load data
-
-  if any(~strcmp(data_mplv.dyad.label, label))
-    error(['Error with dyad %d. The channels are not in the correct ' ...
-            'order!\n'], dyads(dyad));
-  end
-
-  for trl=1:1:numOfTrials
-    waitbar(((dyad-1)*numOfTrials + trl)/(numOfFiles * numOfTrials), ...
-                  f, 'Please wait...');
-    loc_trl = ismember(data_mplv.dyad.trialinfo, condNum(trl));
-    if any(loc_trl)
-      if strcmp(mode, 'cluster')
-        Tdata(dyad, trl + 1) = ...
-                  {mean(data_mplv.dyad.mPLV{loc_trl}(connMatrixBool))};
-      elseif strcmp(mode, 'single')
-        start = (trl - 1) * clusterSize + 2;
-        stop  = start + clusterSize - 1;
-        Tdata(dyad, start:stop) = ...
-                  num2cell(data_mplv.dyad.mPLV{loc_trl}(connMatrixBool))';
-      end
-    end
-  end
-
-  clear data_mplv
-end
-
-close(f);
-clear f dyad numOfFiles srcPath fileList label dyads trl numOfTrials ...
-      loc_trl condNum connMatrixBool data_mplv clusterSize start stop mode
-
-% -------------------------------------------------------------------------
-% Export itpc table into spreadsheet
-% -------------------------------------------------------------------------
-fprintf('<strong>Export of PLV table into a xls spreadsheet...</strong>\n');
-
-writetable(Tinfo, xlsFile, 'Sheet', 'info');
-writetable(Tdata, xlsFile, 'Sheet', 'data');
+clear selection selection2 x identifier desPath matFile
 
 % -------------------------------------------------------------------------
 % Clear workspace
 % -------------------------------------------------------------------------
-clear xlsFile Tdata Tinfo
+clear srcPath sessionStr datastorepath

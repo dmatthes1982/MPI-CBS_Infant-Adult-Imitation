@@ -32,13 +32,13 @@ fprintf('\n');
 % option to define passbands manually
 selection = false;
 while selection == false
-  cprintf([0,0.6,0], 'Do you want to use the default passbands?\n');
-  cprintf([0,0.6,0], '-------------------\n');
-  cprintf([0,0.6,0], 'theta:  4 - 7 Hz\n');
-  cprintf([0,0.6,0], 'alpha:  6 - 9 Hz\n');
-  cprintf([0,0.6,0], 'beta:   13 - 30 Hz\n');
-  cprintf([0,0.6,0], 'gamma:  31 - 48 Hz\n');
-  cprintf([0,0.6,0], '-------------------\n');
+  cprintf([1,0.4,1], 'Do you want to use the default passbands?\n');
+  cprintf([1,0.4,1], '-------------------\n');
+  cprintf([1,0.4,1], 'theta:  4 - 7 Hz\n');
+  cprintf([1,0.4,1], 'alpha:  6 - 9 Hz\n');
+  cprintf([1,0.4,1], 'beta:   13 - 30 Hz\n');
+  cprintf([1,0.4,1], 'gamma:  31 - 48 Hz\n');
+  cprintf([1,0.4,1], '-------------------\n');
   x = input('Select [y/n]: ','s');
   if strcmp('y', x)
     selection = true;

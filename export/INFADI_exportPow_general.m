@@ -5,11 +5,11 @@
 filepath = fileparts(mfilename('fullpath'));
 run([filepath '/../INFADI_init.m']);
 
-cprintf([0,0.6,0], '<strong>------------------------------------------------</strong>\n');
-cprintf([0,0.6,0], '<strong>Infant adult imitation project</strong>\n');
-cprintf([0,0.6,0], '<strong>Export of power results (general script)</strong>\n');
-cprintf([0,0.6,0], 'Copyright (C) 2018-2019, Daniel Matthes, MPI CBS\n');
-cprintf([0,0.6,0], '<strong>------------------------------------------------</strong>\n');
+cprintf([1,0.4,1], '<strong>------------------------------------------------</strong>\n');
+cprintf([1,0.4,1], '<strong>Infant adult imitation project</strong>\n');
+cprintf([1,0.4,1], '<strong>Export of power results (general script)</strong>\n');
+cprintf([1,0.4,1], 'Copyright (C) 2018-2019, Daniel Matthes, MPI CBS\n');
+cprintf([1,0.4,1], '<strong>------------------------------------------------</strong>\n');
 
 % -------------------------------------------------------------------------
 % Path settings

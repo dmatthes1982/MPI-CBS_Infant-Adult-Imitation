@@ -60,10 +60,12 @@ cfg.showcallinfo      = 'no';                                               % pr
 fprintf('Filter experimenter data (basic bandpass)...\n');
 cfg.channel       = expChan;
 data.experimenter = ft_preprocessing(cfg, data.experimenter);
-  
+data.experimenter = removefields(data.experimenter, {'hdr'});               % this element causes false errors in subsequent parts
+
 fprintf('Filter child data (basic bandpass)...\n');
 cfg.channel       = childChan;
 data.child        = ft_preprocessing(cfg, data.child);
+data.child        = removefields(data.child, {'hdr'});                      % this element causes false errors in subsequent parts
 
 fprintf('Estimate EOG signals for experimenter...\n');
 data.experimenter = estimEOG(data.experimenter);
