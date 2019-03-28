@@ -17,7 +17,7 @@ function [ data ] = INFADI_segmentation(cfg, data )
 % See also INFADI_IMPORTDATASET, INFADI_PREPROCESSING, FT_REDEFINETRIAL,
 % INFADI_DATASTRUCTURE, INFADI_BPFILTERING, INFADI_HILBERTPHASE
 
-% Copyright (C) 2018, Daniel Matthes, MPI CBS
+% Copyright (C) 2018-2019, Daniel Matthes, MPI CBS
 
 % -------------------------------------------------------------------------
 % Get and check config options
@@ -25,10 +25,10 @@ function [ data ] = INFADI_segmentation(cfg, data )
 segLength = ft_getopt(cfg, 'length', 1);
 overlap   = ft_getopt(cfg, 'overlap', 0);
 
-possibleLengths = [0.2, 1, 5, 10];
+possibleLengths = [0.2, 1, 2, 5, 10];
 
 if ~any(ismember(possibleLengths, segLength))
-  error('Excepted cfg.length values are only 0.2, 1, 5 and 10 seconds');
+  error('Excepted cfg.length values are only 0.2, 1, 2, 5 and 10 seconds');
 end
 
 % -------------------------------------------------------------------------

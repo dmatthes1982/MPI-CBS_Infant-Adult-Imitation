@@ -118,6 +118,51 @@ if pwelch == true
     end
   end
   fprintf('\n');
+
+  selection = false;
+  while selection == false
+    cprintf([1,0.4,1], 'Please select segmentation size for pwelch estimation:\n');
+    fprintf('[1] - 1 sec \n');
+    fprintf('[2] - 2 sec \n');
+    y = input('Option: ');
+
+    switch y
+      case 1
+        selection = true;
+        seglength = 1;
+      case 2
+        selection = true;
+        seglength = 2;
+      otherwise
+        cprintf([1,0.5,0], 'Wrong input!\n');
+    end
+  end
+  fprintf('\n');
+
+  selection = false;
+  while selection == false
+    cprintf([1,0.4,1], 'Please select segmentation overlap for pwelch estimation:\n');
+    fprintf('[1] - 0.50 %%\n');
+    fprintf('[2] - 0.75 %%\n');
+    if( seglength == 2 )
+      fprintf('[3] - 0.875 %%\n');
+    end
+    y = input('Option: ');
+
+    if y == 1
+      selection = true;
+      overlap = 0.5;
+    elseif y == 2
+      selection = true;
+      overlap = 0.75;
+    elseif y == 3 && seglength == 2
+      selection = true;
+      overlap = 0.875;
+    else
+      cprintf([1,0.5,0], 'Wrong input!\n\n');
+    end
+  end
+  fprintf('\n');
   
   % Write selected settings to settings file
   file_path = [desPath '00_settings/' sprintf('settings_%s', sessionStr) '.xls'];
@@ -133,6 +178,8 @@ if pwelch == true
   T = readtable(file_path);                                                 % update settings table
   warning off;
   T.artRejectPow(numOfPart) = { x };
+  T.powSeglength(numOfPart) = seglength;
+  T.powOverlap(numOfPart)   = overlap;
   warning on;
   delete(file_path);
   writetable(T, file_path);
@@ -149,11 +196,11 @@ if pwelch == true
     fprintf('Load preprocessed data...\n\n');
     INFADI_loadData( cfg );
     
-    % Segmentation of conditions in segments of one second with 75 percent
+    % Segmentation of conditions in segments of x seconds with yy percent
     % overlapping
     cfg          = [];
-    cfg.length   = 1;                                                       % window length: 1 sec       
-    cfg.overlap  = 0.75;                                                    % 75 percent overlap
+    cfg.length   = seglength;                                               % window length
+    cfg.overlap  = overlap;                                                 % overlap
     
     fprintf('<strong>Segmentation of preprocessed data.</strong>\n');
     data_preproc2 = INFADI_segmentation( cfg, data_preproc2 );
@@ -203,7 +250,7 @@ if pwelch == true
 
     % Estimation of power spectrum
     cfg         = [];
-    cfg.foi     = 1:1:50;                                                   % frequency of interest
+    cfg.foi     = 1/seglength:1/seglength:50;                               % frequency of interest
       
     data_preproc2 = INFADI_pWelch( cfg, data_preproc2 );                    % calculate power activity using Welch's method
     data_pwelch = data_preproc2;                                            % to save need of RAM
@@ -240,4 +287,5 @@ end
 
 %% clear workspace
 clear file_path cfg sourceList numOfSources i choise tfr pwelch T ...
-      artifactRejection artifactAvailable numOfAllSeg numOfGoodSeg
+      artifactRejection artifactAvailable numOfAllSeg numOfGoodSeg ...
+      seglength overlap x y
