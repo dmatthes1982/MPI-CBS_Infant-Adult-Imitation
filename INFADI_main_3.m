@@ -64,6 +64,7 @@ for i = numOfPart
   cfg.channel     = repmat({{'all', '-F9', '-F10', '-V1' '-V2', '-EOGV',... % use all channels for transient artifact detection expect EOGV, EOGH and REF
                              '-EOGH', '-REF'}},1,2);
   cfg.method      = 'range';
+  cfg.deadsegs    = 'no';
   cfg.sliding     = 'no';
   cfg.continuous  = 'yes';
   cfg.trllength   = 200;                                                    % minimal subtrial length: 200 msec
@@ -77,6 +78,7 @@ for i = numOfPart
   cfg.part        = 'both';
   cfg.channel     = repmat({{'V1', 'V2', 'F9', 'F10'}},1,2);                % use only F9, F10, V1 and V2
   cfg.method      = 'range';
+  cfg.deadsegs    = 'no';
   cfg.sliding     = 'no';
   cfg.continuous  = 'yes';
   cfg.trllength   = 200;                                                    % minimal subtrial length: 200 msec

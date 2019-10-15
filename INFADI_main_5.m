@@ -144,6 +144,20 @@ if isempty(threshold)
   end
 end
 
+% detection of segments in which channels are dead or in saturation
+selection = false;
+while selection == false
+  cprintf([1,0.4,1], 'Do you want to mark segments as artificats in which channels are dead or in saturation?\n');
+  y = input('Select [y/n]: ','s');
+  if ismember(y, {'y','n'})
+    selection = true;
+    deadSegs = y;
+  else
+    selection = false;
+  end
+end
+fprintf('\n');
+
 % channel selection (default settings)
 selection = false;
 while selection == false
@@ -205,7 +219,7 @@ fprintf('\n');
 % handle existing manual selected artifacts
 selection = false;
 while selection == false
-  cprintf([1,0.4,1], 'Do you want to load existing manual selected artifacts?\n');
+  cprintf([1,0.4,1], 'Do you want to load existing manually selected artifacts?\n');
   y = input('Select [y/n]: ','s');
   if strcmp('y', y)
     selection = true;
@@ -235,6 +249,7 @@ warning off;
 T.artMethod(numOfPart)      = {method};
 T.artTholdExp(numOfPart)    = threshold(1);
 T.artTholdChild(numOfPart)  = threshold(2);
+T.artDeadSegs(numOfPart)    = {deadSegs};
 T.artChanExp(numOfPart)     = channelsExp;
 T.artChanChild(numOfPart)   = channelsChild;
 warning on;
@@ -251,10 +266,25 @@ for i = numOfPart
   fprintf('Load preprocessed data...\n');
   INFADI_loadData( cfg );
 
- % automatic artifact detection
+  if strcmp(deadSegs, 'y')
+    cfg             = [];
+    cfg.srcFolder   = strcat(desPath, '01_raw/');
+    cfg.filename    = sprintf('INFADI_d%02d_01_raw', i);
+    cfg.sessionStr  = sessionStr;
+
+    fprintf('Load raw data...\n\n');
+    INFADI_loadData( cfg );
+  else
+    fprintf('\n');
+  end
+
+  % automatic artifact detection
   cfg             = [];
   cfg.channel     = {selChanExp, selChanChild};
   cfg.method      = method;                                                 % artifact detection method
+  if strcmp(deadSegs, 'y')
+    cfg.deadsegs   = 'yes';                                                 % detection of segments in which at least one channel is dead or in saturation
+  end
   cfg.sliding     = sliding;                                                % use sliding window or not
   cfg.winsize     = winsize;                                                % size of sliding window
   cfg.continuous  = 'no';                                                   % data is trial-based
@@ -266,8 +296,12 @@ for i = numOfPart
   cfg.stddev      = threshold;                                              % stddev: threshold µV
   cfg.mad         = threshold;                                              % mad: multiples of median absolute deviation
 
-  cfg_autoart     = INFADI_autoArtifact(cfg, data_preproc2);
-  
+  if strcmp(deadSegs, 'n')
+    cfg_autoart     = INFADI_autoArtifact(cfg, data_preproc2);
+  else
+    cfg_autoart     = INFADI_autoArtifact(cfg, data_preproc2, data_raw);
+  end
+
   % import existing manual selected artifacts
   if importArt == true
     cfg             = [];
@@ -316,7 +350,7 @@ for i = numOfPart
   fprintf('%s ...\n', file_path);
   INFADI_saveData(cfg, 'cfg_autoart', cfg_autoart);
   fprintf('Data stored!\n');
-  clear cfg_autoart cfg_manart data_preproc2 trl
+  clear cfg_autoart data_preproc2 data_raw trl
   
   % export the verified and the additional artifacts into a *.mat file
   cfg             = [];
@@ -355,4 +389,4 @@ end
 clear file_path numOfSources sourceList cfg i x y selection T threshold ...
       method winsize sliding default_threshold threshold_range ...
       identifier selChanExp selChanChild channelsChild channelsExp label...
-      sel importArt
+      sel importArt deadSegs
